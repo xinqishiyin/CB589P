@@ -106,6 +106,7 @@ void MenuOperate(unsigned char key)
 							mHmSetting.SpkerSwitch=1;
 						}
 						ShowSpeakSwitch();
+						saveData(EEP_SPK_SW,mHmSetting.SpkerSwitch);
 						delayms(400);
 						ShowChannel();
 						key_CombleFDN=0;
@@ -930,7 +931,7 @@ void InitMenu(void)
 	mMenu.emgIndex=0;
 	mMenu.isTx=0;
 	mFlag.InMainFace = 0;
-	mHmSetting.SpkerSwitch=1;
+	//mHmSetting.SpkerSwitch=1;
 	mSqParam.DWHould=1;
 	mSqParam.ScanHould=1;
 	mSqParam.Scan=1;

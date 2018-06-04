@@ -215,9 +215,9 @@ u8 Check_Key(u8 key)
 	vae1=Get_AD(key);
 	if(vae1!=0xff)
 	{
-		delayms(50);
+		delayms(20);
 		vae2=Get_AD(key);
-		delayms(50);
+		delayms(20);
 		vae3=Get_AD(key);
 		if(vae2==vae3) 
 		{
@@ -226,9 +226,9 @@ u8 Check_Key(u8 key)
 		}
 		else
 		{
-			delayms(50);
+			delayms(20);
 			vae2=Get_AD(key);
-			delayms(50);
+			delayms(20);
 			vae3=Get_AD(key);
 			if(vae2==vae3)
 			{

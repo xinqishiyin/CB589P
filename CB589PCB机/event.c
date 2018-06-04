@@ -315,15 +315,14 @@ void checkRssi(void)
 		}
 		
 	}
-	else if(mAgcaVoltage>0x00c2)
+	else if(mAgcaVoltage>0x00d0)
 	{
 		if(autoRFG>0)
 		{
 			autoRFG-=1;
 			setRfg(autoRFG+mCbParam.RfgLevel);
 		}
-		else isautoRGF=0;
-		
+		else isautoRGF=0;		
 	}
 		
 	if(mAgcaVoltage<0x0190)

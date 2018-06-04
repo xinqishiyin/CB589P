@@ -111,8 +111,7 @@ void saveAllParam(void)
 	saveData(EEP_FRE,(u8)(fre>>24));
 	saveData(EEP_FRE+1,(u8)((fre&0x00ff0000)>>16));
 	saveData(EEP_FRE+2,(u8)((fre&0x0000ff00)>>8));
-	saveData(EEP_FRE+3,(u8)(fre&0x000000ff));
-
+	saveData(EEP_FRE+3,(u8)(fre&0x000000ff));	
 }
 
 void saveDtmf()

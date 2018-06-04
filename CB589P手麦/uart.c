@@ -46,7 +46,7 @@ void receiveRssi(void)
 	}	
 
 	mSysParam.Rssi = mReceivePackage.RecvBuf[3]; 
-	if((mSysParam.Rssi & 0x40)!=0||mSqParam.SqLevel==0)  
+	if((mSysParam.Rssi & 0x40)!=0||( mSqParam.IsAsq==0 && mSqParam.SqLevel==0))  
 	{		
 		mFlag.SpkOpen=1;
 		xPWMCN &= ~0x10;	
