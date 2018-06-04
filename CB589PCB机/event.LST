@@ -1,0 +1,1016 @@
+C51 COMPILER V9.52.0.0   EVENT                                                             06/01/2018 15:43:50 PAGE 1   
+
+
+C51 COMPILER V9.52.0.0, COMPILATION OF MODULE EVENT
+OBJECT MODULE PLACED IN event.OBJ
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE event.c LARGE OPTIMIZE(6,SPEED) BROWSE INCDIR(G:\CB589P) DEBUG OBJECTEXTEND
+                    - TABS(2)
+
+line level    source
+
+   1          #include "system.h"
+   2          #include "XN31202.h"
+   3          #include "mode_wireless.h"
+   4          #include "event.h"
+   5          #include "vco.h"
+   6          #include "uart.h"
+   7          #include "memory.h"
+   8          #include "m62429.h"
+   9          #include "KB4815.h"
+  10          
+  11          extern Channel channel;
+  12          u8 mOldRssi = 255;
+  13          xdata uint cSqSum;
+  14          u8 isautoRGF=0;
+  15          u8 autoRFG=0;
+  16          u8 isSendRSSI=0;
+  17          u8 sengRssiCount=0;
+  18          u8 is4815Sleep=0;
+  19          code uint asq_open_table[] = 
+  20          { 
+  21            ASQ_OPEN_LEVEL_127DB, ASQ_OPEN_LEVEL_126DB, ASQ_OPEN_LEVEL_125DB, ASQ_OPEN_LEVEL_124DB, ASQ_OPEN_LEVEL_1
+             -23DB,  ASQ_OPEN_LEVEL_122DB,  //                 3
+  22            ASQ_OPEN_LEVEL_121DB, ASQ_OPEN_LEVEL_120DB, ASQ_OPEN_LEVEL_119DB, ASQ_OPEN_LEVEL_118DB, ASQ_OPEN_LEVEL_11
+             -7DB,  
+  23            ASQ_OPEN_LEVEL_116DB, ASQ_OPEN_LEVEL_115DB, ASQ_OPEN_LEVEL_114DB, ASQ_OPEN_LEVEL_113DB, ASQ_OPEN_LEVEL_11
+             -2DB,  
+  24            ASQ_OPEN_LEVEL_111DB, ASQ_OPEN_LEVEL_110DB, ASQ_OPEN_LEVEL_109DB                                       
+  25          };
+  26          code uint asq_close_table[] = 
+  27          { 
+  28            ASQ_CLOSE_LEVEL_127DB,  ASQ_CLOSE_LEVEL_126DB,  ASQ_CLOSE_LEVEL_125DB,  ASQ_CLOSE_LEVEL_124DB,  ASQ_CLOSE_LE
+             -VEL_123DB,  ASQ_CLOSE_LEVEL_122DB,  //                 3
+  29            ASQ_CLOSE_LEVEL_121DB,  ASQ_CLOSE_LEVEL_120DB,  ASQ_CLOSE_LEVEL_119DB,  ASQ_CLOSE_LEVEL_118DB,  ASQ_CLOSE_LEV
+             -EL_117DB,  
+  30            ASQ_CLOSE_LEVEL_116DB,  ASQ_CLOSE_LEVEL_115DB,  ASQ_CLOSE_LEVEL_114DB,  ASQ_CLOSE_LEVEL_113DB,  ASQ_CLOSE_LEV
+             -EL_112DB,  
+  31            ASQ_CLOSE_LEVEL_111DB,  ASQ_CLOSE_LEVEL_110DB,  ASQ_CLOSE_LEVEL_109DB                                      
+             - 
+  32          };
+  33          /*
+  34          code uint asq_table[] = { ASQ_LEVEL_121DB,  ASQ_LEVEL_119DB,  ASQ_LEVEL_117DB,  ASQ_LEVEL_115DB,  ASQ_LEVEL_11
+             -3DB};
+  35          */
+  36          
+  37          code uint sq_open_table[] = 
+  38          {
+  39            SQ_OPEN_124DB,  SQ_OPEN_123DB,  SQ_OPEN_122DB,  SQ_OPEN_121DB,  SQ_OPEN_120DB,  SQ_OPEN_119DB,  SQ_OPEN_118DB,  
+             -SQ_OPEN_117DB,  SQ_OPEN_116DB,  SQ_OPEN_115DB,     //3 5 7 9
+  40            SQ_OPEN_114DB,  SQ_OPEN_113DB,  SQ_OPEN_112DB,  SQ_OPEN_111DB,  SQ_OPEN_110DB,  SQ_OPEN_109DB,  SQ_OPEN_108DB,  
+             -SQ_OPEN_107DB,  SQ_OPEN_106DB,  SQ_OPEN_105DB,     //11 13 15 17 19
+  41            SQ_OPEN_104DB,  SQ_OPEN_103DB,  SQ_OPEN_102DB,  SQ_OPEN_101DB,  SQ_OPEN_100DB,  SQ_OPEN_99DB, SQ_OPEN_98DB, SQ
+             -_OPEN_97DB,  SQ_OPEN_96DB,  SQ_OPEN_95DB,      //21 23 25 27 29
+  42            SQ_OPEN_94DB, SQ_OPEN_93DB, SQ_OPEN_92DB, SQ_OPEN_91DB, SQ_OPEN_90DB, SQ_OPEN_89DB, SQ_OPEN_88DB, SQ_OPEN
+             -_87DB,  SQ_OPEN_86DB, SQ_OPEN_85DB,      //31 33 35 37 39
+C51 COMPILER V9.52.0.0   EVENT                                                             06/01/2018 15:43:50 PAGE 2   
+
+  43            SQ_OPEN_84DB, SQ_OPEN_83DB, SQ_OPEN_82DB, SQ_OPEN_81DB, SQ_OPEN_80DB, SQ_OPEN_79DB, SQ_OPEN_78DB, SQ_OPEN
+             -_77DB,  SQ_OPEN_76DB, SQ_OPEN_75DB,      //41 43 45 47 
+  44            SQ_OPEN_74DB, SQ_OPEN_73DB, SQ_OPEN_72DB, SQ_OPEN_71DB, SQ_OPEN_70DB, SQ_OPEN_69DB, SQ_OPEN_68DB, SQ_OPEN
+             -_67DB,  SQ_OPEN_66DB, SQ_OPEN_65DB,      //51
+  45            SQ_OPEN_64DB, SQ_OPEN_63DB, SQ_OPEN_62DB, SQ_OPEN_61DB, SQ_OPEN_60DB, SQ_OPEN_59DB, SQ_OPEN_58DB, SQ_OPEN
+             -_57DB,  SQ_OPEN_56DB, SQ_OPEN_55DB,      //61
+  46            SQ_OPEN_54DB, SQ_OPEN_53DB, SQ_OPEN_52DB, SQ_OPEN_51DB, SQ_OPEN_50DB, SQ_OPEN_49DB, SQ_OPEN_48DB, SQ_OPEN
+             -_47DB,  SQ_OPEN_46DB, SQ_OPEN_45DB,      //71 77
+  47            SQ_OPEN_44DB, SQ_OPEN_43DB, SQ_OPEN_42DB, SQ_OPEN_41DB, SQ_OPEN_40DB                                     
+             -                    //82
+  48          };
+  49          
+  50          code uint sq_close_table[] = 
+  51          {
+  52            SQ_CLOSE_127DB, SQ_CLOSE_126DB, SQ_CLOSE_125DB, SQ_CLOSE_124DB, SQ_CLOSE_123DB, SQ_CLOSE_122DB, SQ_CLOSE_
+             -121DB,  SQ_CLOSE_120DB, SQ_CLOSE_119DB, SQ_CLOSE_118DB, SQ_CLOSE_117DB, SQ_CLOSE_116DB, SQ_CLOSE_115DB,
+  53            SQ_CLOSE_114DB, SQ_CLOSE_113DB, SQ_CLOSE_112DB, SQ_CLOSE_111DB, SQ_CLOSE_110DB, SQ_CLOSE_109DB, SQ_CLOSE_
+             -108DB,  SQ_CLOSE_107DB, SQ_CLOSE_106DB, SQ_CLOSE_105DB,
+  54            SQ_CLOSE_104DB, SQ_CLOSE_103DB, SQ_CLOSE_102DB, SQ_CLOSE_101DB, SQ_CLOSE_100DB, SQ_CLOSE_99DB,  SQ_CLOSE_9
+             -8DB,  SQ_CLOSE_97DB,  SQ_CLOSE_96DB,  SQ_CLOSE_95DB,
+  55            SQ_CLOSE_94DB,  SQ_CLOSE_93DB,  SQ_CLOSE_92DB,  SQ_CLOSE_91DB,  SQ_CLOSE_90DB,  SQ_CLOSE_89DB,  SQ_CLOSE_88DB,  
+             -SQ_CLOSE_87DB,  SQ_CLOSE_86DB,  SQ_CLOSE_85DB,
+  56            SQ_CLOSE_84DB,  SQ_CLOSE_83DB,  SQ_CLOSE_82DB,  SQ_CLOSE_81DB,  SQ_CLOSE_80DB,  SQ_CLOSE_79DB,  SQ_CLOSE_78DB,  
+             -SQ_CLOSE_77DB,  SQ_CLOSE_76DB,  SQ_CLOSE_75DB,
+  57            SQ_CLOSE_74DB,  SQ_CLOSE_73DB,  SQ_CLOSE_72DB,  SQ_CLOSE_71DB,  SQ_CLOSE_70DB,  SQ_CLOSE_69DB,  SQ_CLOSE_68DB,  
+             -SQ_CLOSE_67DB,  SQ_CLOSE_66DB,  SQ_CLOSE_65DB,
+  58            SQ_CLOSE_64DB,  SQ_CLOSE_63DB,  SQ_CLOSE_62DB,  SQ_CLOSE_61DB,  SQ_CLOSE_60DB,  SQ_CLOSE_59DB,  SQ_CLOSE_58DB,  
+             -SQ_CLOSE_57DB,  SQ_CLOSE_56DB,  SQ_CLOSE_55DB,
+  59            SQ_CLOSE_54DB,  SQ_CLOSE_53DB,  SQ_CLOSE_52DB,  SQ_CLOSE_51DB,  SQ_CLOSE_50DB,  SQ_CLOSE_49DB,  SQ_CLOSE_48DB,  
+             -SQ_CLOSE_47DB,  SQ_CLOSE_46DB,  SQ_CLOSE_45DB,
+  60            SQ_CLOSE_44DB,  SQ_CLOSE_43DB,  SQ_CLOSE_42DB,  SQ_CLOSE_41DB,  SQ_CLOSE_40DB
+  61          };
+  62          
+  63          
+  64          /*
+  65          
+  66          code uint sq_close_table[] = 
+  67          {
+  68            SQ_124DB, SQ_122DB, SQ_120DB, SQ_119DB, SQ_116DB, SQ_114DB, SQ_112DB, SQ_110DB, SQ_108DB, SQ_106DB, 
+  69            SQ_104DB, SQ_103DB, SQ_100DB, SQ_99DB,  SQ_96DB,  SQ_94DB,  SQ_92DB,  SQ_91DB,  SQ_88DB,  SQ_86DB,  
+  70            SQ_83DB,  SQ_82DB,  SQ_80DB,  SQ_76DB,  SQ_66DB,  SQ_56DB,  SQ_50DB,  SQ_45DB
+  71          };
+  72          */
+  73          /*-------------------------------------------------------------------------
+  74          *函数：irq_timer0  100ms定时中断
+  75          *参数：无  
+  76          *返回值：无
+  77          *-------------------------------------------------------------------------*/
+  78          void irq_timer0(void) interrupt 1
+  79          {  
+  80   1        
+  81   1        
+  82   1        
+  83   1          TR0 = 0;
+  84   1          TH0 = (65535 - 1000) / 256; 
+  85   1          TL0 = (65535 - 1000) % 256; //100ms   
+  86   1          TR0 = 1; 
+  87   1        sengRssiCount++;
+  88   1        if(sengRssiCount>2)
+  89   1        {   
+  90   2          if(POWER_ON == 1&&(HM_DET==0))  
+  91   2          {   
+C51 COMPILER V9.52.0.0   EVENT                                                             06/01/2018 15:43:50 PAGE 3   
+
+  92   3      
+  93   3              isSendRSSI=1;
+  94   3          }
+  95   2          sengRssiCount=0;
+  96   2        }
+  97   1      
+  98   1      }
+  99          /*-------------------------------------------------------------------------
+ 100          *函数：setFrqCal  设置frq的占空比
+ 101          *参数：dat    
+ 102          *返回值：无
+ 103          *-------------------------------------------------------------------------*/
+ 104          void setFrqCal(uchar dat)
+ 105          {
+ 106   1        PWM_FRQ_CLOSE;
+ 107   1        xPWM1D = dat;
+ 108   1        PWM_FRQ_OPEN;
+ 109   1      }
+ 110          
+ 111          
+ 112          /*-------------------------------------------------------------------------
+ 113          *函数：closeSq  关闭SQ
+ 114          *参数：dat    
+ 115          *返回值：无
+ 116          *-------------------------------------------------------------------------*/
+ 117          void closeSq(void)
+ 118          {
+ 119   1        Set_Mute(); //关闭喇叭
+ 120   1        mFlag.SqOpen = 0;
+ 121   1        mFlag.SqOpenButMute = 0;
+ 122   1      }
+ 123          /*-------------------------------------------------------------------------
+ 124          *函数：setModda  设置频偏
+ 125          *参数：无
+ 126          *返回值：无
+ 127          *-------------------------------------------------------------------------*/
+ 128          void setModda(void)
+ 129          {
+ 130   1        uchar modda;
+ 131   1        PWM_MODDA_CLOSE;
+ 132   1        if(mCurrentFreq < 26315000)
+ 133   1          modda=115;
+ 134   1        else if(mCurrentFreq <26765000) 
+ 135   1          modda=100;
+ 136   1        else if(mCurrentFreq<27205000)  
+ 137   1          modda=90;
+ 138   1        //else if(mCurrentFreq < 27415000) modda = 80;
+ 139   1        else if(mCurrentFreq < 27785000) 
+ 140   1          modda = 80;               //中间频率
+ 141   1        else if(mCurrentFreq < 28285000) 
+ 142   1          modda = 70;
+ 143   1        else if(mCurrentFreq < 28725500) 
+ 144   1          modda = 50;
+ 145   1        else if(mCurrentFreq < 29605000)
+ 146   1          modda = 144;
+ 147   1        else if(mCurrentFreq < 31000000) 
+ 148   1          modda = 148;
+ 149   1        if(modda != 0)
+ 150   1        {
+ 151   2          MODDA = modda;
+ 152   2          PWM_MODDA_OPEN;
+ 153   2        }  
+C51 COMPILER V9.52.0.0   EVENT                                                             06/01/2018 15:43:50 PAGE 4   
+
+ 154   1      }
+ 155          
+ 156          /*-------------------------------------------------------------------------
+ 157          *函数：setRfg  设置Rfg
+ 158          *参数：无
+ 159          *返回值：无
+ 160          *-------------------------------------------------------------------------*/
+ 161          void setRfg(uchar RfgLevel)
+ 162          {
+ 163   1        uchar rfg;
+ 164   1         
+ 165   1        PWM_RFG_CLOSE;;
+ 166   1        
+ 167   1        
+ 168   1          if(RfgLevel == 0) rfg = 0;
+ 169   1          else if(RfgLevel == 1) rfg = 116;
+ 170   1          else if(RfgLevel == 2) rfg = 121;
+ 171   1          else if(RfgLevel == 3) rfg = 128;
+ 172   1          else if(RfgLevel == 4) rfg = 135;
+ 173   1          else if(RfgLevel == 5) rfg = 142;
+ 174   1          else if(RfgLevel == 6) rfg = 149;
+ 175   1          else if(RfgLevel == 7) rfg = 158;
+ 176   1          else if(RfgLevel == 8) rfg = 180;
+ 177   1          else if(RfgLevel == 9) rfg = 200;
+ 178   1        
+ 179   1          if(rfg != 0)
+ 180   1          {
+ 181   2            RFG = rfg;
+ 182   2            PWM_RFG_OPEN;
+ 183   2          } 
+ 184   1        
+ 185   1      }
+ 186          /*-------------------------------------------------------------------------
+ 187          *函数：setModulation  设置调频
+ 188          *参数：无
+ 189          *返回值：无
+ 190          *-------------------------------------------------------------------------*/
+ 191          void setModulation(void)
+ 192          {
+ 193   1        if(mCbParam.Modu) SET_AM_FM;
+ 194   1        else CLS_AM_FM;
+ 195   1      }
+ 196          /*-------------------------------------------------------------------------
+ 197          *函数：setPower  设置功率
+ 198          *参数：无
+ 199          *返回值：无
+ 200          *-------------------------------------------------------------------------*/
+ 201          void setPower(void)
+ 202          {
+ 203   1        if(mCbParam.TxPower == POWER_LOW)
+ 204   1        {
+ 205   2          PL = POWER_LOW;
+ 206   2          PL_1W = 0;
+ 207   2        }
+ 208   1        else if(mCbParam.TxPower == POWER_HIGH)
+ 209   1        {
+ 210   2          PL = 0;
+ 211   2          PL_1W = 0;
+ 212   2        }
+ 213   1        else
+ 214   1        {
+ 215   2          PL = 0;
+C51 COMPILER V9.52.0.0   EVENT                                                             06/01/2018 15:43:50 PAGE 5   
+
+ 216   2          PL_1W = 1;
+ 217   2        }
+ 218   1      }
+ 219          /*-------------------------------------------------------------------------
+ 220          *函数：setSQ  设置SQ等级
+ 221          *参数：无
+ 222          *返回值：无
+ 223          *-------------------------------------------------------------------------*/
+ 224          void setSQ(void)  //SQ 28级
+ 225          {
+ 226   1        //closeSq();
+ 227   1        mOpenSqDbLevel = mCbParam.Sq & 0x1f;
+ 228   1        
+ 229   1        if(mCbParam.Sq > 0x1f)  //Asq标志位在mCbParam.Sq的0x20位置
+ 230   1        {
+ 231   2          mSqParam.IsAsq = 1;
+ 232   2        }
+ 233   1        else
+ 234   1        {
+ 235   2          mSqParam.IsAsq = 0;
+ 236   2        }
+ 237   1      }
+ 238          void setSQSet()
+ 239          {
+ 240   1        
+ 241   1      }
+ 242          
+ 243          /*-------------------------------------------------------------------------
+ 244          *函数：setVol  设置音量
+ 245          *参数：无
+ 246          *返回值：无
+ 247          *-------------------------------------------------------------------------*/
+ 248          void setVol(void)
+ 249          {
+ 250   1        if(mCbParam.VolLevel == 0)
+ 251   1        {
+ 252   2          Set_Mute();
+ 253   2        }
+ 254   1        else 
+ 255   1        {
+ 256   2          setVolumeLevel(mCbParam.VolLevel );
+ 257   2          if(mFlag.SqOpen&&(mFlag.Mute == 0))Cls_Mute();
+ 258   2        }
+ 259   1      }
+ 260          void checkRssi(void)
+ 261          {
+ 262   1        u8 i,j;
+ 263   1        uint temp_asq,temp_rssi,temp_agca,temp;
+ 264   1        u16 buf_asq[10],buf_rssi[10],buf_agca[10];
+ 265   1        temp_asq = 0;
+ 266   1        temp_rssi = 0;
+ 267   1        temp_agca = 0;
+ 268   1        for(i=0;i<10;i++)
+ 269   1        {
+ 270   2          buf_asq[i]= readVoltage(ADC_ASQ);
+ 271   2          buf_rssi[i]= readVoltage(ADC_RSSI);
+ 272   2          buf_agca[i]= readVoltage(ADC_AGCA); 
+ 273   2        }
+ 274   1        for(i=0;i<10;i++)   
+ 275   1        {
+ 276   2          for(j=0;j<10-i;j++)
+ 277   2          {
+C51 COMPILER V9.52.0.0   EVENT                                                             06/01/2018 15:43:50 PAGE 6   
+
+ 278   3            if(buf_asq[j]>buf_asq[j+1])
+ 279   3            { 
+ 280   4              temp = buf_asq[j];
+ 281   4              buf_asq[j] = buf_asq[j+1];
+ 282   4              buf_asq[j+1] = temp;                 
+ 283   4            }
+ 284   3            if(buf_rssi[j]>buf_rssi[j+1])
+ 285   3            { 
+ 286   4              temp = buf_rssi[j];
+ 287   4              buf_rssi[j] = buf_rssi[j+1];
+ 288   4              buf_rssi[j+1] = temp;                 
+ 289   4            }
+ 290   3            if(buf_agca[j]>buf_agca[j+1])
+ 291   3            { 
+ 292   4              temp = buf_agca[j];
+ 293   4              buf_agca[j] = buf_agca[j+1];
+ 294   4              buf_agca[j+1] = temp;                 
+ 295   4            }
+ 296   3          }
+ 297   2        }
+ 298   1        for(i=4;i<6;i++)  
+ 299   1        {
+ 300   2          temp_asq+=buf_asq[i];
+ 301   2          temp_rssi+=buf_rssi[i];
+ 302   2          temp_agca+=buf_agca[i];
+ 303   2        } 
+ 304   1        mAsqVoltage = temp_asq/2;
+ 305   1        mRssiVoltage = temp_rssi/2;
+ 306   1        mAgcaVoltage = temp_agca/2;
+ 307   1      
+ 308   1        if(mAgcaVoltage<0x009f)
+ 309   1        {
+ 310   2          isautoRGF=1;
+ 311   2          if((autoRFG+mCbParam.RfgLevel)<9)
+ 312   2          {
+ 313   3            autoRFG+=1;
+ 314   3            setRfg(autoRFG+mCbParam.RfgLevel);
+ 315   3          }
+ 316   2          
+ 317   2        }
+ 318   1        else if(mAgcaVoltage>0x00c2)
+ 319   1        {
+ 320   2          if(autoRFG>0)
+ 321   2          {
+ 322   3            autoRFG-=1;
+ 323   3            setRfg(autoRFG+mCbParam.RfgLevel);
+ 324   3          }
+ 325   2          else isautoRGF=0;
+ 326   2          
+ 327   2        }
+ 328   1          
+ 329   1        if(mAgcaVoltage<0x0190)
+ 330   1        {
+ 331   2          cSqSum= mRssiVoltage + (0x0200 - mAgcaVoltage);
+ 332   2        }
+ 333   1        else
+ 334   1        {
+ 335   2          cSqSum= mRssiVoltage ;
+ 336   2        }
+ 337   1        mRssi = 0;
+ 338   1      //  if(cSqSum >= sq_table[28])    mRssi = 5;
+ 339   1      //  else if(cSqSum >= sq_table[17]) mRssi = 4;
+C51 COMPILER V9.52.0.0   EVENT                                                             06/01/2018 15:43:50 PAGE 7   
+
+ 340   1      //  else if(cSqSum >= sq_table[10]) mRssi = 3;
+ 341   1      //  else if(cSqSum >= sq_table[6])  mRssi = 2;
+ 342   1      //  else if(cSqSum >= sq_table[1])  mRssi = 1;  
+ 343   1        
+ 344   1          if(cSqSum >= sq_open_table[82+mSqParam.SqOpenSet[27]])    mRssi = 28;
+ 345   1          else if(cSqSum >= sq_open_table[77+mSqParam.SqOpenSet[26]]) mRssi =27;
+ 346   1          else if(cSqSum >= sq_open_table[71+mSqParam.SqOpenSet[25]]) mRssi =26;
+ 347   1          else if(cSqSum >= sq_open_table[61+mSqParam.SqOpenSet[24]]) mRssi =25;
+ 348   1          else if(cSqSum >= sq_open_table[51+mSqParam.SqOpenSet[23]]) mRssi =24;
+ 349   1          else if(cSqSum >= sq_open_table[47+mSqParam.SqOpenSet[22]]) mRssi =23;
+ 350   1          else if(cSqSum >= sq_open_table[45+mSqParam.SqOpenSet[21]]) mRssi =22;
+ 351   1          else if(cSqSum >= sq_open_table[43+mSqParam.SqOpenSet[20]]) mRssi =21;
+ 352   1          else if(cSqSum >= sq_open_table[41+mSqParam.SqOpenSet[19]]) mRssi =20;
+ 353   1          else if(cSqSum >= sq_open_table[39+mSqParam.SqOpenSet[18]]) mRssi =19;
+ 354   1          else if(cSqSum >= sq_open_table[37+mSqParam.SqOpenSet[17]]) mRssi =18;
+ 355   1          else if(cSqSum >= sq_open_table[35+mSqParam.SqOpenSet[16]]) mRssi =17;
+ 356   1          else if(cSqSum >= sq_open_table[33+mSqParam.SqOpenSet[15]]) mRssi =16;
+ 357   1          else if(cSqSum >= sq_open_table[31+mSqParam.SqOpenSet[14]]) mRssi =15;
+ 358   1          else if(cSqSum >= sq_open_table[29+mSqParam.SqOpenSet[13]]) mRssi =14;
+ 359   1          else if(cSqSum >= sq_open_table[27+mSqParam.SqOpenSet[12]]) mRssi =13;
+ 360   1          else if(cSqSum >= sq_open_table[25+mSqParam.SqOpenSet[11]]) mRssi =12;
+ 361   1          else if(cSqSum >= sq_open_table[23+mSqParam.SqOpenSet[10]]) mRssi =11;
+ 362   1          else if(cSqSum >= sq_open_table[21+mSqParam.SqOpenSet[9]])  mRssi =10;
+ 363   1          else if(cSqSum >= sq_open_table[19+mSqParam.SqOpenSet[8]])  mRssi =9;
+ 364   1          else if(cSqSum >= sq_open_table[17+mSqParam.SqOpenSet[7]])  mRssi =8;
+ 365   1          else if(cSqSum >= sq_open_table[15+mSqParam.SqOpenSet[6]])  mRssi =7;
+ 366   1          else if(cSqSum >= sq_open_table[13+mSqParam.SqOpenSet[5]])  mRssi =6;
+ 367   1          else if(cSqSum >= sq_open_table[11+mSqParam.SqOpenSet[4]])  mRssi =5;
+ 368   1          else if(cSqSum >= sq_open_table[9+mSqParam.SqOpenSet[3]]) mRssi =4;
+ 369   1          else if(cSqSum >= sq_open_table[7+mSqParam.SqOpenSet[2]]) mRssi =3;
+ 370   1          else if(cSqSum >= sq_open_table[5+mSqParam.SqOpenSet[1]]) mRssi =2;
+ 371   1          else if(cSqSum >= sq_open_table[3+mSqParam.SqOpenSet[0]]) mRssi =1;
+ 372   1          else mRssi = 0;
+ 373   1      }
+ 374          void Set_Mute()
+ 375          {
+ 376   1          
+ 377   1        SET_SPK_MUTE; 
+ 378   1        //setVolumeLevel(mCbParam.VolLevel );
+ 379   1      }
+ 380          void Cls_Mute()
+ 381          {
+ 382   1        if(mFlag.SqOpen==1)
+ 383   1        {
+ 384   2          CLS_SPK_MUTE; 
+ 385   2        }   
+ 386   1      }
+ 387          
+ 388          void checkIsSqOpen(void)
+ 389          {
+ 390   1      
+ 391   1      
+ 392   1        char val_db;
+ 393   1        u8 sq_db_count;
+ 394   1      
+ 395   1        if(mCbParam.Sq == 0)
+ 396   1        {
+ 397   2          mFlag.SqOpen = 1;
+ 398   2          //sendCommand(CMD_GET_RSSI);
+ 399   2          if((mFlag.Mute == 0)&&(mCbParam.VolLevel != 0)) Cls_Mute();
+ 400   2          return;
+ 401   2        }
+C51 COMPILER V9.52.0.0   EVENT                                                             06/01/2018 15:43:50 PAGE 8   
+
+ 402   1        if(mSqParam.IsAsq)  //判ASQ
+ 403   1        {   
+ 404   2          if(mFlag.SqOpen == 0)
+ 405   2          {
+ 406   3            switch(mOpenSqDbLevel)
+ 407   3           {
+ 408   4             case 1:sq_db_count=6;         break;
+ 409   4             case 2:sq_db_count=8;         break;
+ 410   4             case 3:sq_db_count=10;        break;
+ 411   4             case 4:sq_db_count=12;        break;
+ 412   4             case 5:sq_db_count=14;        break;     
+ 413   4             default:
+ 414   4               break;
+ 415   4           }
+ 416   3           val_db=sq_db_count+mSqParam.AsqOpenSet[mOpenSqDbLevel-1];
+ 417   3          if(val_db<0)val_db=0;
+ 418   3          else if(val_db>17) val_db=17;      
+ 419   3            //SET_SPK_MUTE; //关闭喇叭
+ 420   3            if(mAsqVoltage <= asq_open_table[val_db]) //因为db是负值，所以相反
+ 421   3            {
+ 422   4              
+ 423   4              mFlag.SqOpen = 1;       
+ 424   4              //sendCommand(CMD_GET_RSSI);        
+ 425   4              setEmission(0);       //CLS_SPK_MUTE; 
+ 426   4            
+ 427   4              mLastOpenSqDbLevel = mOpenSqDbLevel;
+ 428   4              //delayms(200);
+ 429   4              if((mFlag.Mute == 0)&&(mCbParam.VolLevel != 0)) Cls_Mute(); //打开喇叭
+ 430   4              else mFlag.SqOpenButMute = 1;
+ 431   4            }
+ 432   3          }
+ 433   2          else 
+ 434   2          {   
+ 435   3             switch(mOpenSqDbLevel)
+ 436   3             {
+ 437   4               case 1:sq_db_count=3;         break;
+ 438   4               case 2:sq_db_count=5;         break;
+ 439   4               case 3:sq_db_count=7;         break;
+ 440   4               case 4:sq_db_count=9;         break;
+ 441   4               case 5:sq_db_count=11;        break;       
+ 442   4               default:
+ 443   4                 break;
+ 444   4             }
+ 445   3             val_db=sq_db_count+mSqParam.AsqCloseSet[mOpenSqDbLevel-1];
+ 446   3             if(val_db<0)val_db=0;
+ 447   3            
+ 448   3              if(mAsqVoltage >= asq_close_table[val_db])
+ 449   3              {
+ 450   4                closeSq();          
+ 451   4                sendCommand(CMD_GET_RSSI);
+ 452   4                setEmission(0);         
+ 453   4              }
+ 454   3              else if(mFlag.Mute||(mCbParam.VolLevel == 0))mFlag.SqOpenButMute = 1;
+ 455   3              else 
+ 456   3              {
+ 457   4                if((mFlag.Mute == 0)&&(mCbParam.VolLevel != 0)) Cls_Mute(); //打开喇叭
+ 458   4              }     
+ 459   3          }
+ 460   2        }
+ 461   1        else
+ 462   1        {
+ 463   2          switch(mOpenSqDbLevel)
+C51 COMPILER V9.52.0.0   EVENT                                                             06/01/2018 15:43:50 PAGE 9   
+
+ 464   2          {
+ 465   3            case 1:sq_db_count=3;  break;
+ 466   3            case 2:sq_db_count=5;  break;
+ 467   3            case 3:sq_db_count=7;  break; 
+ 468   3            case 4:sq_db_count=9;  break;   
+ 469   3            case 5:sq_db_count=11;  break;        
+ 470   3            case 6:sq_db_count=13;  break;        
+ 471   3            case 7:sq_db_count=15;  break;        
+ 472   3            case 8:sq_db_count=17;  break;      
+ 473   3            case 9:sq_db_count=19;  break;        
+ 474   3            case 10:sq_db_count=21;  break;     
+ 475   3            case 11:sq_db_count=23;  break;       
+ 476   3            case 12:sq_db_count=25;  break;     
+ 477   3            case 13:sq_db_count=27;  break;     
+ 478   3            case 14:sq_db_count=29;  break;   
+ 479   3            case 15:sq_db_count=31;  break;   
+ 480   3            case 16:sq_db_count=33;  break;     
+ 481   3            case 17:sq_db_count=35;  break;     
+ 482   3            case 18:sq_db_count=37;  break;     
+ 483   3            case 19:sq_db_count=39;  break;     
+ 484   3            case 20:sq_db_count=41;  break;     
+ 485   3            case 21:sq_db_count=43;  break;     
+ 486   3            case 22:sq_db_count=45;  break;     
+ 487   3            case 23:sq_db_count=47;  break;       
+ 488   3            case 24:sq_db_count=51;  break;     
+ 489   3            case 25:sq_db_count=61;  break;     
+ 490   3            case 26:sq_db_count=71;  break;   
+ 491   3            case 27:sq_db_count=77;  break;     
+ 492   3            case 28:sq_db_count=82;  break;       
+ 493   3            default:
+ 494   3              break;
+ 495   3          }
+ 496   2          val_db=sq_db_count+mSqParam.SqOpenSet[mOpenSqDbLevel-1];
+ 497   2          if(val_db<0)val_db=0;
+ 498   2          else if(val_db>84) val_db=84;   
+ 499   2          
+ 500   2          if(mFlag.SqOpen == 0)
+ 501   2          {
+ 502   3            //SET_SPK_MUTE; //关闭喇叭
+ 503   3            if(cSqSum >= sq_open_table[val_db]) //因为db是负值，所以相反
+ 504   3            {     
+ 505   4              mFlag.SqOpen = 1; 
+ 506   4              
+ 507   4              //sendCommand(CMD_GET_RSSI);              
+ 508   4              setEmission(0);
+ 509   4              mLastOpenSqDbLevel = mOpenSqDbLevel;
+ 510   4              //CLS_SPK_MUTE;
+ 511   4              
+ 512   4              if((mFlag.Mute == 0)&&(mCbParam.VolLevel != 0)) Cls_Mute(); //打开喇叭
+ 513   4              else mFlag.SqOpenButMute = 1;
+ 514   4            }         
+ 515   3          }
+ 516   2          else
+ 517   2          {
+ 518   3            switch(mOpenSqDbLevel)
+ 519   3          {
+ 520   4            case 1:sq_db_count=4;  break;
+ 521   4            case 2:sq_db_count=6;  break;
+ 522   4            case 3:sq_db_count=8;  break; 
+ 523   4            case 4:sq_db_count=10;  break;    
+ 524   4            case 5:sq_db_count=12;  break;        
+ 525   4            case 6:sq_db_count=14;  break;        
+C51 COMPILER V9.52.0.0   EVENT                                                             06/01/2018 15:43:50 PAGE 10  
+
+ 526   4            case 7:sq_db_count=16;  break;        
+ 527   4            case 8:sq_db_count=18;  break;      
+ 528   4            case 9:sq_db_count=20;  break;        
+ 529   4            case 10:sq_db_count=22;  break;     
+ 530   4            case 11:sq_db_count=24;  break;       
+ 531   4            case 12:sq_db_count=26;  break;     
+ 532   4            case 13:sq_db_count=28;  break;     
+ 533   4            case 14:sq_db_count=30;  break;   
+ 534   4            case 15:sq_db_count=32;  break;   
+ 535   4            case 16:sq_db_count=34;  break;     
+ 536   4            case 17:sq_db_count=36;  break;     
+ 537   4            case 18:sq_db_count=38;  break;     
+ 538   4            case 19:sq_db_count=40;  break;     
+ 539   4            case 20:sq_db_count=42;  break;     
+ 540   4            case 21:sq_db_count=44;  break;     
+ 541   4            case 22:sq_db_count=46;  break;     
+ 542   4            case 23:sq_db_count=48;  break;       
+ 543   4            case 24:sq_db_count=52;  break;     
+ 544   4            case 25:sq_db_count=62;  break;     
+ 545   4            case 26:sq_db_count=72;  break;   
+ 546   4            case 27:sq_db_count=78;  break;     
+ 547   4            case 28:sq_db_count=82;  break;       
+ 548   4            default:
+ 549   4              break;
+ 550   4          }
+ 551   3            
+ 552   3            val_db=sq_db_count+mSqParam.SqCloseSet[mOpenSqDbLevel-1];
+ 553   3          if(val_db<0)val_db=0;
+ 554   3          else if(val_db>84) val_db=84; 
+ 555   3              if(cSqSum <= sq_close_table[val_db])
+ 556   3              { 
+ 557   4                  closeSq();
+ 558   4                  sendCommand(CMD_GET_RSSI);          
+ 559   4                  setEmission(0);
+ 560   4              }
+ 561   3              else if(mFlag.Mute||(mCbParam.VolLevel == 0))mFlag.SqOpenButMute = 1;
+ 562   3              else
+ 563   3              {       
+ 564   4                if((mFlag.Mute == 0)&&(mCbParam.VolLevel != 0)) Cls_Mute(); //打开喇叭        
+ 565   4              }
+ 566   3              /*
+ 567   3            }
+ 568   3            
+ 569   3            else
+ 570   3            {
+ 571   3              
+ 572   3              if(cSqSum > asq_table[mOpenSqDbLevel-1])
+ 573   3              {
+ 574   3                closeSq();
+ 575   3                setEmission(0);
+ 576   3              }
+ 577   3              else if(mFlag.Mute||(mCbParam.VolLevel == 0))mFlag.SqOpenButMute = 1;
+ 578   3            }
+ 579   3            */
+ 580   3          }   
+ 581   2        }
+ 582   1      }
+ 583          /*-------------------------------------------------------------------------
+ 584          *函数：checkSq  CB机接收
+ 585          *参数：无
+ 586          *返回值：无
+ 587          *-------------------------------------------------------------------------*/
+C51 COMPILER V9.52.0.0   EVENT                                                             06/01/2018 15:43:50 PAGE 11  
+
+ 588          void checkSq(void)
+ 589          {
+ 590   1        checkRssi();
+ 591   1        checkIsSqOpen();
+ 592   1      
+ 593   1      //  delayms(20);
+ 594   1      }
+ 595          /*-------------------------------------------------------------------------
+ 596          *函数：start1Rx  CB机接收
+ 597          *参数：无
+ 598          *返回值：无
+ 599          *-------------------------------------------------------------------------*/
+ 600          void start1Rx(void)
+ 601          {
+ 602   1        CLS_TX_EN;
+ 603   1        SET_VCO_EN;
+ 604   1        SET_MIC_MUTE;
+ 605   1        SET_AT_MUTE;
+ 606   1        SET_FT_MUTE;
+ 607   1        //Set_Mute();
+ 608   1        mFlag.VcoIdle=0;
+ 609   1        setFreq(mXn31202Ch1_Rx);  
+ 610   1        setRfg(autoRFG+mCbParam.RfgLevel);
+ 611   1        while(PLL_LD == 0);
+ 612   1        //delayms(300);
+ 613   1        SET_RX_EN; 
+ 614   1      }
+ 615          /*-------------------------------------------------------------------------
+ 616          *函数：start1Tx  CB机发射
+ 617          *参数：无
+ 618          *返回值：无
+ 619          *-------------------------------------------------------------------------*/
+ 620          void start1Tx(void)
+ 621          {
+ 622   1        
+ 623   1        //Set_Mute();
+ 624   1        CLS_VCO_EN;
+ 625   1        CLS_RX_EN;
+ 626   1        CLS_TX_EN;
+ 627   1        //mFlag.SqOpen = 0;
+ 628   1        setFreq(mXn31202Ch1_Tx);
+ 629   1        setModda();
+ 630   1        mFlag.VcoIdle=1;
+ 631   1        if(mCbParam.Modu == FM) 
+ 632   1        {
+ 633   2          CLS_FT_MUTE;
+ 634   2          SET_AT_MUTE;
+ 635   2        }
+ 636   1        else 
+ 637   1        {
+ 638   2          SET_FT_MUTE;
+ 639   2          CLS_AT_MUTE;
+ 640   2        }
+ 641   1      
+ 642   1        while(PLL_LD == 0);
+ 643   1      
+ 644   1        //delayms(300);
+ 645   1        SET_TX_EN;
+ 646   1        CLS_MIC_MUTE;
+ 647   1      }
+ 648          /*-------------------------------------------------------------------------
+ 649          *函数：setEmission  设置发射接收
+C51 COMPILER V9.52.0.0   EVENT                                                             06/01/2018 15:43:50 PAGE 12  
+
+ 650          *参数：tx_rx       0：接收  1：发射    
+ 651          *返回值：无
+ 652          *-------------------------------------------------------------------------*/
+ 653          void setEmission(uchar tx_rx)
+ 654          {
+ 655   1        mFlag.VcoIdle=0;
+ 656   1        if(tx_rx)   start1Tx();
+ 657   1        else start1Rx();
+ 658   1        
+ 659   1      }
+ 660          
+ 661          void initHandler(void)
+ 662          {
+ 663   1        //clearFlag();
+ 664   1        if(HM_DET==1)
+ 665   1        {
+ 666   2          //IE &= 0xef;      //dis  ES0             关闭串口中断
+ 667   2          mFlag.SysMode = SYS_MODE_WIRELESS;
+ 668   2        }
+ 669   1        else 
+ 670   1        {
+ 671   2          //IE |= 0x10;      //en  ES0              开启串口中断
+ 672   2          mFlag.SysMode = SYS_MODE_LINE;
+ 673   2        }
+ 674   1      }
+ 675          
+ 676          
+ 677          /*-------------------------------------------------------------------------
+ 678          *函数：eventHandler  启动程序 
+ 679          *参数：无    
+ 680          *返回值：无
+ 681          *-------------------------------------------------------------------------*/
+ 682          
+ 683          void eventHandler(void)
+ 684          {
+ 685   1        u8 event;
+ 686   1        u32 fre;
+ 687   1        if(mFlag.SysMode == SYS_MODE_WIRELESS)
+ 688   1        {
+ 689   2          is4815Sleep=0;
+ 690   2          calculateFreq();
+ 691   2          setEmission(0);  
+ 692   2          saveAllParam();
+ 693   2          mReceivePackage.RecvCount=0;
+ 694   2          mFlag.SpkOpen4815=0;
+ 695   2          initSysModeWireless();
+ 696   2          sysModeWireless();
+ 697   2          mOldRssi = 0;
+ 698   2          
+ 699   2        }
+ 700   1        else
+ 701   1        {       
+ 702   2          if(is4815Sleep==0)
+ 703   2          {
+ 704   3            BK4815Sleep();
+ 705   3            is4815Sleep=1;
+ 706   3          }
+ 707   2          if(POWER_ON == 1)
+ 708   2          {
+ 709   3            event=mUartCmd;
+ 710   3            if(event !=0)
+ 711   3            {
+C51 COMPILER V9.52.0.0   EVENT                                                             06/01/2018 15:43:50 PAGE 13  
+
+ 712   4              switch(event)
+ 713   4              {
+ 714   5                case CMD_TRANSMIT: 
+ 715   5                  {
+ 716   6                    calculateFreq();
+ 717   6                    setEmission(1);                        //发射
+ 718   6                  }
+ 719   5                  break;
+ 720   5                case CMD_RECEIVE: 
+ 721   5                  {
+ 722   6                    calculateFreq();
+ 723   6                    setEmission(0);                          //接收
+ 724   6                    delayms(75);
+ 725   6                  }
+ 726   5                  break;
+ 727   5                case CMD_REQUEST_RSSI: sendCommand(CMD_GET_RSSI);          //信号强度
+ 728   5                  break;
+ 729   5              
+ 730   5                case CMD_SQ_SET:
+ 731   5                  if(mSqParam.IsAsq == 0)
+ 732   5                  {
+ 733   6                    if(mReceivePackage.RecvBuf[3]==0)
+ 734   6                    {
+ 735   7                      if((mReceivePackage.RecvBuf[4]&0x20)!=0)
+ 736   7                      {
+ 737   8                        mSqParam.SqOpenSet[mOpenSqDbLevel-1]=(mReceivePackage.RecvBuf[4]&~0x20);
+ 738   8                        mSqParam.SqOpenSet[mOpenSqDbLevel-1]=-mSqParam.SqOpenSet[mOpenSqDbLevel-1];
+ 739   8                      }
+ 740   7                      else mSqParam.SqOpenSet[mOpenSqDbLevel-1]=mReceivePackage.RecvBuf[4];
+ 741   7                    }
+ 742   6                    else
+ 743   6                    {
+ 744   7                      if((mReceivePackage.RecvBuf[4]&0x20)!=0)
+ 745   7                      {
+ 746   8                        mSqParam.SqCloseSet[mOpenSqDbLevel-1]=(mReceivePackage.RecvBuf[4]&~0x20);
+ 747   8                        mSqParam.SqCloseSet[mOpenSqDbLevel-1]=-mSqParam.SqCloseSet[mOpenSqDbLevel-1];
+ 748   8                      }
+ 749   7                      else mSqParam.SqCloseSet[mOpenSqDbLevel-1]=mReceivePackage.RecvBuf[4];
+ 750   7                    
+ 751   7                    }             
+ 752   6                  }
+ 753   5                  else
+ 754   5                  {
+ 755   6                    if(mReceivePackage.RecvBuf[3]==0)
+ 756   6                    {
+ 757   7                      if((mReceivePackage.RecvBuf[4]&0x20)!=0)
+ 758   7                      {
+ 759   8                        mSqParam.AsqOpenSet[mOpenSqDbLevel-1]=(mReceivePackage.RecvBuf[4]&~0x20);
+ 760   8                        mSqParam.AsqOpenSet[mOpenSqDbLevel-1]=-mSqParam.AsqOpenSet[mOpenSqDbLevel-1];
+ 761   8                      }
+ 762   7                      else mSqParam.AsqOpenSet[mOpenSqDbLevel-1]=mReceivePackage.RecvBuf[4];
+ 763   7                    }
+ 764   6                    else
+ 765   6                    {
+ 766   7                      if((mReceivePackage.RecvBuf[4]&0x20)!=0)
+ 767   7                      {
+ 768   8                        mSqParam.AsqCloseSet[mOpenSqDbLevel-1]=(mReceivePackage.RecvBuf[4]&~0x20);
+ 769   8                        mSqParam.AsqCloseSet[mOpenSqDbLevel-1]=-mSqParam.AsqCloseSet[mOpenSqDbLevel-1];
+ 770   8                      }
+ 771   7                      else mSqParam.AsqCloseSet[mOpenSqDbLevel-1]=mReceivePackage.RecvBuf[4];             
+ 772   7                    }
+ 773   6                  }
+C51 COMPILER V9.52.0.0   EVENT                                                             06/01/2018 15:43:50 PAGE 14  
+
+ 774   5                  saveSQSet();
+ 775   5                  break;
+ 776   5                case CMD_SET_CHANNEL:
+ 777   5                  mCbParam.Channel =mReceivePackage.RecvBuf[3] ;            //信道设置
+ 778   5                  mCbParam.Band=mReceivePackage.RecvBuf[4]; 
+ 779   5                  mCbParam.Modu=mReceivePackage.RecvBuf[5];
+ 780   5                  mCbParam.TxPower = mReceivePackage.RecvBuf[6];            
+ 781   5                  setPower();
+ 782   5                  setModulation();
+ 783   5                  calculateFreq();
+ 784   5                  setEmission(0);         
+ 785   5                  delayms(150);
+ 786   5                
+ 787   5                  break;
+ 788   5                case CMD_SET_SQ_ASQ:                                        //SQ设置
+ 789   5                  mCbParam.Sq=mReceivePackage.RecvBuf[3];
+ 790   5                  setSQ();
+ 791   5                  checkSq();
+ 792   5                  break;
+ 793   5                case CMD_SET_RFG:                                           //RFG设置
+ 794   5                  mCbParam.RfgLevel=mReceivePackage.RecvBuf[3];
+ 795   5                  setRfg(autoRFG+mCbParam.RfgLevel);
+ 796   5                  break;
+ 797   5                case CMD_SET_VOL:                                           //声音设置
+ 798   5                  mCbParam.VolLevel=mReceivePackage.RecvBuf[3];
+ 799   5                  setVol();
+ 800   5                  break;
+ 801   5                case CMD_SET_TX_POWER:                                      //发射功率设置
+ 802   5                  mCbParam.TxPower = mReceivePackage.RecvBuf[3];
+ 803   5                  setPower();
+ 804   5                  break;
+ 805   5                case CMD_SET_MODULATION:                                    //模式切换
+ 806   5                  mCbParam.Modu = mReceivePackage.RecvBuf[3];
+ 807   5                  mCbParam.TxPower = mReceivePackage.RecvBuf[4];
+ 808   5                  setPower();
+ 809   5                  setModulation();
+ 810   5                  setEmission(0);
+ 811   5                  break;
+ 812   5                case CMD_SET_BAND:                                          //频段
+ 813   5                  mCbParam.Band= mReceivePackage.RecvBuf[3];
+ 814   5                  calculateFreq();
+ 815   5                  setEmission(0);
+ 816   5                  break;
+ 817   5                case CMD_SET_DTMF:
+ 818   5                  mDtmfRecive.dtmfCode= mReceivePackage.RecvBuf[3]<<4|mReceivePackage.RecvBuf[4];
+ 819   5                  fre=(((u32)mReceivePackage.RecvBuf[5])<<28)|(((u32)mReceivePackage.RecvBuf[6])<<21)|(((u32)mReceiveP
+             -ackage.RecvBuf[7])<<14)|((u32)mReceivePackage.RecvBuf[8]<<7)|((u32)mReceivePackage.RecvBuf[9]);
+ 820   5                  channel.RX_Freq=((float)fre/1000);      
+ 821   5                  //if(channel.RX_Freq<200||channel.RX_Freq>400)channel.RX_Freq=300;
+ 822   5                  break;
+ 823   5                case CMD_SET_ALL:     
+ 824   5                  mCbParam.FreqCal = mReceivePackage.RecvBuf[3];
+ 825   5                  mCbParam.Country = mReceivePackage.RecvBuf[4];
+ 826   5                  mCbParam.Band = mReceivePackage.RecvBuf[5];
+ 827   5                  mCbParam.Modu = mReceivePackage.RecvBuf[6];
+ 828   5                  mCbParam.Channel = mReceivePackage.RecvBuf[7];
+ 829   5                
+ 830   5                  mCbParam.TxPower = mReceivePackage.RecvBuf[8];
+ 831   5                  mCbParam.Sq = mReceivePackage.RecvBuf[9];
+ 832   5                  mCbParam.RfgLevel = mReceivePackage.RecvBuf[10];
+ 833   5                  mCbParam.VolLevel = mReceivePackage.RecvBuf[11];        
+ 834   5                  mDtmfRecive.dtmfCode= mReceivePackage.RecvBuf[12];
+C51 COMPILER V9.52.0.0   EVENT                                                             06/01/2018 15:43:50 PAGE 15  
+
+ 835   5                  mDtmfRecive.dtmfCode= mReceivePackage.RecvBuf[12]<<4|mReceivePackage.RecvBuf[13];
+ 836   5                  fre=(((u32)mReceivePackage.RecvBuf[14])<<28)|(((u32)mReceivePackage.RecvBuf[15])<<21)|(((u32)mReceiv
+             -ePackage.RecvBuf[16])<<14)|((u32)mReceivePackage.RecvBuf[17]<<7)|((u32)mReceivePackage.RecvBuf[18]);
+ 837   5                  channel.RX_Freq=((float)fre/1000);  
+ 838   5      //            if(channel.RX_Freq<200||channel.RX_Freq>400)channel.RX_Freq=300;
+ 839   5                  Set_XN31202(0x02c4,14);
+ 840   5                  Set_XN31202(0x3000 + (EXTERNAL_CRYSTAL/mReferenceFreq/2),14);
+ 841   5                  
+ 842   5                  calculateFreq();
+ 843   5                  if(mCbParam.Country==COUNTRY_UK) 
+ 844   5                  {
+ 845   6                    setFrqCal(mCbParam.FreqCal+170);    
+ 846   6                  }
+ 847   5                  else
+ 848   5                  {
+ 849   6                    setFrqCal(mCbParam.FreqCal);    
+ 850   6                  }
+ 851   5                  setSQ();
+ 852   5                  setVol();
+ 853   5                  setPower();
+ 854   5                  setModulation();
+ 855   5                  setEmission(0);
+ 856   5                  saveAllParam();
+ 857   5                break;
+ 858   5                case CMD_SET_FREQ_CAL:      
+ 859   5                  mCbParam.FreqCal = mReceivePackage.RecvBuf[3];
+ 860   5                if(mCbParam.Country==COUNTRY_UK) 
+ 861   5                {
+ 862   6                  setFrqCal(mCbParam.FreqCal+170);    
+ 863   6                }
+ 864   5                else
+ 865   5                {
+ 866   6                  setFrqCal(mCbParam.FreqCal);    
+ 867   6                } 
+ 868   5                break;
+ 869   5            
+ 870   5                case CMD_IDLE:    
+ 871   5                  CLS_RX_EN;
+ 872   5                  CLS_TX_EN;
+ 873   5                  Set_Mute(); //关闭喇叭
+ 874   5                  mFlag.SqOpen = 0;
+ 875   5                  mFlag.VcoIdle = 1;
+ 876   5                  break;  
+ 877   5                case CMD_SET_SQ_DB:     
+ 878   5                  mDebugSqLevel = mReceivePackage.RecvBuf[3];
+ 879   5                  //saveDbValue();
+ 880   5                  break;  
+ 881   5               case CMD_REQUEST_SQ_SET:
+ 882   5                 sendCommand(CMD_REQUEST_SQ_SET);
+ 883   5                 break;
+ 884   5               case CMD_MUTE:
+ 885   5                mFlag.Mute=mReceivePackage.RecvBuf[3];
+ 886   5                if(mFlag.Mute==1)
+ 887   5                {
+ 888   6                  Set_Mute();
+ 889   6                  SET_SPK_MUTE; //关闭喇叭
+ 890   6                }
+ 891   5                else if(mFlag.SqOpen == 1)Cls_Mute(); 
+ 892   5                
+ 893   5                 break;
+ 894   5                default:
+ 895   5                  break;    
+C51 COMPILER V9.52.0.0   EVENT                                                             06/01/2018 15:43:50 PAGE 16  
+
+ 896   5              }
+ 897   4              mUartCmd=0;
+ 898   4            }
+ 899   3            
+ 900   3            if(mFlag.VcoIdle==0)
+ 901   3            {
+ 902   4              
+ 903   4              checkSq();
+ 904   4              
+ 905   4            }
+ 906   3            if(isSendRSSI==1)
+ 907   3            {           
+ 908   4              sendCommand(CMD_GET_RSSI);
+ 909   4              isSendRSSI=0;
+ 910   4            }
+ 911   3          }
+ 912   2          else
+ 913   2          {
+ 914   3            if(HM_DET==0)
+ 915   3            {
+ 916   4              BK4815Sleep();
+ 917   4              delayms(70);
+ 918   4              if(HM_DET==0)
+ 919   4              {
+ 920   5                saveAllParam();         
+ 921   5                POWER_ON_EN=0;
+ 922   5                CLS_RX_EN;
+ 923   5                CLS_TX_EN;
+ 924   5                //Set_Mute();
+ 925   5                mFlag.SqOpen=0;
+ 926   5                mFlag.VcoIdle=1;
+ 927   5                mReceivePackage.RecvCount=0;
+ 928   5                EA=0;
+ 929   5                while(POWER_ON==0);;
+ 930   5                EA=1;
+ 931   5              }
+ 932   4            }
+ 933   3          }
+ 934   2        }
+ 935   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   6036    ----
+   CONSTANT SIZE    =    422    ----
+   XDATA SIZE       =      8      76
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,187 @@
+C51 COMPILER V9.52.0.0   MAIN                                                              06/02/2018 10:26:48 PAGE 1   
+
+
+C51 COMPILER V9.52.0.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN main.OBJ
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE main.c LARGE OPTIMIZE(6,SPEED) BROWSE INCDIR(G:\CB589P) DEBUG OBJECTEXTEND 
+                    -TABS(2)
+
+line level    source
+
+   1          #include "SC51F2832.H"
+   2          #include "system.h"
+   3          #include "CB_Line.h"
+   4          #include "memory.h"
+   5          #include "TM1722.h"
+   6          #include "lcd.h"
+   7          #include "uart.h"
+   8          #include "handler.h"
+   9          #include "Menu.h"
+  10          #include "Keys.h"
+  11          #include "KB4815.h"
+  12          extern tSysParam mSysParam;
+  13          extern tCbParam mCbParam;
+  14          extern tHmSetting mHmSetting;
+  15          
+  16          u8 sendDtmfT=SendDtmfTime;
+  17          u8 ButtonToneTime=BUTTON_TIME;
+  18          u8 isButtonTone=0;
+  19          u8 isScanInrupt=SCAN_SPEED_DELAY;
+  20          u16 timePowOn=0;
+  21          /*-------------------------------------------------------------------------
+  22          *函数：irq_timer1  50ms定时中断
+  23          *参数：无  
+  24          *返回值：无
+  25          *-------------------------------------------------------------------------*/
+  26          void irq_timer1(void) interrupt 1
+  27          {  
+  28   1        sendDtmfT--;
+  29   1        if(0==sendDtmfT)
+  30   1        {   
+  31   2           isSendDtmf=1;
+  32   2           sendDtmfT=SendDtmfTime;
+  33   2        }
+  34   1        if(isButtonTone==1)
+  35   1        {
+  36   2            ButtonToneTime--;
+  37   2            if(ButtonToneTime==0)
+  38   2            {
+  39   3              xPWMCN &= ~0x10;
+  40   3              if(mFlag.SpkOpen==0||mHmSetting.SpkerSwitch==0)
+  41   3              {         
+  42   4                SPK_EN=0;
+  43   4              }
+  44   3              isButtonTone=0;
+  45   3            }
+  46   2        }
+  47   1        
+  48   1        if(mSqParam.DWSet==2||mSqParam.Scan!=1)
+  49   1        {
+  50   2          if(isScanInrupt>0)
+  51   2          {
+  52   3            isScanInrupt--;
+  53   3          }
+  54   2        }   
+C51 COMPILER V9.52.0.0   MAIN                                                              06/02/2018 10:26:48 PAGE 2   
+
+  55   1          TR0 = 0;
+  56   1          TH0 = (65535 - 3125) / 256; 
+  57   1          TL0 = (65535 - 3125) % 256; //1ms   
+  58   1          TR0 = 1; 
+  59   1      }
+  60          
+  61          
+  62          void waitPowerOn(void)
+  63          {
+  64   1        while(isPowerOn==0)
+  65   1        {
+  66   2          if(POW_IN)
+  67   2          {
+  68   3            timePowOn++;
+  69   3            delayms(30);
+  70   3            if(timePowOn>50)
+  71   3            {
+  72   4              isPowerOn=1;
+  73   4            }
+  74   3          }
+  75   2          else
+  76   2          {
+  77   3            timePowOn=0;
+  78   3          }
+  79   2        }
+  80   1        
+  81   1        
+  82   1        POW_OUT=1;
+  83   1          
+  84   1        //delayms(100);
+  85   1        //CHANNEL_FUC();
+  86   1        //checkTxPower();
+  87   1      }
+  88          
+  89          void CheckHitPowerPress()
+  90          {
+  91   1        u8 i;
+  92   1        i=PPT_KEY;
+  93   1        i=PPT_KEY;
+  94   1        i=PPT_KEY;
+  95   1        i=PPT_KEY;
+  96   1        mHmSetting.isCheckHitPower=0;
+  97   1        if( mCbParam.CountryTable==2||mCbParam.CountryTable==3)//&&PPT_KEY==0&&Get_AD(Key2)==0x0a&&Get_AD(Key1)==
+             -0x03)
+  98   1        {
+  99   2          if(PPT_KEY==0)
+ 100   2          {     
+ 101   3          if(Get_AD(Key2)==0x0a||Get_AD(Key2)==0x09)
+ 102   3          {
+ 103   4            if(Get_AD(Key1)==0x03)
+ 104   4            {
+ 105   5                mHmSetting.isCheckHitPower=1;
+ 106   5            }}}
+ 107   2        }   
+ 108   1      }
+ 109          
+ 110          void main()
+ 111          {
+ 112   1         u8 dat;
+ 113   1          SystemInit();
+ 114   1          EA=0;
+ 115   1          isPowerOn=0;  
+C51 COMPILER V9.52.0.0   MAIN                                                              06/02/2018 10:26:48 PAGE 3   
+
+ 116   1          initMemory();
+ 117   1          isSendDtmf=0;
+ 118   1          CheckHitPowerPress();
+ 119   1          waitPowerOn();    
+ 120   1          LoadLCDBeep();    
+ 121   1          initLCD();    
+ 122   1          SetBK4815Pragram();   
+ 123   1          InitKey();
+ 124   1          InitMenu();
+ 125   1          IE |=0X10;        //开串口中断  
+ 126   1          EA=1;
+ 127   1          while(POW_IN);
+ 128   1          while(1)
+ 129   1          {
+ 130   2            initHandler();
+ 131   2            evenHandler();
+ 132   2            if(mFlag.SpkOpen==0&&mFlag.SysMode == SYS_MODE_LINE)
+ 133   2            {
+ 134   3              dat=xP4;
+ 135   3              if(VCC_BATT==0)
+ 136   3              {
+ 137   4                //LED_TX=ON;
+ 138   4                LCD_BATT(1);
+ 139   4              }
+ 140   3              else
+ 141   3              {
+ 142   4                //LED_TX=OFF;
+ 143   4                LCD_BATT(0);
+ 144   4              }
+ 145   3            }
+ 146   2          }
+ 147   1      }
+ 148          void  INT0_Irq(void)  interrupt 2
+ 149          {
+ 150   1       
+ 151   1        mRecive=MRECIVE_BK4815_INTERUPT;
+ 152   1        
+ 153   1      
+ 154   1          EINTCS0 &= 0xfc;  
+ 155   1                           //建议2次清除中断标志 或者在清0前后各读一次标志位
+ 156   1          EINTCS0 &= 0xfc;
+ 157   1          //P01=!P01;
+ 158   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    416    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =      6       1
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

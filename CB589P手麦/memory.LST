@@ -1,0 +1,227 @@
+C51 COMPILER V9.52.0.0   MEMORY                                                            06/02/2018 10:26:53 PAGE 1   
+
+
+C51 COMPILER V9.52.0.0, COMPILATION OF MODULE MEMORY
+OBJECT MODULE PLACED IN memory.OBJ
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE memory.c LARGE OPTIMIZE(6,SPEED) BROWSE INCDIR(G:\CB589P) DEBUG OBJECTEXTEN
+                    -D TABS(2)
+
+line level    source
+
+   1          #include"system.h"
+   2          #include"at24c08.h"
+   3          #include"memory.h"
+   4          #include"handler.h"
+   5          #include"KB4815.h"
+   6           
+   7          
+   8          extern tCbParam   mCbParam;
+   9          extern tSqParam   mSqParam;
+  10          extern tHmSetting   mHmSetting;
+  11          extern tSysParam      mSysParam;
+  12          
+  13          /*--------EEPROM中读出的数据----------*/
+  14          extern Channel channel;
+  15          
+  16          
+  17          /*--------------------------------------------*/
+  18          
+  19          
+  20          /*-------------------------------------------------------------------------
+  21          *函数：saveData  保存数据
+  22          *参数：addr 地址  数据  
+  23          *返回值：无
+  24          *-------------------------------------------------------------------------*/
+  25          void saveData(u16 addr, u8 dat)
+  26          {
+  27   1        u8 page;
+  28   1      
+  29   1        page = addr/256;
+  30   1        switch(page)
+  31   1        {
+  32   2          case 0:page = AT24C08_PAGE0;break;
+  33   2          case 1:page = AT24C08_PAGE1;break;
+  34   2          case 2:page = AT24C08_PAGE2;break;
+  35   2          case 3:page = AT24C08_PAGE3;break;
+  36   2        }
+  37   1      
+  38   1        EA = 0;
+  39   1        eepromWriteByte(page,addr%256,dat);
+  40   1        EA = 1; 
+  41   1      }
+  42          
+  43          /*-------------------------------------------------------------------------
+  44          *函数：loadData  读取数据
+  45          *参数：addr 地址   
+  46          *返回值：数据
+  47          *-------------------------------------------------------------------------*/
+  48          unsigned char loadData(u16 addr)
+  49          {
+  50   1        u8 dat,page;
+  51   1      
+  52   1        page = addr/256;
+  53   1        switch(page)
+  54   1        {
+C51 COMPILER V9.52.0.0   MEMORY                                                            06/02/2018 10:26:53 PAGE 2   
+
+  55   2          case 0:page = AT24C08_PAGE0;break;
+  56   2          case 1:page = AT24C08_PAGE1;break;
+  57   2          case 2:page = AT24C08_PAGE2;break;
+  58   2          case 3:page = AT24C08_PAGE3;break;
+  59   2        }
+  60   1      
+  61   1        EA = 0;
+  62   1        dat = eepromReadByte(page,addr%256);
+  63   1        EA = 1; 
+  64   1        return dat; 
+  65   1      }
+  66          /*-------------------------------------------------------------------------
+  67          *函数：saveMenuParam  读取手麦设置信息
+  68          *参数： 无  
+  69          *返回值：无
+  70          *-------------------------------------------------------------------------*/
+  71          void saveMenuParam(void)
+  72          {
+  73   1        saveData(EEP_LCD_COLOR,mHmSetting.LcdColor);           //0x000E 保存LCD背景颜色 
+  74   1        saveData(EEP_LED_SW,mHmSetting.ButtonLedSwitch);       //0x000F 保存LED开关
+  75   1        saveData(EEP_TONE_SW,mHmSetting.ButtonToneSwitch);     //0x0010 保存按键音
+  76   1        saveData(EEP_SPK_SW,mHmSetting.SpkerSwitch);           //0x0011 保存
+  77   1      }
+  78          
+  79          /*-------------------------------------------------------------------------
+  80          *函数：saveAllParam  保存功能信息
+  81          *参数：无   
+  82          *返回值：无
+  83          *-------------------------------------------------------------------------*/
+  84          void saveAllParam(void)
+  85          {
+  86   1        u32 fre=(u32)(channel.RX_Freq*1000);
+  87   1        saveData(EEP_BASE,0xa5);
+  88   1        saveData(EEP_FREQ_CAL,mCbParam.FreqCal);
+  89   1        saveData(EEP_COUNTRY_TB,mCbParam.CountryTable);
+  90   1        saveData(EEP_COUNTRY,mCbParam.Country);       
+  91   1        saveData(EEP_BAND,mCbParam.Band);   
+  92   1        saveData(EEP_CHANNEL,mCbParam.Channel);   
+  93   1        saveData(EEP_MODU,mCbParam.Modu);   
+  94   1        saveData(EEP_POWER,mCbParam.TxPower);   
+  95   1        saveData(EEP_RFG,mCbParam.RfgLevel);      
+  96   1        saveData(EEP_VOL,mCbParam.VolLevel);
+  97   1        saveData(EEP_LAST_CH,mCbParam.LastChannel);
+  98   1        
+  99   1        saveData(EEP_LCD_COLOR,mHmSetting.LcdColor);  
+ 100   1        saveData(EEP_LED_SW,mHmSetting.ButtonLedSwitch);    
+ 101   1        saveData(EEP_TONE_SW,mHmSetting.ButtonToneSwitch);
+ 102   1        saveData(EEP_SPK_SW,mHmSetting.SpkerSwitch);  
+ 103   1      
+ 104   1        saveData(EEP_IS_ASQ,mSqParam.IsAsq);    
+ 105   1        saveData(EEP_SQ_LEVEL,mSqParam.SqLevel);      
+ 106   1        saveData(EEP_ASQ_LEVEL,mSqParam.AsqLevel);  
+ 107   1      
+ 108   1        saveData(EEP_HIT_POWER,mSysParam.HitPower); 
+ 109   1        saveData(EEP_DTMF,mDtmfRecive.dtmfCode);
+ 110   1      
+ 111   1        saveData(EEP_FRE,(u8)(fre>>24));
+ 112   1        saveData(EEP_FRE+1,(u8)((fre&0x00ff0000)>>16));
+ 113   1        saveData(EEP_FRE+2,(u8)((fre&0x0000ff00)>>8));
+ 114   1        saveData(EEP_FRE+3,(u8)(fre&0x000000ff));
+ 115   1      
+ 116   1      }
+C51 COMPILER V9.52.0.0   MEMORY                                                            06/02/2018 10:26:53 PAGE 3   
+
+ 117          
+ 118          void saveDtmf()
+ 119          {
+ 120   1        u32 fre=(u32)(channel.RX_Freq*1000);
+ 121   1        saveData(EEP_DTMF,mDtmfRecive.dtmfCode);
+ 122   1        saveData(EEP_FRE,(u8)(fre>>24));
+ 123   1        saveData(EEP_FRE+1,(u8)((fre&0x00ff0000)>>16));
+ 124   1        saveData(EEP_FRE+2,(u8)((fre&0x0000ff00)>>8));
+ 125   1        saveData(EEP_FRE+3,(u8)(fre&0x000000ff));
+ 126   1      }
+ 127          void loadToBK4815(void)
+ 128          {
+ 129   1        
+ 130   1      }
+ 131          
+ 132          
+ 133          
+ 134          /*-------------------------------------------------------------------------
+ 135          *函数：loadAllParam  加载功能信息
+ 136          *参数：无   
+ 137          *返回值：无
+ 138          *-------------------------------------------------------------------------*/
+ 139          void loadAllParam(void)
+ 140          {
+ 141   1        u32 fre=0;
+ 142   1        if(loadData(EEP_BASE) != 0xa5)
+ 143   1        {
+ 144   2          setDefaultParam();
+ 145   2          saveAllParam();
+ 146   2        
+ 147   2          saveDtmf();
+ 148   2        }
+ 149   1        else
+ 150   1        {
+ 151   2          mCbParam.FreqCal = loadData(EEP_FREQ_CAL);
+ 152   2          mCbParam.CountryTable = loadData(EEP_COUNTRY_TB);
+ 153   2          mCbParam.Country = loadData(EEP_COUNTRY);
+ 154   2          mCbParam.Band = loadData(EEP_BAND);
+ 155   2          mCbParam.LastBand=mCbParam.Band;
+ 156   2          
+ 157   2          mCbParam.Channel = loadData(EEP_CHANNEL);
+ 158   2          mSysParam.LastChannel=mCbParam.Channel;
+ 159   2          mCbParam.LastChannel=0x09 ;
+ 160   2          mCbParam.Modu = loadData(EEP_MODU);
+ 161   2          mCbParam.RfgLevel = loadData(EEP_RFG);
+ 162   2          mCbParam.TxPower = loadData(EEP_POWER);
+ 163   2          mCbParam.VolLevel = loadData(EEP_VOL);
+ 164   2          mSqParam.IsAsq = loadData(EEP_IS_ASQ);
+ 165   2          mSqParam.AsqLevel = loadData(EEP_ASQ_LEVEL);
+ 166   2          mSqParam.SqLevel = loadData(EEP_SQ_LEVEL);
+ 167   2          if(mSqParam.IsAsq == ASQ_val)mCbParam.Sq = (mSqParam.AsqLevel | mSqParam.IsAsq);
+ 168   2          else mCbParam.Sq = mSqParam.SqLevel;
+ 169   2        
+ 170   2          mHmSetting.SpkerSwitch = loadData(EEP_SPK_SW);
+ 171   2          mHmSetting.LcdColor = loadData(EEP_LCD_COLOR);
+ 172   2          mHmSetting.ButtonLedSwitch = loadData(EEP_LED_SW);
+ 173   2          mHmSetting.ButtonToneSwitch = loadData(EEP_TONE_SW);
+ 174   2          
+ 175   2          mSysParam.LastChannel = loadData(EEP_LAST_CH);
+ 176   2          mSysParam.HitPower=loadData(EEP_HIT_POWER);
+ 177   2          mDtmfRecive.dtmfCode=loadData(EEP_DTMF);
+ 178   2          fre=(((u32)loadData(EEP_FRE))<<24)|(((u32)loadData(EEP_FRE+1))<<16)|(((u32)loadData(EEP_FRE+2))<<8)|((u3
+C51 COMPILER V9.52.0.0   MEMORY                                                            06/02/2018 10:26:53 PAGE 4   
+
+             -2)loadData(EEP_FRE+3));
+ 179   2          channel.RX_Freq=((float)fre/1000);
+ 180   2          
+ 181   2          
+ 182   2        }
+ 183   1        mSqParam.Scan=1;
+ 184   1        mSqParam.ScanHould=1;
+ 185   1        checkAllParam();
+ 186   1      }
+ 187          /*-------------------------------------------------------------------------
+ 188          *函数：initMemory  初使加载功能信息
+ 189          *参数：无   
+ 190          *返回值：无
+ 191          *-------------------------------------------------------------------------*/
+ 192          void initMemory(void)
+ 193          {
+ 194   1        initAt24c08();
+ 195   1        loadAllParam(); 
+ 196   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1188    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----      12
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

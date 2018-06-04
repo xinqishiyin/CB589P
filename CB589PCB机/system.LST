@@ -1,0 +1,224 @@
+C51 COMPILER V9.52.0.0   SYSTEM                                                            06/01/2018 15:43:45 PAGE 1   
+
+
+C51 COMPILER V9.52.0.0, COMPILATION OF MODULE SYSTEM
+OBJECT MODULE PLACED IN system.OBJ
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE system.c LARGE OPTIMIZE(6,SPEED) BROWSE INCDIR(G:\CB589P) DEBUG OBJECTEXTEN
+                    -D TABS(2)
+
+line level    source
+
+   1          #include "system.h"
+   2          
+   3          xdata uchar     mRecive;
+   4          xdata uint      mMessage;
+   5          xdata tCbParam    mCbParam;
+   6          xdata tSqParam    mSqParam;
+   7          xdata tFlag     mFlag;
+   8          xdata tTimer0   mTimer0;
+   9          xdata tSq     mSq;
+  10          xdata tDtmfRecive mDtmfRecive;
+  11          /*¥Æø⁄Ω” ’*/
+  12          uchar mUartCmd = 0;
+  13          tReceivePackage mReceivePackage;
+  14          
+  15          /*SQœ‡πÿ*/
+  16          xdata uchar mDebugSqLevel;
+  17          xdata uchar mOpenSqDbLevel;
+  18          xdata uchar mLastOpenSqDbLevel;
+  19          
+  20          /*“‘œ¬VCOœ‡πÿ*/   
+  21          xdata uchar mRssi;   
+  22          xdata uchar mLastRssi;  //…œ¥Œ¥´ ‰µƒRSSI
+  23          xdata ulong mXn31202Ch1_Tx;
+  24          xdata ulong mXn31202Ch1_Rx;
+  25          xdata ulong mReferenceFreq = 2500;  //”√”⁄º∆À„Rºƒ¥Ê∆˜∫Õøÿ÷∆ºƒ¥Ê∆˜
+  26          xdata ulong mChannelBaseFreq = 26965000;  //µ⁄1–≈µ¿µƒ∆µ¬ 
+  27          xdata ulong mCurrentFreq = 0;   //µ±«∞–≈µ¿µƒ∆µ¬ £¨Õ®π˝–≈µ¿1∫Õ≤ΩΩ¯∆µ¬ º∆À„
+  28          xdata uint  mUkReferenceFreq[40] =
+  29          {
+  30            1349,1279,1278,1277,1316,1303,1271,1286,1285,1266,
+  31            1336,1312,1262,1300,1277,1261,1286,1303,1302,1308,
+  32            1271,1337,1257,1257,1257,1257,1257,1299,1266,1266,
+  33            1354,1313,1287,1272,1286,1271,1308,1262,1262,1288
+  34          };
+  35          xdata uint mAsqVoltage;  //5V
+  36          xdata uint mRssiVoltage; //5V
+  37          xdata uint mAgcaVoltage; //5V
+  38          
+  39          
+  40          
+  41          
+  42          
+  43          
+  44          
+  45          void systemCLK_init()
+  46          {
+  47   1      WPKEY = 0x37;
+  48   1        CLKEN &= 0xFB;                  // P90£¨P91∏¥”√≥…æß’Ò ‰»ÎΩ≈
+  49   1        CLKEN |= 0x08;                  // ¥Úø™CRYH
+  50   1        while((MCKSEL&0x40) != 0x40);   // ≤Èø¥CRYHŒ»∂®±Í÷æŒª «∑Ò÷√∆
+  51   1        WPKEY  = 0x37;
+  52   1          MCKSEL = 0x01;                  // «–ªªµΩCRYH
+  53   1        MCKDIV = 0x03;  //≤ª∑÷∆µ
+  54   1      }
+C51 COMPILER V9.52.0.0   SYSTEM                                                            06/01/2018 15:43:45 PAGE 2   
+
+  55          
+  56          void initTimer0(void) //∂® ±10ms
+  57          {
+  58   1          //≥ı ºªØ∂® ±∆˜
+  59   1          xTIMPRS |= 0x07;  //t0: MCLK/32 = 10.25M/256  = 40000Hz
+  60   1        TMOD |= 0x01; //t0: 16Œª∂® ±∆˜
+  61   1        TH0 = (65535 - 400) / 256;  
+  62   1        TL0 = (65535 - 400) % 256;  //10ms => 0.01S * 62500 = 400 
+  63   1          TR0 = 1;
+  64   1        ET0 = 1;
+  65   1      }
+  66          
+  67          
+  68          void IO_Init()
+  69          {
+  70   1        P0MDL=0xA1;                 //P0.0…œ¿≠ ‰»Î  P0.1…œ¿≠ ‰»Î   P0.2 Õ∆ÕÏ ‰≥ˆ  P0.3 Õ∆ÕÏ ‰≥ˆ£®‘À––÷–ª·«–ªª≥… ‰
+             -»Î£©
+  71   1        P0MDH=0x6A;                    //P0.4Õ∆ÕÏ ‰≥ˆ  P0.5Õ∆ÕÏ ‰≥ˆ  P0.6Õ∆ÕÏ ‰≥ˆ  P0.7…œ¿≠ ‰»Î
+  72   1        P04=1;
+  73   1        
+  74   1        
+  75   1        P1MDL=0xAA;                 //P1.0-P1.3 Õ∆ÕÏ ‰≥ˆ
+  76   1        P1MDH=0x2A;                 //P1.4-P1.6 Õ∆ÕÏ ‰≥ˆ  P1.7 ‰»Î
+  77   1        P1=0x20;
+  78   1        P13=0;
+  79   1        P14=0;
+  80   1        POWER_ON_EN = 1;
+  81   1        P2MDL=0xA0;                 //P2.2  Õ∆ÕÏ ‰≥ˆ
+  82   1        P2MDH=0x82;                  //P2.4  ‰≥ˆ  P2.7  ‰≥ˆ
+  83   1        P22=1;
+  84   1        
+  85   1      
+  86   1        P27=0;  
+  87   1        
+  88   1        P3MDL=0x51;
+  89   1        P3MDH=0xA8;                 //P3.4 Õ∆ ‰»Î  P3.5  ‰≥ˆ  P3.6  ‰≥ˆ£®‘À––÷–“™«–ªª ‰»Î£© P3.7 Õ∆ÕÏ ‰≥ˆ
+  90   1        xP3AEN |= 0x0d; //P3.0  P3.2  P3.3
+  91   1        P37=1;
+  92   1        P36=1;
+  93   1        
+  94   1        xP4MDL=0xAA;
+  95   1        xP4MDH=0xAA;                  //P4.0-P4.7   ‰≥ˆ
+  96   1        
+  97   1        xP9MDL &= 0xf0;
+  98   1        xP9MDL |= 0x05;  //P9.0  P9.1 …œ¿≠ ‰»Î 
+  99   1        xP9AEN |= 0x03; //P9.0  P9.1
+ 100   1      
+ 101   1        xADCFG=0x10;                  //ADC∂‘∆Î∑Ω ΩŒ™  µÕ4ŒªADRL ∏ﬂ2ŒªADRH 
+ 102   1      }
+ 103          void INT0_Init(void)
+ 104          {
+ 105   1          EA = 0;
+ 106   1          xIOMUX2 &= 0xef;                  //INTΩ≈—°Õ®£®P16ªÚP00£©
+ 107   1          IT0 = 1;                          //∏∫±ﬂ—ÿ£®œ¬Ωµ—ÿ£©¥•∑¢÷–∂œ
+ 108   1          EINTCS0 = 0X50;;                  //bit4=1£¨INT1÷–∂œ πƒ‹–≈∫≈,“Ï≤Ω÷–∂œƒ£ Ω
+ 109   1          IE0 = 0;                          //«ÂINT1œ¬Ωµ—ÿ÷–∂œ±Í÷æ
+ 110   1          EINTCS0 &= 0xfc;                  //«Â≥˝±Í÷æ £¨À´ª∫≥Âª˙÷∆µƒ÷–∂œ£¨2¥Œ«Â≥˝±Í÷æ
+ 111   1          EINTCS0 &= 0xfc;                  //«Â≥˝±Í÷æ
+ 112   1         
+ 113   1      }
+ 114          void initAd(void)
+ 115          {
+C51 COMPILER V9.52.0.0   SYSTEM                                                            06/01/2018 15:43:45 PAGE 3   
+
+ 116   1        P3MDL &= 0x0c;
+ 117   1        P3MDL |= 0x51;   //P3.0  P3.2  P3.3 …œ¿≠ ‰»Î 
+ 118   1        xP3AEN |= 0x0d; //P3.0  P3.2  P3.3
+ 119   1      
+ 120   1        xP9MDL &= 0xf0;
+ 121   1        xP9MDL |= 0x05;  //P9.0  P9.1 …œ¿≠ ‰»Î 
+ 122   1        xP9AEN |= 0x03; //P9.0  P9.1
+ 123   1      
+ 124   1        xADCFG = 0x10;   //”“∂‘∆Î£¨≤…—˘ ±÷”MCLK/2
+ 125   1      
+ 126   1        //ADCON = ADC_RSSI;//open adc0 channel,adcen open   
+ 127   1      }
+ 128          
+ 129          void initPWM(void)
+ 130          {
+ 131   1        xSYSCFG |= 0x30;
+ 132   1        xIOMUX0 |= 0x02;//En P23 as Pwm0   MODDA
+ 133   1        xIOMUX2 |= 0x02;//En P27 as Pwm1   FREQ
+ 134   1        xPWMP = 200;  //÷‹∆⁄
+ 135   1        xPWM0D = 100; //’ºø’±»£¨modda
+ 136   1        xPWM1D = 200;   //’ºø’±»£¨œµÕ≥ ±÷”–£◊º
+ 137   1        P2MDL &= 0x3f;
+ 138   1        P2MDL |= 0x80;
+ 139   1        //PWM_MODDA_CLOSE;
+ 140   1        PWM_FRQ_CLOSE;  
+ 141   1        PWM_RFG_OPEN;
+ 142   1      }
+ 143          
+ 144          void delayms(unsigned int i)
+ 145          {
+ 146   1        unsigned int m,n;
+ 147   1        
+ 148   1        for(m=0;m<i;m++)
+ 149   1        {
+ 150   2          for(n=0;n<785;n++);
+ 151   2        }
+ 152   1      }
+ 153          void delayus(u8 i)
+ 154          {
+ 155   1          while(--i);
+ 156   1      }
+ 157          
+ 158          
+ 159          void UART0_Init()
+ 160          {
+ 161   1        xIOMUX0 |= 0x01; //UartEn  P2.0,P2.1◊˜UART
+ 162   1        SCON0=0x50;    //8Œªƒ£ Ω,‘ –ÌΩ” ’
+ 163   1        BRCON0 = 0xe8;   //SMOD=1,‘ –ÌΩ” ’”Î∑¢ÀÕ
+ 164   1        BRTIM0 = 0xBD;   //≤®Ãÿ¬ ∑¢…˙∆˜≥ı º÷µ£¨9600bps  (10.25MHz) err0.4%
+ 165   1        IE |= 0x10;      //en  ES0
+ 166   1        
+ 167   1      
+ 168   1        mCbParam.UartTxBuf[0] = MAGIC;
+ 169   1      }
+ 170          void UART1_Init()
+ 171          {
+ 172   1        xIOMUX2 |= 0x01;        //P24/P23∏¥”√◊ˆUART1∂Àø⁄
+ 173   1        SCON1 |= 0x50;         //π§◊˜ƒ£ Ω1,8Œª“Ï≤Ω£¨≤®Ãÿ¬ ø…µ˜  πƒ‹Ω” ’
+ 174   1       
+ 175   1        xBRCON1  = 0XE8;//0x68;         //≤®Ãÿ¬ º∆À„π´ ΩŒ™1/16£®2smod=1£©£¨≤®Ãÿ¬ ∑¢…˙∆˜ø™∆Ù£¨∏ﬂæ´∂»≤®Ãÿ¬ øÿ÷∆ πƒ
+             -‹   
+ 176   1        xBRTIM1  = 0x98;
+C51 COMPILER V9.52.0.0   SYSTEM                                                            06/01/2018 15:43:45 PAGE 4   
+
+ 177   1        EIE2 |=0X10;                    // πƒ‹ES1÷–∂œ
+ 178   1      }
+ 179          void SystemInit()
+ 180          {
+ 181   1        systemCLK_init(); 
+ 182   1        IO_Init();  
+ 183   1        initPWM();
+ 184   1        initAd();
+ 185   1        initTimer0();
+ 186   1        UART0_Init();
+ 187   1        INT0_Init();
+ 188   1        EA=1;
+ 189   1        //initBEEP();
+ 190   1        
+ 191   1        //UART1_Init();
+ 192   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    353    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =    306    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

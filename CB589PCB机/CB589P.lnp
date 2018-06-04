@@ -1,0 +1,14 @@
+"main.obj",
+"system.obj",
+"at24c08.obj",
+"KB4815.obj",
+"uart.obj",
+"XN31202.obj",
+"vco.obj",
+"m62429.obj",
+"event.obj",
+"mode_wireless.obj",
+"memory.obj" 
+TO "CB589P" 
+RAMSIZE(256) 
+DISABLEWARNING (16) 

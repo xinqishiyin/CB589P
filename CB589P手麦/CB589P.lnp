@@ -1,0 +1,16 @@
+"main.obj",
+"system.obj",
+"TM1722.obj",
+"Keys.obj",
+"KB4815.obj",
+"Menu.obj",
+"at24c08.obj",
+"memory.obj",
+"handler.obj",
+"uart.obj",
+"lcd.obj",
+"CB_Line.obj",
+"MenuEvent.obj" 
+TO "CB589P" 
+RAMSIZE(256) 
+DISABLEWARNING (16) 

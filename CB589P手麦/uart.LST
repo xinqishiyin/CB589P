@@ -1,0 +1,739 @@
+C51 COMPILER V9.52.0.0   UART                                                              06/02/2018 10:26:54 PAGE 1   
+
+
+C51 COMPILER V9.52.0.0, COMPILATION OF MODULE UART
+OBJECT MODULE PLACED IN uart.OBJ
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE uart.c LARGE OPTIMIZE(6,SPEED) BROWSE INCDIR(G:\CB589P) DEBUG OBJECTEXTEND 
+                    -TABS(2)
+
+line level    source
+
+   1          #include "system.h"
+   2          #include "uart.h"
+   3          //#include "at24c08.h"
+   4          #include "lcd.h"
+   5          #include "KB4815.h"
+   6          #include "TM1722.h"
+   7          #include "Menu.h"
+   8          #include "memory.h"
+   9          #include "CB_Line.h"
+  10          
+  11          
+  12          extern tCbParam   mCbParam;                 //需要发送到CB机的数据
+  13          extern tSqParam   mSqParam;                 //SQ模式
+  14          extern tHmSetting  mHmSetting;               //手咪上面需要设置的数据
+  15          
+  16          extern tSysParam    mSysParam;                //
+  17          extern tFlag        mFlag;                    //
+  18          extern tMenu mMenu;
+  19          extern u8 isButtonTone;
+  20          extern Channel channel;
+  21          
+  22          extern u8 channel_old;
+  23          extern u8 ButtonToneTime;
+  24          //u16 p_Memory;
+  25          
+  26          //u16 p_Memory= Channel_Start_Adress;        //1K开始
+  27          
+  28          tReceivePackage xdata mReceivePackage;
+  29          
+  30          UART1_Param Param_Uart1;
+  31          
+  32          u8 recive[16];
+  33          u8 recivecount=0;
+  34          uchar xdata mTxLength = 0;
+  35          xdata u8 StopSpk=1;
+  36          void receiveRssi(void)
+  37          {
+  38   1        if(VCC_DET==0)
+  39   1        {
+  40   2          return;
+  41   2        }
+  42   1        if(mMenu.isTx==1||(mMenu.MenuIndex!=CHANNEL&&mMenu.MenuIndex!=CHANNEL_DOUBLEF&&mMenu.MenuIndex!=CHANNEL_
+             -SCAN&&mMenu.MenuIndex!=CHANNEL_DW&&mMenu.MenuIndex!=CHANNEL_VOL&&mMenu.MenuIndex!=CHANNEL_SQ))
+  43   1        {
+  44   2          LCD_RX(0);
+  45   2          return;
+  46   2        } 
+  47   1      
+  48   1        mSysParam.Rssi = mReceivePackage.RecvBuf[3]; 
+  49   1        if((mSysParam.Rssi & 0x40)!=0||mSqParam.SqLevel==0)  
+  50   1        {   
+  51   2          mFlag.SpkOpen=1;
+  52   2          xPWMCN &= ~0x10;  
+  53   2          //SPK_EN=0;
+C51 COMPILER V9.52.0.0   UART                                                              06/02/2018 10:26:54 PAGE 2   
+
+  54   2          ButtonToneTime=BUTTON_TIME;
+  55   2          isButtonTone=0;
+  56   2          if(((mMenu.MenuIndex!=CHANNEL_VOL)&&(mMenu.MenuIndex!=CHANNEL_SQ))||((mMenu.MenuIndex==CHANNEL_SQ)&&(mCb
+             -Param.Sq==0x00||mCbParam.Sq==0x20)))
+  57   2          {
+  58   3             LCD_RX(1);
+  59   3          }
+  60   2          if(mHmSetting.SpkerSwitch==1&&(mSysParam.isMute==0))
+  61   2          {
+  62   3            StopSpk=0;
+  63   3            if(mCbParam.VolLevel>0)
+  64   3            {
+  65   4              SPK_EN = 1;
+  66   4            }     
+  67   3          }
+  68   2          LED_TX=OFF;
+  69   2          LED_RX = ON;    
+  70   2          mSysParam.Rssi &= 0x3f;
+  71   2        
+  72   2          if(mCbParam.LastChannel!=mCbParam.Channel||mCbParam.LastBand!=mCbParam.Band)
+  73   2          {
+  74   3            mSysParam.isLastChannel=0;
+  75   3            mSysParam.BackChannel=mCbParam.LastChannel;
+  76   3            mSysParam.BackBand=mCbParam.LastBand;
+  77   3            mCbParam.LastChannel=mCbParam.Channel;
+  78   3            mCbParam.LastBand=mCbParam.Band;
+  79   3          } 
+  80   2        }
+  81   1        else
+  82   1        {
+  83   2          StopSpk=1;    
+  84   2          if(isButtonTone==0)
+  85   2          {     
+  86   3            SPK_EN=0; 
+  87   3            xPWMCN &= ~0x10;  
+  88   3          }     
+  89   2          LED_RX = OFF;
+  90   2          LCD_RX(0);
+  91   2          mFlag.SpkOpen = 0;
+  92   2        }
+  93   1      }
+  94          void GetSQSet()
+  95          {
+  96   1        mSysParam.Ack = CMD_ACK;
+  97   1        
+  98   1        if((mReceivePackage.RecvBuf[3]&0x20)!=0)
+  99   1        {
+ 100   2          mSqParam.OpenSet=(mReceivePackage.RecvBuf[3]&~0x20) ;
+ 101   2          mSqParam.OpenSet=-mSqParam.OpenSet;
+ 102   2        }
+ 103   1        else
+ 104   1        {
+ 105   2          mSqParam.OpenSet=mReceivePackage.RecvBuf[3];
+ 106   2      
+ 107   2        }
+ 108   1        if((mReceivePackage.RecvBuf[4]&0x20)!=0)
+ 109   1        {   
+ 110   2          mSqParam.CloseSet=(mReceivePackage.RecvBuf[4]&~0x20); 
+ 111   2          mSqParam.CloseSet=-mSqParam.CloseSet;
+ 112   2        }
+ 113   1        else
+ 114   1        { 
+C51 COMPILER V9.52.0.0   UART                                                              06/02/2018 10:26:54 PAGE 3   
+
+ 115   2          mSqParam.CloseSet=mReceivePackage.RecvBuf[4];
+ 116   2        } 
+ 117   1      }
+ 118          
+ 119          void analyseCMD(void)
+ 120          {
+ 121   1        switch(mReceivePackage.RecvBuf[1])
+ 122   1        {
+ 123   2          case CMD_ACK:     
+ 124   2          mSysParam.Ack = CMD_ACK;  break;
+ 125   2          case CMD_GET_RSSI:  
+ 126   2          receiveRssi();        break;
+ 127   2          case CMD_REQUEST_SQ_SET:
+ 128   2            GetSQSet();
+ 129   2            break;
+ 130   2          case CMD_ERR:   
+ 131   2          mSysParam.Ack = CMD_ERR;  break;
+ 132   2          default:break;
+ 133   2        }
+ 134   1      }
+ 135          void  Uart0(void) interrupt 4
+ 136          {
+ 137   1         unsigned char dat = 0;
+ 138   1        unsigned char i = 0; 
+ 139   1        
+ 140   1        if (TI)//TI=1数据发送完毕
+ 141   1        {
+ 142   2          return ;
+ 143   2        } 
+ 144   1        RI = 0;
+ 145   1        dat = SBUF0;
+ 146   1        if(dat == MAGIC)
+ 147   1        {
+ 148   2          mReceivePackage.RecvStatus = MSG_HEADER;
+ 149   2          mReceivePackage.RecvCount = 0;
+ 150   2        }
+ 151   1      
+ 152   1        switch(mReceivePackage.RecvStatus)
+ 153   1        {
+ 154   2          case MSG_HEADER:
+ 155   2          {
+ 156   3            mReceivePackage.RecvBuf[mReceivePackage.RecvCount] = dat;
+ 157   3            if(mReceivePackage.RecvCount == 2)
+ 158   3            {
+ 159   4              if(mReceivePackage.RecvBuf[2] == 0) //数据长度2收到CB主机确认返回
+ 160   4              {
+ 161   5                analyseCMD();
+ 162   5                mReceivePackage.RecvCount = 0;
+ 163   5              }
+ 164   4              else 
+ 165   4              {
+ 166   5                mReceivePackage.RecvStatus = MSG_DATA;
+ 167   5              }
+ 168   4            }
+ 169   3          
+ 170   3            mReceivePackage.RecvCount++;
+ 171   3            
+ 172   3          }
+ 173   2          break;
+ 174   2      
+ 175   2          case MSG_DATA:
+ 176   2          {
+C51 COMPILER V9.52.0.0   UART                                                              06/02/2018 10:26:54 PAGE 4   
+
+ 177   3            mReceivePackage.RecvBuf[mReceivePackage.RecvCount] = dat;
+ 178   3            if((mReceivePackage.RecvCount - 2) >= mReceivePackage.RecvBuf[2])
+ 179   3            {
+ 180   4              dat = 0;
+ 181   4              for(i=3; i < 2 + (mReceivePackage.RecvBuf[2]); i++)
+ 182   4              {
+ 183   5                dat ^= mReceivePackage.RecvBuf[i];  //数据从数组2标开始存
+ 184   5              }
+ 185   4              dat &= 0x7f;
+ 186   4              if(mReceivePackage.RecvBuf[i] == dat)
+ 187   4              {
+ 188   5                analyseCMD();
+ 189   5                mReceivePackage.RecvCount = 0;
+ 190   5              }
+ 191   4            }
+ 192   3            mReceivePackage.RecvCount ++;
+ 193   3          }
+ 194   2          break;
+ 195   2        }
+ 196   1        
+ 197   1      }
+ 198          void UART1SendByte(u8 dat)
+ 199          {
+ 200   1        SBUF1=dat;
+ 201   1        while((SCON1&0x01)==0);
+ 202   1      }
+ 203          
+ 204          void uart0SendByte(unsigned char dat)
+ 205          {
+ 206   1        SBUF0 = dat;
+ 207   1        while(TI == 0);
+ 208   1        TI = 0;
+ 209   1      }
+ 210          void uart0SendString(unsigned char *p)
+ 211          {
+ 212   1        ES = 0;
+ 213   1        while(*p != '\0')
+ 214   1        {
+ 215   2          uart0SendByte(*p);
+ 216   2          p++;
+ 217   2        }
+ 218   1        ES = 1;
+ 219   1      }
+ 220          void uart0SendData(unsigned char *p)
+ 221          {
+ 222   1        ES = 0;
+ 223   1        while(mTxLength--)
+ 224   1        {
+ 225   2          uart0SendByte(*p);
+ 226   2          p++;
+ 227   2        }
+ 228   1        ES = 1;
+ 229   1      }
+ 230          
+ 231          void sendCommand(uchar cmd)
+ 232          {
+ 233   1        uchar i;
+ 234   1        u32 fre;
+ 235   1        mCbParam.UartTxBuf[1] = cmd;
+ 236   1          
+ 237   1        switch(cmd)
+ 238   1        {
+C51 COMPILER V9.52.0.0   UART                                                              06/02/2018 10:26:54 PAGE 5   
+
+ 239   2          case CMD_TRANSMIT:
+ 240   2          {
+ 241   3            mCbParam.UartTxBuf[2] = 0;
+ 242   3            mTxLength = 3;
+ 243   3          }
+ 244   2          break;
+ 245   2      
+ 246   2          case CMD_RECEIVE:
+ 247   2          {
+ 248   3            mCbParam.UartTxBuf[2] = 0;    
+ 249   3            mTxLength = 3;
+ 250   3          }
+ 251   2          break;
+ 252   2          
+ 253   2          case CMD_REQUEST_RSSI:
+ 254   2          {
+ 255   3            mCbParam.UartTxBuf[2] = 0;
+ 256   3            mTxLength = 3;
+ 257   3          }
+ 258   2      
+ 259   2          case CMD_SET_CHANNEL:
+ 260   2          {
+ 261   3            mCbParam.UartTxBuf[2] = 5;
+ 262   3            mCbParam.UartTxBuf[3] = mCbParam.Channel;
+ 263   3            mCbParam.UartTxBuf[4] = mCbParam.Band;
+ 264   3            mCbParam.UartTxBuf[5] = mCbParam.Modu;                  
+ 265   3            mCbParam.UartTxBuf[6] =mCbParam.TxPower;
+ 266   3            mCbParam.UartTxBuf[7] =0;
+ 267   3            for(i=3; i<7; i++)
+ 268   3            {
+ 269   4              mCbParam.UartTxBuf[7] ^=  mCbParam.UartTxBuf[i];
+ 270   4            }
+ 271   3            mCbParam.UartTxBuf[7] &= 0x7f;
+ 272   3            mTxLength = 8;
+ 273   3          }   
+ 274   2          break;
+ 275   2      
+ 276   2          case CMD_SET_SQ_ASQ:
+ 277   2          {
+ 278   3            mCbParam.UartTxBuf[2] = 2;
+ 279   3            mCbParam.UartTxBuf[3] = mCbParam.Sq;
+ 280   3            mCbParam.UartTxBuf[4] = mCbParam.Sq;
+ 281   3            mTxLength = 5;
+ 282   3          }
+ 283   2          break;
+ 284   2      
+ 285   2          case CMD_SET_RFG:
+ 286   2          {
+ 287   3            mCbParam.UartTxBuf[2] = 2;
+ 288   3            mCbParam.UartTxBuf[3] = mCbParam.RfgLevel;
+ 289   3            mCbParam.UartTxBuf[4] = mCbParam.RfgLevel;
+ 290   3            mTxLength = 5;
+ 291   3          }
+ 292   2          break;
+ 293   2      
+ 294   2          case CMD_SET_VOL:
+ 295   2          {
+ 296   3            mCbParam.UartTxBuf[2] = 2;
+ 297   3            mCbParam.UartTxBuf[3] = mCbParam.VolLevel;
+ 298   3            mCbParam.UartTxBuf[4] = mCbParam.VolLevel;
+ 299   3            mTxLength = 5;
+ 300   3          }
+C51 COMPILER V9.52.0.0   UART                                                              06/02/2018 10:26:54 PAGE 6   
+
+ 301   2          break;
+ 302   2      
+ 303   2          case CMD_SET_TX_POWER:
+ 304   2          {     
+ 305   3            mCbParam.UartTxBuf[2] = 2;
+ 306   3            mCbParam.UartTxBuf[3] = mCbParam.TxPower;
+ 307   3            mCbParam.UartTxBuf[4] = mCbParam.TxPower;
+ 308   3            mTxLength = 5;
+ 309   3          }
+ 310   2          break;
+ 311   2      
+ 312   2          case CMD_SET_MODULATION:
+ 313   2          {
+ 314   3            mCbParam.UartTxBuf[2] = 3;
+ 315   3            mCbParam.UartTxBuf[3] = mCbParam.Modu;
+ 316   3            mCbParam.UartTxBuf[4] = mCbParam.TxPower;
+ 317   3            mCbParam.UartTxBuf[5] = 0;
+ 318   3            for(i=3; i<5; i++)
+ 319   3            {
+ 320   4              mCbParam.UartTxBuf[5] ^=  mCbParam.UartTxBuf[i];
+ 321   4            }
+ 322   3            mCbParam.UartTxBuf[5] &= 0x7f;
+ 323   3            mTxLength = 6;
+ 324   3          }
+ 325   2          break;
+ 326   2          case CMD_MUTE:
+ 327   2            mCbParam.UartTxBuf[2] = 3;
+ 328   2            mCbParam.UartTxBuf[3] = mSysParam.isMute;
+ 329   2            mCbParam.UartTxBuf[4] = 24;
+ 330   2            mCbParam.UartTxBuf[5] = 0;
+ 331   2            for(i=3; i<5; i++)
+ 332   2            {
+ 333   3              mCbParam.UartTxBuf[5] ^=  mCbParam.UartTxBuf[i];
+ 334   3            }
+ 335   2            mCbParam.UartTxBuf[5] &= 0x7f;
+ 336   2            mTxLength = 6;
+ 337   2            break;
+ 338   2      
+ 339   2          case CMD_SET_BAND:
+ 340   2          {
+ 341   3            mCbParam.UartTxBuf[2] = 2;
+ 342   3            mCbParam.UartTxBuf[3] = mCbParam.Band;
+ 343   3            mCbParam.UartTxBuf[4] = mCbParam.Band;
+ 344   3            mTxLength = 5;
+ 345   3          }
+ 346   2          break;
+ 347   2          case CMD_SET_DTMF:
+ 348   2            fre=(u32)(channel.RX_Freq*1000);
+ 349   2            mCbParam.UartTxBuf[2] = 8;
+ 350   2            mCbParam.UartTxBuf[3] = mDtmfRecive.dtmfCode>>4;
+ 351   2            mCbParam.UartTxBuf[4] = mDtmfRecive.dtmfCode&0x0f;
+ 352   2            mCbParam.UartTxBuf[5] = (u8)(fre>>28);
+ 353   2            mCbParam.UartTxBuf[6] = (u8)((fre>>21)&0x7f);
+ 354   2            mCbParam.UartTxBuf[7] = (u8)((fre>>14)&0x7f);
+ 355   2            mCbParam.UartTxBuf[8] = (u8)((fre>>7)&0x7f);
+ 356   2            mCbParam.UartTxBuf[9] = (u8)(fre&0x7f);
+ 357   2            mCbParam.UartTxBuf[10] =0;        
+ 358   2            for(i=3; i<10; i++)
+ 359   2            {
+ 360   3              mCbParam.UartTxBuf[10] ^=  mCbParam.UartTxBuf[i];
+ 361   3              
+ 362   3            }
+C51 COMPILER V9.52.0.0   UART                                                              06/02/2018 10:26:54 PAGE 7   
+
+ 363   2            mCbParam.UartTxBuf[10] &= 0x7f;
+ 364   2            mTxLength = 11;
+ 365   2            break;
+ 366   2          
+ 367   2          case CMD_SET_ALL:
+ 368   2          {
+ 369   3            mCbParam.UartTxBuf[2] = 17;
+ 370   3            mCbParam.UartTxBuf[3] = mCbParam.FreqCal;
+ 371   3            mCbParam.UartTxBuf[4] = mCbParam.Country;
+ 372   3            mCbParam.UartTxBuf[5] = mCbParam.Band;
+ 373   3            mCbParam.UartTxBuf[6] = mCbParam.Modu;
+ 374   3            mCbParam.UartTxBuf[7] = mCbParam.Channel;     
+ 375   3            mCbParam.UartTxBuf[8] = mCbParam.TxPower;
+ 376   3            mCbParam.UartTxBuf[9] = mCbParam.Sq;
+ 377   3            mCbParam.UartTxBuf[10] = mCbParam.RfgLevel;
+ 378   3            mCbParam.UartTxBuf[11] = mCbParam.VolLevel;
+ 379   3            
+ 380   3            mCbParam.UartTxBuf[12] = mDtmfRecive.dtmfCode>>4;
+ 381   3            mCbParam.UartTxBuf[13] = (mDtmfRecive.dtmfCode&0x0f);
+ 382   3            mCbParam.UartTxBuf[14] = (u8)(fre>>28);
+ 383   3            mCbParam.UartTxBuf[15] = (u8)((fre&0x0fe00000)>>21);
+ 384   3            mCbParam.UartTxBuf[16] = (u8)((fre&0x001fc000)>>14);
+ 385   3            mCbParam.UartTxBuf[17] = (u8)(fre&0x00003f80>>7);
+ 386   3            mCbParam.UartTxBuf[18] = (u8)(fre&0x00000007);
+ 387   3            
+ 388   3            mCbParam.UartTxBuf[19] = 0;
+ 389   3            for(i=3; i<19; i++)
+ 390   3            {
+ 391   4              mCbParam.UartTxBuf[19] ^=  mCbParam.UartTxBuf[i];
+ 392   4            }
+ 393   3            mCbParam.UartTxBuf[19] &= 0x7f;
+ 394   3            mTxLength = 20;
+ 395   3          }
+ 396   2          break;
+ 397   2      
+ 398   2          case CMD_COUNTRY_OP:
+ 399   2          {
+ 400   3            mCbParam.UartTxBuf[2] = 0;
+ 401   3            mTxLength = 3;
+ 402   3          }
+ 403   2          break;
+ 404   2      
+ 405   2          case CMD_SET_FREQ_CAL:
+ 406   2          {
+ 407   3            mCbParam.UartTxBuf[2] = 2;
+ 408   3            mCbParam.UartTxBuf[3] = mCbParam.FreqCal;
+ 409   3            mCbParam.UartTxBuf[4] = mCbParam.FreqCal;
+ 410   3            mTxLength = 5;
+ 411   3          }
+ 412   2          break;
+ 413   2      
+ 414   2          case CMD_IDLE:
+ 415   2          {
+ 416   3            mCbParam.UartTxBuf[2] = 0;
+ 417   3            mTxLength = 3;
+ 418   3          }
+ 419   2          break;
+ 420   2      
+ 421   2          case CMD_SET_SQ_DB:
+ 422   2          {
+ 423   3            mCbParam.UartTxBuf[2] = 2;
+ 424   3            mCbParam.UartTxBuf[3] = mSysParam.DebugSqLevel;
+C51 COMPILER V9.52.0.0   UART                                                              06/02/2018 10:26:54 PAGE 8   
+
+ 425   3            mCbParam.UartTxBuf[4] = mSysParam.DebugSqLevel;
+ 426   3            mTxLength = 5;
+ 427   3          }  
+ 428   2          break;
+ 429   2          case CMD_SQ_SET:
+ 430   2            mCbParam.UartTxBuf[2]=3;
+ 431   2            mCbParam.UartTxBuf[3] = mSqParam.OpenOrClose;
+ 432   2            if(mSqParam.OpenOrClose==0)
+ 433   2            {
+ 434   3              if(mSqParam.OpenSet>=0) mCbParam.UartTxBuf[4] = mSqParam.OpenSet;
+ 435   3              else mCbParam.UartTxBuf[4] = (-mSqParam.OpenSet)|0x20;
+ 436   3            }
+ 437   2            else
+ 438   2            {
+ 439   3              if(mSqParam.CloseSet>=0) mCbParam.UartTxBuf[4] = mSqParam.CloseSet;
+ 440   3              else mCbParam.UartTxBuf[4] = (-mSqParam.CloseSet)|0x20;       
+ 441   3            }
+ 442   2            mCbParam.UartTxBuf[5] = 0;
+ 443   2            for(i=3; i<5; i++)
+ 444   2            {
+ 445   3              mCbParam.UartTxBuf[5] ^=  mCbParam.UartTxBuf[i];
+ 446   3            }
+ 447   2            mCbParam.UartTxBuf[5] &= 0x7f;
+ 448   2            mTxLength = 6;
+ 449   2            break;
+ 450   2            case CMD_REQUEST_SQ_SET:
+ 451   2            mCbParam.UartTxBuf[2] = 0;
+ 452   2            mTxLength = 3;
+ 453   2            break;
+ 454   2          default:
+ 455   2          {
+ 456   3            mTxLength = 0;
+ 457   3          }
+ 458   2          break;
+ 459   2      
+ 460   2          
+ 461   2        }
+ 462   1      
+ 463   1        uart0SendData(mCbParam.UartTxBuf);
+ 464   1        
+ 465   1      }
+ 466          
+ 467          /*CB机需要返回确认*/
+ 468          u8 isSendCmdOK(u8 cmd) 
+ 469          {
+ 470   1        uchar i;
+ 471   1        for(i=0; i<TRY_TIMES; i++)
+ 472   1        {
+ 473   2          mSysParam.Ack = CMD_ERR;
+ 474   2          sendCommand(cmd);
+ 475   2          if(cmd == CMD_SET_ALL)delayms(100);
+ 476   2        //  else if(cmd == CMD_SET_VOL)delayms(5);
+ 477   2          delayms(50);
+ 478   2          if(mSysParam.Ack == CMD_ACK)    return 1;   
+ 479   2          //else IO_Init();
+ 480   2        }
+ 481   1        mSysParam.Ack=CMD_ERR;
+ 482   1        
+ 483   1        return 0; 
+ 484   1      }
+ 485          
+ 486          
+C51 COMPILER V9.52.0.0   UART                                                              06/02/2018 10:26:54 PAGE 9   
+
+ 487          
+ 488          
+ 489          void ClearUARTData(void)
+ 490          {
+ 491   1          //TIM2_CR1 &= 0xfe;  //关闭定时器 
+ 492   1          Param_Uart1.countRX = 0;
+ 493   1          Param_Uart1.count50ms = 0;
+ 494   1          Param_Uart1.count1s = 0;    //时间计数器清零   
+ 495   1         
+ 496   1      }
+ 497          
+ 498          /*
+ 499          void  Uart1(void) interrupt 18
+ 500          {
+ 501            
+ 502              u8 val,i,j;
+ 503              SCON1&=0xfe;
+ 504              val=SBUF1;   
+ 505              
+ 506              //UART1_SR_RXNE=0;   
+ 507              switch(Param_Uart1.countRX)
+ 508              {
+ 509                case 0:
+ 510                    if(val==0x06)
+ 511                    {            
+ 512                      Param_Uart1.countRX++;            
+ 513                      Param_Uart1.connect_flag=1;
+ 514                      Param_Uart1.count1s=0;
+ 515                    }
+ 516                    else if(val==0x57)Param_Uart1.countRX=11; 
+ 517                  
+ 518                    else if(val==0x48)Param_Uart1.countRX++;
+ 519                    else  ClearUARTData();         
+ 520                    break;
+ 521                case 1:
+ 522                    if(val==0x49)Param_Uart1.countRX++;
+ 523                    else ClearUARTData();
+ 524                    break;
+ 525                case 2:
+ 526                    if(val==0x54)Param_Uart1.countRX++;
+ 527                    else ClearUARTData();
+ 528                    break;
+ 529                case 3:
+ 530                    if(val==0x41)Param_Uart1.countRX++;
+ 531                    else ClearUARTData();
+ 532                    break;
+ 533                case 4:
+ 534                    if(val==0x4c)Param_Uart1.countRX++;
+ 535                    else ClearUARTData();
+ 536                    break;
+ 537                case 5:
+ 538                    if(val==0x4b)Param_Uart1.countRX++;
+ 539                    else ClearUARTData();
+ 540                    break;
+ 541                case 6:
+ 542                    if(val==0x49)Param_Uart1.countRX++;
+ 543                    else ClearUARTData();
+ 544                    break;
+ 545                case 7:
+ 546                    if(val==0x45)
+ 547                    {
+ 548                      Param_Uart1.countRX++;            
+C51 COMPILER V9.52.0.0   UART                                                              06/02/2018 10:26:54 PAGE 10  
+
+ 549                      UART1SendByte(0x06);
+ 550                      delayus(10);
+ 551                     
+ 552                    }
+ 553                    else ClearUARTData();
+ 554                    break;
+ 555                case 8:
+ 556                    if(val==0x38)
+ 557                    {
+ 558                      Param_Uart1.countRX++;            
+ 559                      UART1SendByte(0x53);
+ 560                      UART1SendByte(0x4d);
+ 561                      UART1SendByte(0x50);
+ 562                      UART1SendByte(0x35);
+ 563                      UART1SendByte(0x35);
+ 564                      UART1SendByte(0x38);
+ 565                      UART1SendByte(0x00);
+ 566                      UART1SendByte(0x00);
+ 567                      delayus(10);           
+ 568                    }else ClearUARTData();
+ 569                    break;
+ 570                 case 9:
+ 571                    if(val==0x06)
+ 572                    {
+ 573                       Param_Uart1.countRX++;
+ 574                  
+ 575                       UART1SendByte(0x06);
+ 576                       delayus(10);       
+ 577                    }
+ 578                    else if(val==0x02)
+ 579                    {
+ 580                      Param_Uart1.countRX++;
+ 581                     
+ 582                      UART1SendByte(0x06);
+ 583                      UART1SendByte(0x54);
+ 584                      UART1SendByte(0x41);
+ 585                      UART1SendByte(0x4c);
+ 586                      UART1SendByte(0x4b);
+ 587                      UART1SendByte(0x49);
+ 588                      UART1SendByte(0x45);
+ 589                      UART1SendByte(0x38);
+ 590                      delayus(10);
+ 591                      
+ 592                    }
+ 593                    else ClearUARTData();
+ 594                    break;      
+ 595                 case 10:
+ 596                      Param_Uart1.countRX ++;
+ 597                      if(val==WRITE)         Param_Uart1.UART_CMD=WRITE;        
+ 598                      else if(val==READ)    Param_Uart1.UART_CMD=READ;
+ 599                      else if(val==0x45)
+ 600                      {
+ 601                        break;
+ 602                      }
+ 603                     else if(val==0x06)
+ 604                     {      
+ 605                       Param_Uart1.countRX--;
+ 606                    
+ 607                       UART1SendByte(0x06);
+ 608                       delayus(10);
+ 609                      
+ 610                     }
+C51 COMPILER V9.52.0.0   UART                                                              06/02/2018 10:26:54 PAGE 11  
+
+ 611                     else if(val==0x05)
+ 612                     {
+ 613                       Param_Uart1.countRX--;            
+ 614                      UART1SendByte(0xff);
+ 615                      UART1SendByte(0xff);
+ 616                      UART1SendByte(0xff);
+ 617                      UART1SendByte(0xff);
+ 618                      UART1SendByte(0xff);
+ 619                      UART1SendByte(0xff);       
+ 620                      delayus(10);
+ 621                      
+ 622                     }
+ 623                    break;
+ 624                 case 11:
+ 625                    Param_Uart1.countRX ++;
+ 626                    Param_Uart1.UART_Addr=val;
+ 627                    break;
+ 628                 case 12:
+ 629                    Param_Uart1.countRX++;
+ 630                    Param_Uart1.UART_Addr=Param_Uart1.UART_Addr <<8;
+ 631                    Param_Uart1.UART_Addr|=val;
+ 632                    break;
+ 633                 case 13:
+ 634                    if(val==0x08)
+ 635                    {
+ 636                      if(Param_Uart1.UART_CMD==WRITE)
+ 637                      {
+ 638                          Param_Uart1.countRX ++;
+ 639                          Param_Uart1.rx=Param_Uart1.RXBuf;               
+ 640                          Param_Uart1.UART_DataCount=0;
+ 641                      }
+ 642                      else
+ 643                      {
+ 644                       
+ 645                        UART1SendByte(0x57);
+ 646                        UART1SendByte(Param_Uart1.UART_Addr>>8);
+ 647                        UART1SendByte(Param_Uart1.UART_Addr);
+ 648                        UART1SendByte(0x40);              
+ 649                        p_Memory=Channel_Start_Adress;
+ 650                        p_Memory+=Param_Uart1.UART_Addr;
+ 651                        for(j=0;j<8;j++)
+ 652                        {
+ 653                          for(i=0;i<8;i++)
+ 654                          {
+ 655                            UART1SendByte(loadData(p_Memory+i*(j+1)));
+ 656                          }              
+ 657                        }
+ 658                        Param_Uart1.countRX=10;
+ 659                        delayus(10);              
+ 660                       }
+ 661                    }
+ 662                    else ClearUARTData();
+ 663                    break;
+ 664                 case 14:
+ 665                   *(Param_Uart1.rx+Param_Uart1.UART_DataCount)=val;
+ 666                   Param_Uart1.UART_DataCount ++; 
+ 667                   if(Param_Uart1.UART_DataCount==16)
+ 668                   {
+ 669                     
+ 670                     Param_Uart1.rx=Param_Uart1.RXBuf;
+ 671                     p_Memory=Channel_Start_Adress;
+ 672                     
+C51 COMPILER V9.52.0.0   UART                                                              06/02/2018 10:26:54 PAGE 12  
+
+ 673                      p_Memory+=Param_Uart1.UART_Addr;
+ 674                      for(i=0; i<16; i++)  //16信道，
+ 675                      {
+ 676                          saveData((p_Memory+i),(*(Param_Uart1.rx+i)));
+ 677                                      
+ 678                      }           
+ 679                      Param_Uart1.countRX = 10;   //跳转到继续接收读写地址            
+ 680                      UART1SendByte(0x06); 
+ 681                      delayus(10);
+ 682                      
+ 683                   }
+ 684                   break;
+ 685              default:
+ 686                break;
+ 687              }
+ 688              
+ 689          }
+ 690          */
+ 691          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   2190    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =     87       9
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

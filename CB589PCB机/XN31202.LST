@@ -1,0 +1,69 @@
+C51 COMPILER V9.52.0.0   XN31202                                                           06/01/2018 15:43:48 PAGE 1   
+
+
+C51 COMPILER V9.52.0.0, COMPILATION OF MODULE XN31202
+OBJECT MODULE PLACED IN XN31202.OBJ
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE XN31202.c LARGE OPTIMIZE(6,SPEED) BROWSE INCDIR(G:\CB589P) DEBUG OBJECTEXTE
+                    -ND TABS(2)
+
+line level    source
+
+   1          #include "system.h"
+   2          #include "XN31202.h"
+   3          
+   4          /*-------------------------------------------------------------------------
+   5          *函数：Set_XN31202  设置XN31202
+   6          *参数：dat  数据   len 长度  
+   7          *返回值：无
+   8          *-------------------------------------------------------------------------*/
+   9          void Set_XN31202(u32 dat,u8 len)
+  10          {
+  11   1        u8 i;
+  12   1        XN31202_STB=0;
+  13   1        delayus(10);
+  14   1        for(i=0;i<len;i++)
+  15   1        {
+  16   2          XN31202_CLK=0;
+  17   2          XN31202_DIO=(dat&0x1);
+  18   2          XN31202_CLK=1;
+  19   2          dat>>=1;
+  20   2        }
+  21   1        delayus(10);
+  22   1        XN31202_STB=1;
+  23   1      }
+  24          /*-------------------------------------------------------------------------
+  25          *函数：initXN31202  初使化31202引脚
+  26          *参数：无
+  27          *返回值：无
+  28          *-------------------------------------------------------------------------*/
+  29          void initXN31202(void)
+  30          {
+  31   1        //通讯引脚映射
+  32   1        //#define XN31202_CLK   P04 
+  33   1        //#define XN31202_DIO   P05
+  34   1        //#define XN31202_STB   P06
+  35   1        //检测引脚映射
+  36   1        //#define XN31202_LD    P07
+  37   1      
+  38   1        P0MDH = 0x6a;
+  39   1      
+  40   1        XN31202_DIO = 1;  
+  41   1        XN31202_CLK = 1;//初始化XN31202数据通讯IO
+  42   1        XN31202_STB = 1;
+  43   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    100    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----       5
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+C51 COMPILER V9.52.0.0   XN31202                                                           06/01/2018 15:43:48 PAGE 2   
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
