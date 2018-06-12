@@ -251,10 +251,12 @@ void IS_KEY1_PRESS(void)
 	{
 		case 0x0F:
 			MenuOperate(KEY_SCAN);
+		  while(Get_AD(Key1)==0x0f);
 			break;
 		case 0x06:
 			inDex1=RFG;
-			if(mKey.ShortPressLimit1>0) mKey.ShortPressLimit1--;			
+			MenuOperate(KEY_RFG);		  
+		  while(Get_AD(Key1)==0x06);
 		  break;
 		case 0x0D:
 			inDex1=UP;
@@ -302,7 +304,7 @@ void IS_KEY1_PRESS(void)
 						
 						break;
 					case RFG:
-						MenuOperate(KEY_RFG);
+				
 						break;
 					case UP:
 						if(LONG_UPDN_PRESS<8)
@@ -425,7 +427,8 @@ void IS_KEY2_PRESS(void)
 	
 		case 0x0a:
 			inDex2=EMG;
-			if( mKey.ShortPressLimit2>0) mKey.ShortPressLimit2--;
+			MenuOperate(KEY_EMG);
+		  while(Check_Key(Key2)==0x0a);
 			break;
 		case 0x0D:
 			inDex2=F;	
@@ -448,9 +451,8 @@ void IS_KEY2_PRESS(void)
 		case 0x03:
 			inDex2=VOL_UP;			
 		
-			MenuOperate(KEY_VOL_UP);
-		
-			if( mKey.ShortPressLimit2>0)  mKey.ShortPressLimit2--;
+			MenuOperate(KEY_VOL_UP);		
+
 			break;		
 		default:
 			if(( mKey.ShortPressLimit2>0) && ( mKey.ShortPressLimit2<15))	
@@ -458,7 +460,7 @@ void IS_KEY2_PRESS(void)
 				switch(inDex2)              //¶Ì°´
 				{					
 					case EMG:
-						MenuOperate(KEY_EMG);
+						
 						break;
 					case F:
 						MenuOperate(KEY_F);
@@ -522,23 +524,6 @@ void PPT_PRESS(void)
 		ButtonLED=BUTTON_LED_TIME;
 		PPTpress=1;
 		MenuOperate(KEY_PPTDN);
-		
-//		while(PPT_KEY==0)
-//		{
-//			i++;
-//			delayms(1);
-//			if(i>=3000)
-//			{
-//				i=0;
-//				TX_LimitTime++;
-//				delayms(1);
-//				if(TX_LimitTime>=20)
-//				{
-//					MenuOperate(KEY_PPTUP);
-//				}
-//			}
-//			
-//		}
 	}
 	else
 	{		

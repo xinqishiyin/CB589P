@@ -159,7 +159,7 @@ void eepromWriteByte(u8 page,u8 addr,u8 value)
 	at24c08I2cWriteByte(value);
 	at24c08RxAck();
 	at24c08I2cStop();
-	delayms(5);
+	delayms(8);
 }
 /*-------------------------------------------------------------------------
 *º¯Êý£ºeepromWritePage  ´æ´¢Æ÷Ð´Èë

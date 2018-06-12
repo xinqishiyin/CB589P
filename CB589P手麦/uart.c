@@ -366,6 +366,7 @@ void sendCommand(uchar cmd)
 		
 		case CMD_SET_ALL:
 		{
+			fre=(u32)(channel.RX_Freq*1000);
 			mCbParam.UartTxBuf[2] = 17;
 			mCbParam.UartTxBuf[3] = mCbParam.FreqCal;
 			mCbParam.UartTxBuf[4] = mCbParam.Country;
@@ -380,10 +381,10 @@ void sendCommand(uchar cmd)
 			mCbParam.UartTxBuf[12] = mDtmfRecive.dtmfCode>>4;
 			mCbParam.UartTxBuf[13] = (mDtmfRecive.dtmfCode&0x0f);
 			mCbParam.UartTxBuf[14] = (u8)(fre>>28);
-			mCbParam.UartTxBuf[15] = (u8)((fre&0x0fe00000)>>21);
-			mCbParam.UartTxBuf[16] = (u8)((fre&0x001fc000)>>14);
-			mCbParam.UartTxBuf[17] = (u8)(fre&0x00003f80>>7);
-			mCbParam.UartTxBuf[18] = (u8)(fre&0x00000007);
+			mCbParam.UartTxBuf[15] = (u8)((fre>>21)&0x7f);
+			mCbParam.UartTxBuf[16] = (u8)((fre>>14)&0x7f);
+			mCbParam.UartTxBuf[17] = (u8)((fre>>7)&0x7f);
+			mCbParam.UartTxBuf[18] = (u8)(fre&0x7f);
 			
 			mCbParam.UartTxBuf[19] = 0;
 			for(i=3; i<19; i++)

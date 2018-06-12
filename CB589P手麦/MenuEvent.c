@@ -303,8 +303,7 @@ void CHANNEL_DN_FUC()   				 			//信道减
 					mCbParam.Channel=mSysParam.MinChannel;
 				}
 				*/
-			}
-			if(mCbParam.Country==COUNTRY_DE&&mCbParam.Modu==AM)mCbParam.Modu=FM ;	
+			}		
 	
 			mCbParam.Channel=mSysParam.MaxChannel;
 			
@@ -729,7 +728,8 @@ void CHANNEL_PPTDN_FUC()            //发射
 						LCD_TX(1);	
 						
 						if(mCbParam.TxPower==POWER_HIGH)		LCD_STRENGTH(5);	
-						else LCD_STRENGTH(3);	
+						else if(mCbParam.TxPower==POWER_1W) LCD_STRENGTH(1);
+						else  LCD_STRENGTH(3);
 						EN_MIC = 1;
 						LED_TX = 1;					
 						mMenu.isTx=1;		
@@ -741,9 +741,7 @@ void CHANNEL_PPTDN_FUC()            //发射
 			else
 			{			
 				if(mFlag.SpkOpen == 0)
-				{
-					mMenu.isTx=1;		
-			
+				{							
 					StartBK4815TX();
 					SPK_EN=0;
 					LED_RX = 0;
@@ -794,7 +792,7 @@ void CHANNEL_PPTUP_FUC()           //停止发射
 				LCD_STRENGTH(0);
 				LED_TX = 0;	
 				EnterBK4815RX();	
-				mMenu.isTx=0;				
+				mMenu.isTx=0;
 			}	
 		}
 	}
@@ -1016,6 +1014,11 @@ void CHANNEL_FAF_FUC()
 	}
 	LCD_CLEAR();
 	saveData(EEP_COUNTRY_TB,mCbParam.CountryTable);
+	if(mSysParam.isUK==1) 
+	{
+		mCbParam.Country=COUNTRY_UK;
+		mSysParam.isUK=0;
+	}
 	switch(mCbParam.CountryTable)
 	{
 		case 1:
@@ -1039,7 +1042,6 @@ void CHANNEL_FAF_FUC()
 *-------------------------------------------------------------------------*/
 void CHANNEL_RFG_FUC()                //进入RF GAIN等级设置
 {	
-	delayms(MENU_UP_DOWN_SPEED);
 	ShowRfg();	
 }
 /*-------------------------------------------------------------------------
@@ -1232,7 +1234,7 @@ void CHANNEL_LONGF_F_F_FC_UP_FUC()			//LCD颜色切换
 *-------------------------------------------------------------------------*/
 void CHANNEL_LONGF_F_F_FC_DN_FUC()			//LCD颜色切换
 {
-	delayms(MENU_UP_DOWN_SPEED);
+
 	if(mHmSetting.LcdColor==0)
 	{
 		mHmSetting.LcdColor=7;
@@ -1306,7 +1308,7 @@ void CHANNEL_MENU_BACK_FUC()               //设置时按PPT返回
 	mMenu.Back_Channel_Time=BACK_TIME;
 	mFlag.InMainFace = 0;
   while(PPT_KEY==0);
-	delayms(MENU_UP_DOWN_SPEED);
+	
 	
 }
 /*-------------------------------------------------------------------------
@@ -1426,7 +1428,7 @@ void CHANNEL_FAF_DN_FUC()
 	
 	LCD_CLEAR();
 	ShowContry(mCbParam.Country);	
-	delayms(MENU_UP_DOWN_SPEED);
+	
 }
 /*-------------------------------------------------------------------------
 *函数：CHANNEL_FAF_UP_FUC  国家加
@@ -1452,8 +1454,7 @@ void CHANNEL_FAF_UP_FUC()
 			break;
 	}
 	LCD_CLEAR();
-	ShowContry(mCbParam.Country);	
-	delayms(MENU_UP_DOWN_SPEED);
+	ShowContry(mCbParam.Country);		
 }
 /*-------------------------------------------------------------------------
 *函数：CHANNEL_FAF_PPT_FUC  保存国家设置
@@ -1485,20 +1486,20 @@ void CHANNEL_FAF_PPT_FUC()
 		mSysParam.MinChannel = 1;
 	switch(mCbParam.Country)
 	{
-		case COUNTRY_EU: mSysParam.MaxChannel = 40;break;
-		case COUNTRY_CE: mSysParam.MaxChannel = 40;break;
-		case COUNTRY_UK: mSysParam.MaxChannel = 40;break;
-		case COUNTRY_PL: mSysParam.MaxChannel = 40;break;
-		case COUNTRY_I0: mSysParam.MaxChannel = 40;break;
-		case COUNTRY_AU: mSysParam.MaxChannel = 40;break;
-		case COUNTRY_NL: mSysParam.MaxChannel = 40;break;
-		case COUNTRY_RU: mSysParam.MaxChannel = 40;mCbParam.Band=3;break;
-		case COUNTRY_PX: mSysParam.MaxChannel = 40;mCbParam.Band=3;break;
-		case COUNTRY_I2: mSysParam.MaxChannel = 34;break;
-		case COUNTRY_DE: mSysParam.MaxChannel = 80;break;
-		case COUNTRY_IN: mSysParam.MaxChannel = 27;break;
-		case COUNTRY_PC: mSysParam.MaxChannel = 50;break;
-		case COUNTRY_AM: mSysParam.MaxChannel = 10;break;
+		case COUNTRY_EU: mSysParam.MaxChannel = 40;mSysParam.isUK=0;break;
+		case COUNTRY_CE: mSysParam.MaxChannel = 40;mSysParam.isUK=0;break;
+		case COUNTRY_UK: mSysParam.MaxChannel = 40;mSysParam.isUK=0;break;
+		case COUNTRY_PL: mSysParam.MaxChannel = 40;mSysParam.isUK=0;break;
+		case COUNTRY_I0: mSysParam.MaxChannel = 40;mSysParam.isUK=0;break;
+		case COUNTRY_AU: mSysParam.MaxChannel = 40;mSysParam.isUK=0;break;
+		case COUNTRY_NL: mSysParam.MaxChannel = 40;mSysParam.isUK=0;break;
+		case COUNTRY_RU: mSysParam.MaxChannel = 40;mCbParam.Band=3;mSysParam.isUK=0;break;
+		case COUNTRY_PX: mSysParam.MaxChannel = 40;mCbParam.Band=3;mSysParam.isUK=0;break;
+		case COUNTRY_I2: mSysParam.MaxChannel = 34;mSysParam.isUK=0;break;
+		case COUNTRY_DE: mSysParam.MaxChannel = 80;mSysParam.isUK=0;break;
+		case COUNTRY_IN: mSysParam.MaxChannel = 27;mSysParam.isUK=0;break;
+		case COUNTRY_PC: mSysParam.MaxChannel = 50;mSysParam.isUK=0;break;
+		case COUNTRY_AM: mSysParam.MaxChannel = 10;mSysParam.isUK=0;break;
 	}
 	if(mCbParam.Country==COUNTRY_AM) 
 	{
@@ -1675,7 +1676,7 @@ void CHANNEL_SQ_SET_UP_FUC()
 			break;
 	}
 	ShowSQReSet();
-	delayms(MENU_UP_DOWN_SPEED);
+
 }
 /*-------------------------------------------------------------------------
 *函数：CHANNEL_SQ_SET_DN_FUC  SQ调节减键
@@ -1762,7 +1763,7 @@ void CHANNEL_SQ_SET_DN_FUC()
 			break;
 	}
 	ShowSQReSet();
-	delayms(MENU_UP_DOWN_SPEED);
+
 }
 /*-------------------------------------------------------------------------
 *函数：CHANNEL_SQ_SET_F_FUC  SQ调节切换设置对象

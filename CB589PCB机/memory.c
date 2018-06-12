@@ -271,6 +271,9 @@ void loadAllParam(void)
 		else mCbParam.Sq = mSqParam.SqLevel;
 		mDtmfRecive.dtmfCode=loadData(EEP_DTMF);
 		
+
+	
+		
 		fre=(((u32)loadData(EEP_FRE))<<24)|(((u32)loadData(EEP_FRE+1))<<16)|(((u32)loadData(EEP_FRE+2))<<8)|((u32)loadData(EEP_FRE+3));
 		channel.RX_Freq=((float)fre/1000);
 		
@@ -329,12 +332,7 @@ void Power_On_Rx()
 *-------------------------------------------------------------------------*/
 void initMemory(void)
 {
-	initAt24c08();
-	
-	setDefaultParam();
-		saveAllParam();
-		saveSQSet();
-	
+	initAt24c08();	
 	loadAllParam();
 	 Power_On_Rx();
 }

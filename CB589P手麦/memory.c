@@ -87,6 +87,8 @@ void saveAllParam(void)
 	saveData(EEP_BASE,0xa5);
 	saveData(EEP_FREQ_CAL,mCbParam.FreqCal);
 	saveData(EEP_COUNTRY_TB,mCbParam.CountryTable);
+
+
 	saveData(EEP_COUNTRY,mCbParam.Country);				
 	saveData(EEP_BAND,mCbParam.Band);		
 	saveData(EEP_CHANNEL,mCbParam.Channel);		
@@ -111,7 +113,8 @@ void saveAllParam(void)
 	saveData(EEP_FRE,(u8)(fre>>24));
 	saveData(EEP_FRE+1,(u8)((fre&0x00ff0000)>>16));
 	saveData(EEP_FRE+2,(u8)((fre&0x0000ff00)>>8));
-	saveData(EEP_FRE+3,(u8)(fre&0x000000ff));	
+	saveData(EEP_FRE+3,(u8)(fre&0x000000ff));
+	saveData(EEP_ISUK,mSysParam.isUK);
 }
 
 void saveDtmf()
@@ -174,14 +177,14 @@ void loadAllParam(void)
 		mSysParam.LastChannel = loadData(EEP_LAST_CH);
 		mSysParam.HitPower=loadData(EEP_HIT_POWER);
 		mDtmfRecive.dtmfCode=loadData(EEP_DTMF);
+		mSysParam.isUK=loadData(EEP_ISUK);
 		fre=(((u32)loadData(EEP_FRE))<<24)|(((u32)loadData(EEP_FRE+1))<<16)|(((u32)loadData(EEP_FRE+2))<<8)|((u32)loadData(EEP_FRE+3));
-		channel.RX_Freq=((float)fre/1000);
-		
-		
+		channel.RX_Freq=((float)fre/1000);				
 	}
 	mSqParam.Scan=1;
-	mSqParam.ScanHould=1;
+	mSqParam.ScanHould=1;		
 	checkAllParam();
+	
 }
 /*-------------------------------------------------------------------------
 *函数：initMemory  初使加载功能信息

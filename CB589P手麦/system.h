@@ -20,7 +20,7 @@ sbit ADGO = ADCON^2;
 #define Key2     2
 
 
-#define SendDtmfTime    40
+#define SendDtmfTime    100
 
 /***************************************
 *	             值映射                *
@@ -91,6 +91,7 @@ sbit ADGO = ADCON^2;
 #define SCAN_SPEED_DELAY           4         //扫描/双频守候间隔时间
 
 #define KEY_COMBOlIMIT             40         //x组合按件时
+#define KEY_COMBOlIMIT_LONG        80         //切换表组合按件时
 
 /*---------------------引脚宏定义--------------------------*/
 #define AT24C08_SCL                P02
@@ -267,6 +268,18 @@ typedef struct
 /*---------------------------------------*/
 
 
+/*-------------菜单参数---------------------------*/
+typedef struct
+{
+	unsigned char isBussy;	      //忙 防重调用
+	unsigned char MenuIndex;		  //菜单索引
+	unsigned char BackMenuIndex;   //反回菜单索引存储
+	unsigned int Back_Channel_Time;	//返回主菜单时间
+	unsigned char isLock;			      //是否锁键
+	unsigned char emgIndex;		    //紧急信道标识
+	unsigned char isTx;			        //发射状态
+	
+}tMenu;	
 
 
 #define SetBit(VAR,Place)         ( (VAR) |= (u8)((u8)1<<(u8)(Place)) )
@@ -298,6 +311,8 @@ extern xdata tDtmfRecive mDtmfRecive;
 extern xdata u16  dtmfNum;
 extern xdata u8  isPowerOn;
 extern u8 sendDtmfT;
+extern tMenu mMenu;
+
 void SystemInit(void);
 void delayms(u16 time);
 void delayus(u8 i);

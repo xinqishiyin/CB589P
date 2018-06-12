@@ -327,7 +327,16 @@ void Twinkle_Control(void)
 					LCD_twinkle_Show=SHOW_TWINKLE_TIME;
 				}		
 			}
-			RX_STRENGTH_SHOW();
+			if(mMenu.isTx==1)
+			{
+				if(mCbParam.TxPower==POWER_HIGH)		LCD_STRENGTH(5);	
+				else if(mCbParam.TxPower==POWER_1W) LCD_STRENGTH(1);
+				else  LCD_STRENGTH(3);
+			}
+			else
+			{
+				RX_STRENGTH_SHOW();
+			}
 			break;
 		case CHANNEL_RFG:																//RFG¿ªÆô ÉÁË¸		         
 			if(LCD_twinkle_Show>0)	LCD_twinkle_Show--;		
@@ -395,7 +404,16 @@ void Twinkle_Control(void)
 			break;
 		case CHANNEL_SCAN:
 			LCD_SCAN(1);
-		  RX_STRENGTH_SHOW();
+		  if(mMenu.isTx==1)
+			{
+				if(mCbParam.TxPower==POWER_HIGH)		LCD_STRENGTH(5);	
+				else if(mCbParam.TxPower==POWER_1W) LCD_STRENGTH(1);
+				else  LCD_STRENGTH(3);
+			}
+			else
+			{
+				RX_STRENGTH_SHOW();
+			}
 			break;
 		case CHANNEL_DW:
 			if(mSqParam.DWSet==1)
@@ -438,7 +456,16 @@ void Twinkle_Control(void)
 				}		
 		 }
 			LCD_DW(1);
-		  RX_STRENGTH_SHOW();
+		  if(mMenu.isTx==1)
+			{
+				if(mCbParam.TxPower==POWER_HIGH)		LCD_STRENGTH(5);	
+				else if(mCbParam.TxPower==POWER_1W) LCD_STRENGTH(1);
+				else  LCD_STRENGTH(3);
+			}
+			else
+			{
+				RX_STRENGTH_SHOW();
+			}
 			break;
 	 case CHANNEL_VOL:
 		 

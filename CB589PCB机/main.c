@@ -1,11 +1,8 @@
-   #include "SC51F2832.H"
-
+#include "SC51F2832.H"
 #include "system.h"
 #include "XN31202.h"
 #include "event.h"
-
 #include "m62429.h"
-
 #include "vco.h"
 #include "KB4815.h"
 #include "memory.h"

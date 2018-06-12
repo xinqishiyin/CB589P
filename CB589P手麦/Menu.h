@@ -20,18 +20,6 @@
 #define CHANNEL_FRECAL                      16  //频偏调节
 
 
-/*-------------菜单参数---------------------------*/
-typedef struct
-{
-	unsigned char isBussy;	      //忙 防重调用
-	unsigned char MenuIndex;		  //菜单索引
-	unsigned char BackMenuIndex;   //反回菜单索引存储
-	unsigned int Back_Channel_Time;	//返回主菜单时间
-	unsigned char isLock;			      //是否锁键
-	unsigned char emgIndex;		    //紧急信道标识
-	unsigned char isTx;			        //发射状态
-	
-}tMenu;	
 
 
 void CHANNEL_FUC();

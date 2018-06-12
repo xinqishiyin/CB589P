@@ -94,7 +94,7 @@ uchar isModuConstant(void) //调制是固定的，不能变
 void setDefaultParam(void)
 {
 	clearFlag();
-	mCbParam.FreqCal = 110;
+	mCbParam.FreqCal = 20;
 	mCbParam.CountryTable = 1;
 	mCbParam.Country = COUNTRY_EU;
 	mCbParam.Band = 0;
@@ -108,13 +108,13 @@ void setDefaultParam(void)
 	mSqParam.IsAsq = SQ_val;
 	mSqParam.AsqLevel = 3;
 	mSqParam.SqLevel = 10;
-	channel.RX_Freq=200.015;
+	channel.RX_Freq=260.015;
 	mSqParam.Scan=0;
 	mSqParam.ScanDir=0;
 	mSqParam.ScanHould=1;
 	mSqParam.DWSet=0;
 	//mSystem.isMute=0;
-
+  mSysParam.isUK=0;
 	mHmSetting.SpkerSwitch = 1;
 	mHmSetting.LcdColor = 7;
 	mHmSetting.ButtonLedSwitch = 1;
@@ -140,8 +140,8 @@ void checkAllParam(void)
 	switch(mCbParam.Country)
 	{
 		case COUNTRY_EU: mSysParam.MaxChannel = 40;mCbParam.Band=0;mSysParam.isUK=0;break;
-		case COUNTRY_CE: mSysParam.MaxChannel = 40;mCbParam.Band=0;mSysParam.isUK=0;break;
-		case COUNTRY_UK: mSysParam.MaxChannel = 40;mCbParam.Band=0;mSysParam.isUK=1;break;
+		case COUNTRY_CE: mSysParam.MaxChannel = 40;mCbParam.Band=0;break;
+		case COUNTRY_UK: mSysParam.MaxChannel = 40;mCbParam.Band=0;mSysParam.isUK=0;break;
 		case COUNTRY_PL: mSysParam.MaxChannel = 40;mCbParam.Band=0;mSysParam.isUK=0;break;
 		case COUNTRY_I0: mSysParam.MaxChannel = 40;mCbParam.Band=0;mSysParam.isUK=0;break;
 		case COUNTRY_AU: mSysParam.MaxChannel = 40;mCbParam.Band=0;mSysParam.isUK=0;break;
@@ -167,6 +167,7 @@ void checkAllParam(void)
 		case COUNTRY_AM: mSysParam.MaxChannel = 10;mCbParam.Band=0;mSysParam.isUK=0;break;
 	}
 	
+	if(mSysParam.isUK>1)mSysParam.isUK=0;
 if(mCbParam.CountryTable > 3)mCbParam.CountryTable = 1;	
 else if (mCbParam.CountryTable==0) mCbParam.CountryTable = 1;	
 	if((mCbParam.Country > 13) || (mCbParam.Country < 0))mCbParam.Country = 0;	 
@@ -194,9 +195,11 @@ else if (mCbParam.CountryTable==0) mCbParam.CountryTable = 1;
 	if(mSqParam.IsAsq==1) mCbParam.Sq = mSqParam.AsqLevel | 0x20;
 	else mCbParam.Sq = mSqParam.SqLevel;
  
-	if(channel.RX_Freq<200)channel.RX_Freq=200;
-		
+	if(channel.RX_Freq<260)channel.RX_Freq=260;
+	else if(channel.RX_Freq>380)channel.RX_Freq=260;
 	if(mHmSetting.LcdColor > 7) mHmSetting.LcdColor = 7;
+	
+	if((mDtmfRecive.dtmfCode&0xf0)==0) mDtmfRecive.dtmfCode|=0x1f;
   if(mSysParam.HitPower>0) mSysParam.HitPower=1;
 	mCbParam.UartTxBuf[0] = 0xFE;
 	mSysParam.isMute=0;

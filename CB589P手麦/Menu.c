@@ -48,9 +48,10 @@ void MenuOperate(unsigned char key)
 	}
 	if(key_UnLockcount==1&&key!=KEY_F)key_UnLockcount=0;
 	if(key_CombleFDN==1&&key!=KEY_DN)key_CombleFDN=0;
-	if(key_CombleFUPAFRFGSCAN==2&&key!=KEY_AF) { key_CombleFUPAFRFGSCAN=0;mMenu.MenuIndex=CHANNEL;	CHANNEL_FUC(); }	
-	if(key_CombleFUPAFRFGSCAN==3&&key!=KEY_RFG) { key_CombleFUPAFRFGSCAN=0;mMenu.MenuIndex=CHANNEL;	CHANNEL_FUC(); }
-	if(key_CombleFUPAFRFGSCAN==4&&key!=KEY_SCAN) { key_CombleFUPAFRFGSCAN=0;mMenu.MenuIndex=CHANNEL;	CHANNEL_FUC(); } 
+	if(key_CombleFUPAFRFGSCAN==1&&key!=KEY_UP) { key_CombleFUPAFRFGSCAN=0; }	
+	if(key_CombleFUPAFRFGSCAN==2&&key!=KEY_AF) { key_CombleFUPAFRFGSCAN=0; }	
+	if(key_CombleFUPAFRFGSCAN==3&&key!=KEY_RFG) { key_CombleFUPAFRFGSCAN=0; }
+	if(key_CombleFUPAFRFGSCAN==4&&key!=KEY_SCAN) { key_CombleFUPAFRFGSCAN=0;} 
 	if(key_CombleFUPEMG==1&&key!=KEY_UP)  key_CombleFUPEMG=0;
 	if(key_CombleFUPEMG==2&&key!=KEY_EMG)  key_CombleFUPEMG=0;
 	
@@ -75,7 +76,7 @@ void MenuOperate(unsigned char key)
 						CHANNEL_FAF_FUC();						
 					}
 					else 	CHANNEL_AF_FUC();
-					if(key_CombleFUPAFRFGSCAN==2){key_CombleFUPAFRFGSCAN=3;mSysParam.KeyComboLimit=KEY_COMBOlIMIT;}					
+					if(key_CombleFUPAFRFGSCAN==2){key_CombleFUPAFRFGSCAN=3;mSysParam.KeyComboLimit=KEY_COMBOlIMIT_LONG;}					
 					break;
 				case KEY_LONG_AF:
 					
@@ -83,7 +84,7 @@ void MenuOperate(unsigned char key)
 					break;
 				case KEY_RFG:
 					playButtonTone();
-					if(key_CombleFUPAFRFGSCAN==3){key_CombleFUPAFRFGSCAN=4;mSysParam.KeyComboLimit=KEY_COMBOlIMIT;}
+					if(key_CombleFUPAFRFGSCAN==3){key_CombleFUPAFRFGSCAN=4;mSysParam.KeyComboLimit=KEY_COMBOlIMIT_LONG;}
 					mMenu.MenuIndex=CHANNEL_RFG;
 					mMenu.BackMenuIndex=CHANNEL;
 					CHANNEL_RFG_FUC();
@@ -122,7 +123,7 @@ void MenuOperate(unsigned char key)
 					break;
 				case KEY_UP:
 					playButtonTone();
-					if(key_CombleFUPAFRFGSCAN==1){key_CombleFUPAFRFGSCAN=2;mSysParam.KeyComboLimit=KEY_COMBOlIMIT;}
+					if(key_CombleFUPAFRFGSCAN==1){key_CombleFUPAFRFGSCAN=2;mSysParam.KeyComboLimit=KEY_COMBOlIMIT_LONG;}
 					if(key_CombleFUPEMG==1){key_CombleFUPEMG=2;mSysParam.KeyComboLimit=KEY_COMBOlIMIT;}
 					CHANNEL_UP_FUC();
 					break;

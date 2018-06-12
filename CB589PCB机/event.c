@@ -312,15 +312,17 @@ void checkRssi(void)
 		{
 			autoRFG+=1;
 			setRfg(autoRFG+mCbParam.RfgLevel);
+			delayms(100);
 		}
 		
 	}
-	else if(mAgcaVoltage>0x00d0)
+	else if(mAgcaVoltage>0x00c2)
 	{
 		if(autoRFG>0)
 		{
 			autoRFG-=1;
 			setRfg(autoRFG+mCbParam.RfgLevel);
+			delayms(100);
 		}
 		else isautoRGF=0;		
 	}
@@ -664,6 +666,7 @@ void initHandler(void)
 	{
 		//IE &= 0xef;	     //dis  ES0             ¹Ø±Õ´®¿ÚÖÐ¶Ï
 		mFlag.SysMode = SYS_MODE_WIRELESS;
+
 	}
 	else 
 	{
@@ -814,9 +817,13 @@ void eventHandler(void)
 						setEmission(0);
 						break;
 					case CMD_SET_DTMF:
-						mDtmfRecive.dtmfCode= mReceivePackage.RecvBuf[3]<<4|mReceivePackage.RecvBuf[4];
-						fre=(((u32)mReceivePackage.RecvBuf[5])<<28)|(((u32)mReceivePackage.RecvBuf[6])<<21)|(((u32)mReceivePackage.RecvBuf[7])<<14)|((u32)mReceivePackage.RecvBuf[8]<<7)|((u32)mReceivePackage.RecvBuf[9]);
-						channel.RX_Freq=((float)fre/1000);	 	  
+						if(HM_DET==0)
+						{						
+							mDtmfRecive.dtmfCode= mReceivePackage.RecvBuf[3]<<4|mReceivePackage.RecvBuf[4];					
+							fre=(((u32)mReceivePackage.RecvBuf[5])<<28)|(((u32)mReceivePackage.RecvBuf[6])<<21)|(((u32)mReceivePackage.RecvBuf[7])<<14)|((u32)mReceivePackage.RecvBuf[8]<<7)|((u32)mReceivePackage.RecvBuf[9]);
+							channel.RX_Freq=((float)fre/1000);	 	  
+							saveDtmf();
+						}
 	          //if(channel.RX_Freq<200||channel.RX_Freq>400)channel.RX_Freq=300;
 						break;
 					case CMD_SET_ALL:			
@@ -833,6 +840,8 @@ void eventHandler(void)
 						mDtmfRecive.dtmfCode= mReceivePackage.RecvBuf[12];
 						mDtmfRecive.dtmfCode= mReceivePackage.RecvBuf[12]<<4|mReceivePackage.RecvBuf[13];
 						fre=(((u32)mReceivePackage.RecvBuf[14])<<28)|(((u32)mReceivePackage.RecvBuf[15])<<21)|(((u32)mReceivePackage.RecvBuf[16])<<14)|((u32)mReceivePackage.RecvBuf[17]<<7)|((u32)mReceivePackage.RecvBuf[18]);
+						
+					
 						channel.RX_Freq=((float)fre/1000);	
 //						if(channel.RX_Freq<200||channel.RX_Freq>400)channel.RX_Freq=300;
 						Set_XN31202(0x02c4,14);
@@ -909,7 +918,7 @@ void eventHandler(void)
 			}
 		}
 		else
-		{
+		{		
 			if(HM_DET==0)
 			{
 				BK4815Sleep();

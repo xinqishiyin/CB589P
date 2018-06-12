@@ -352,15 +352,17 @@ void calculateFreq(void)
 			break;
 	}
 	
-	
+
 	mCurrentFreq*=1000;	
 	if(mCbParam.Country==COUNTRY_UK) 
-	{
-		setFrqCal(mCbParam.FreqCal+170);		
+	{		
+		setFrqCal(120);
+		
 	}
 	else
-	{
-		setFrqCal(mCbParam.FreqCal);		
+	{			
+		
+		setFrqCal(0);		
 	}
 	temp = mCurrentFreq / mReferenceFreq / 2;
 	

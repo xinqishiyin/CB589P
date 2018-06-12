@@ -242,7 +242,9 @@ void evenHandler()
 				
 				if(isConnect==0)
 				{					
+					SPK_EN=0;
 					BK4815Sleep();
+					
 					isBK4815_Set=0;
 					isWending=0;
 					LED_TX=OFF;
@@ -283,13 +285,13 @@ void evenHandler()
 									{
 										mDtmfRecive.dtmfCode++;
 									}
-									else mDtmfRecive.dtmfCode=0x00;							
+									else mDtmfRecive.dtmfCode=0x10;							
 								 
-									if(channel.RX_Freq<400)
+									if(channel.RX_Freq<380)
 									{
 										channel.RX_Freq+=0.015;
 									}
-									else channel.RX_Freq=200.015;							
+									else channel.RX_Freq=260.015;							
 									
 									
 									if(!isSendCmdOK(CMD_SET_DTMF))
@@ -336,8 +338,7 @@ void evenHandler()
 				PWR_MUTE_PRESS();
 				wriless_button();
 
-				TM1722_SHOW();	   //2ms
-	
+				TM1722_SHOW();	   //2ms	
 				if(isWending==0)
 				{
 					delayms(500);

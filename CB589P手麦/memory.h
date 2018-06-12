@@ -25,8 +25,8 @@ enum                   //保存地址
 	EEP_SPK_SW,
   EEP_HIT_POWER	,
 	EEP_DTMF,
-	EEP_FRE
-	
+	EEP_FRE,
+	EEP_ISUK=25
 }; 
 /*-------------------------------------------------------------------------
 *函数：saveData  保存数据

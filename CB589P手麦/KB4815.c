@@ -11,12 +11,12 @@ u8 recivecode[1]={1};
 u8 reccount=0;
 /*--------------全局变量-------------------------*/
 u16 g_reg0_15_buff[16];
-u16 xdata reg0_19[]=
+xdata u16 reg0_18[]=
 {
-  0x0044,0x0019,0x0027,0xB641,0xF770,
+ 0x4816,  0x0044,0x0019,0x0027,0xB641,0xF770,
 	0xF274,0x08F0,0xFF33,0xC3FA,0xA2A3,
 	0x8800,0x0603,0x03FD,0x5817,0x9091,
-	0x88F9,0x5800,0x415C,0x08A0,
+	0x88F9,0x5800,0x415C
 };
 xdata u16 ramp_table[]=
 {
@@ -121,45 +121,39 @@ void BK_Ramp_Table_Init()
 	for(i=0;i<64;i++)
 		BK_Write_Reg(42,ramp_table[i]);
 }
-void initReg01_19()
-{
-	u8 i;
-	for(i=0; i<19; i++)
-	{
-		BK_Write_Reg(i+1, reg0_19[i]);	
-	}
-}
 /*-------------------------------------------------------------------------
 *函数：initKB4815  4815初使化设置
 *参数：无
 *返回值：无
 *-------------------------------------------------------------------------*/
 void initBK4815(void)
-{	
+{
+	
 	u8 i;
-	u16 val=0;	
+	u16 val=0;
+
 	BK4815_SCN = 1; 
 	delayus(2);
 	BK4815_SCN = 1;
 	delayms(1);
 	
-	BK_Write_Reg(117,0x0492);                 //RX Audio:SelCall    GPIO1 :Output low
+	//BK_Write_Reg(117,0x0492);                 //RX Audio:SelCall    GPIO1 :Output low
 	IDLE
-	delayms(500);
-	BK_Write_Reg(12,0xfbab);                   //
+	//delayms(500);
+	//BK_Write_Reg(12,0xfbab);                   //
 	delayus(5);
 	BK_Write_Reg(115, 0x8400);//updated           //DTMF interrupt
 		BK_Write_Reg(116, 0x0000);//updated
 	for(i=1;i<=15;i++)
 	{
-		g_reg0_15_buff[i]=reg0_19[i];
+		g_reg0_15_buff[i]=reg0_18[i];
 		BK_Write_Reg(i, g_reg0_15_buff[i]);
 	}
 	//for(i=0;i<64;i++)
 	//	BK_Write_Reg(42,ramp_table[i]);
 	
 	BK_Ramp_Table_Init();
-	initReg01_19();
+
 	BK_Write_Reg(16, 0x88f9);//0x3684:IF=88K,0x4B80: IF=121.875kHz, 0x05CF: IF=9.375kHz
 	BK_Write_Reg(17, 0x5800);//updated 4812
 	BK_Write_Reg(18, 0x415c);//updated 4812
@@ -468,9 +462,9 @@ void BK_DTMF_TX(u8 buf)
 	BK_Write_Reg(24, SendDtmfLowArr[buf]);
 	BK_Write_Reg(25, SendDtmfHighArr[buf]);
 	BK_Enable_TX_InbandSignal();		
-	delayms(40); /* DelayMs 40ms */
+	delayms(70); /* DelayMs 40ms */
 	BK_Disable_TX_InbandSignal();			
-
+	
 }
 
 u8 isDtmfSendOK() 
@@ -484,7 +478,7 @@ u8 isDtmfSendOK()
 		BK_DTMF_TX((mDtmfRecive.dtmfCode&0xf0)>>4);		
 		OUT_APC=0;
 		EnterBK4815RX();		
-		delayms(80);
+		delayms(70);
 		dat=BK_DTMF_RX_Read();
 		
 		if((dat==(mDtmfRecive.dtmfCode&0x0f))&&(mRecive==MRECIVE_BK4815_INTERUPT)) 		
@@ -516,10 +510,8 @@ void StartBK4815TX(void)
 	OPEN_TX		
 		/*---------------------------------接收频率---------------------------------*/ 
 		g_reg0_15_buff[4]&=0xffe7;
-	if((channel.RX_Freq>=380)&&(channel.RX_Freq<=590)){g_reg0_15_buff[4]|=0x0000;freqband=8; if_l=0x3568;if_h=0xfff5;}
-	else if((channel.RX_Freq>=255)&&(channel.RX_Freq<=394)){g_reg0_15_buff[4]|=0x0100;freqband=12;if_l=0xd01c;if_h=0xffef;}
-	else if((channel.RX_Freq>=192)&&(channel.RX_Freq<=295)){g_reg0_15_buff[4]|=0x0080;freqband=16;if_l=0x6ad0;if_h=0xffea;}
-	else if((channel.RX_Freq>=123)&&(channel.RX_Freq<=187)){g_reg0_15_buff[4]|=0x0180;	freqband=24;if_l=0xa038;if_h=0xffdf;}
+		g_reg0_15_buff[4]|=0x0100;freqband=12;if_l=0xd01c;if_h=0xffef;
+
 	BK_Write_Reg(4,g_reg0_15_buff[4]);
  	
   val1=(u32)(channel.RX_Freq*freqband*(645277.54));
@@ -543,7 +535,6 @@ void StartBK4815TX(void)
 	BK_Write_Reg(112,0x4000);                //RX TO TX	
 	BK_Write_Reg(112,0xe000);                //RX TO TX	
 	BK_Write_Reg(12, 0xf823);                //TX POWER UP	
-	BK_Write_Reg(109,	0xf700);	//PA output control
 	if(isDtmfSendOK())
 	{		
 		
@@ -561,6 +552,7 @@ void StartBK4815TX(void)
 				else LCD_STRENGTH(3);				
 		OUT_APC=1;
 		EN_MIC = 1;
+		mMenu.isTx=1;
 		LED_TX = 1;	
 		EN_MIC=1;
 	}
@@ -586,12 +578,11 @@ void EnterBK4815RX(void)
 	IDLE;
 	EN_MIC=0;
 	OPEN_RX
+
 		/*---------------------------------接收频率---------------------------------*/ 
 		g_reg0_15_buff[4]&=0xffe7;
-	if((channel.RX_Freq>=380)&&(channel.RX_Freq<=590)){g_reg0_15_buff[4]|=0x0000;freqband=8; if_l=0x3568;if_h=0xfff5;}
-	else if((channel.RX_Freq>=255)&&(channel.RX_Freq<=394)){g_reg0_15_buff[4]|=0x0100;freqband=12;if_l=0xd01c;if_h=0xffef;}
-	else if((channel.RX_Freq>=192)&&(channel.RX_Freq<=295)){g_reg0_15_buff[4]|=0x0080;freqband=16;if_l=0x6ad0;if_h=0xffea;}
-	else if((channel.RX_Freq>=123)&&(channel.RX_Freq<=187)){g_reg0_15_buff[4]|=0x0180;	freqband=24;if_l=0xa038;if_h=0xffdf;}
+	
+	g_reg0_15_buff[4]|=0x0100;freqband=12;if_l=0xd01c;if_h=0xffef;
 	BK_Write_Reg(4,g_reg0_15_buff[4]);
  	
   val1=(u32)(channel.RX_Freq*freqband*(645277.54));
@@ -604,14 +595,9 @@ void EnterBK4815RX(void)
 
   delayms(10);
 	
-	BK_Write_Reg(22,	0xB200);	//VOX
-	BK_Write_Reg(90,	0x45F6);	//??
-	BK_Write_Reg(91,	0x2616);	//消尾音亚音频55Hz
-	BK_Write_Reg(92,	0x4001);
-		BK_Write_Reg(109,	0x4600);	//PA output control
-  BK_Write_Reg(112,0xa000);
-
-  BK_Write_Reg(12, 0x0603);
+	EX1 = 1; 		                      //使能INT1中断	                      //使能INT1中断		
+  BK_Write_Reg(112,0xa000); 
+  BK_Write_Reg(12, 0x0a03);
 }
 
 void BK_DTMF_RECIVE()
@@ -619,17 +605,17 @@ void BK_DTMF_RECIVE()
 	uchar dat=0;
 	uchar i=0;  
 	dat=BK_DTMF_RX_Read();
+
 	if(dat == ((mDtmfRecive.dtmfCode&0xf0)>>4))
 	{
 
-		delayms(40);
-		BK_DTMF_TX(mDtmfRecive.dtmfCode&0x0f);	
-					
+		delayms(10);
+		BK_DTMF_TX(mDtmfRecive.dtmfCode&0x0f);					
 		mDtmfRecive.DtmfSussece=1;
 		mDtmfRecive.DtmfRecvCount=0;
 		EnterBK4815RX();
 		BK_TX2RX();
-		delayms(80);					
+		delayms(50);					
 	}  			
 	else
 	{
