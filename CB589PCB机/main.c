@@ -19,7 +19,11 @@ void main()
 	initXN31202();
   SetBK4815Pragram();		
 	initMemory();	
-	while(isPowerOn)	
+	CLS_RX_EN;
+	CLS_TX_EN;
+	Set_Mute();
+	mFlag.VcoIdle=1;
+	while(isPowerOn)
 	{
 		if(POWER_ON == 0||(HM_DET==1))
 		{
@@ -38,10 +42,8 @@ void main()
 	while(1)
 	{
 		initHandler();
-		
 		eventHandler();
-	
-	} 
+	}
 }
 
 void	INT0_Irq(void)	interrupt 0

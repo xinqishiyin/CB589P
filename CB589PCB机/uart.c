@@ -11,7 +11,7 @@ void delayuus(u8 i)
 void uart0SendByte(unsigned char dat)
 {
 	SBUF0 = dat;	
-	while(TI == 0);
+	while((TI == 0)&&(HM_DET==0));
 	TI = 0;
 }
 /*-------------------------------------------------------------------------

@@ -63,8 +63,10 @@ void receiveRssi(void)
 			if(mCbParam.VolLevel>0)
 			{
 				SPK_EN = 1;
-			}			
+			}	
+			else SPK_EN=0;
 		}
+		else SPK_EN=0;
 		LED_TX=OFF;
 		LED_RX = ON;		
 		mSysParam.Rssi &= 0x3f;
@@ -198,13 +200,13 @@ void	Uart0(void)	interrupt	4
 void UART1SendByte(u8 dat)
 {
   SBUF1=dat;
-  while((SCON1&0x01)==0);
+  while(((SCON1&0x01)&&VCC_DET)==0);
 }
 
 void uart0SendByte(unsigned char dat)
 {
 	SBUF0 = dat;
- 	while(TI == 0);
+ 	while((TI == 0) && VCC_DET);
 	TI = 0;
 }
 void uart0SendString(unsigned char *p)

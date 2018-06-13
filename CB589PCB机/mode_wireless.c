@@ -319,11 +319,11 @@ void sysModeWireless(void)
 		if(mDtmfRecive.DtmfSussece==1)
 		{
 			wirelessCheckRec();	
-		}		
+		}
 		if(mFlag.SpkOpen4815 == 0)
 		{
 			checkCBRadioRec();
-		}		
+		}
 		if(mRecive==MRECIVE_BK4815_INTERUPT)
 		{
 			BK_DTMF_RECIVE();

@@ -39,8 +39,8 @@ code u16 RecvDtmfHighArr[]=
 };
 code u16 SendDtmfLowArr[]= 
 {
-0xD0C, 0x9A9, 0x9A9, 0x9A9, 0xAAD, 0xAAD, 0xAAD, 0xBD0,
-0xBD0, 0xBD0, 0x9A9, 0xAAD, 0xBD0, 0xD0C, 0xD0C, 0xD0C
+0xD0C, 0x9AA, 0x9AA, 0x9AA, 0xAAD, 0xAAD, 0xAAD, 0xBD0,
+0xBD0, 0xBD0, 0x9AA, 0xAAD, 0xBD0, 0xD0C, 0xD0C, 0xD0C
 };
 code u16 SendDtmfHighArr[]=
 {
@@ -147,19 +147,18 @@ void initBK4815(void)
 	
 	u8 i;	
 	u16 val=0;
-	
-	u8 freqband=0;
+
 	BK4815_SCN = 1; 
-	delayus(50);
+	delayus(2);
 	BK4815_SCN = 1;
-	delayus(50);
-		reccount=0;
-	IDLE	
-	BK_Write_Reg(117,	0x0492);
+	delayms(1);
+
+//	IDLE	
+//	BK_Write_Reg(117,	0x0492);
 	IDLE
-	delayms(500);
-	BK_Write_Reg(12,	0xFBAB);
-	
+//	delayms(10);
+//	BK_Write_Reg(12,	0xFBAB);
+	delayus(5);
 	BK_Write_Reg(115, 0x8400);//updated           //DTMF interrupt
 	
 	BK_Write_Reg(116, 0x0000);//updated
@@ -610,9 +609,9 @@ void EnterBK4815RX(void)
 	BK_Write_Reg(127,if_l);
 
 
-	delayms(15);
+	delayms(10);
 
-	
+	EX0 = 1;
   BK_Write_Reg(112,0xa000);
 
   BK_Write_Reg(12, 0x0603);

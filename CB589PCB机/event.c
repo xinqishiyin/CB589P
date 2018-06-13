@@ -305,27 +305,27 @@ void checkRssi(void)
 	mRssiVoltage = temp_rssi/2;
 	mAgcaVoltage = temp_agca/2;
 
-	if(mAgcaVoltage<0x009f)
-	{
-		isautoRGF=1;
-		if((autoRFG+mCbParam.RfgLevel)<9)
-		{
-			autoRFG+=1;
-			setRfg(autoRFG+mCbParam.RfgLevel);
-			delayms(100);
-		}
-		
-	}
-	else if(mAgcaVoltage>0x00c2)
-	{
-		if(autoRFG>0)
-		{
-			autoRFG-=1;
-			setRfg(autoRFG+mCbParam.RfgLevel);
-			delayms(100);
-		}
-		else isautoRGF=0;		
-	}
+//	if(mAgcaVoltage<0x009f)
+//	{
+//		isautoRGF=1;
+//		if((autoRFG+mCbParam.RfgLevel)<9)
+//		{
+//			autoRFG+=1;
+//			setRfg(autoRFG+mCbParam.RfgLevel);
+//			delayms(100);
+//		}
+//		
+//	}
+//	else if(mAgcaVoltage>0x00c2)
+//	{
+//		if(autoRFG>0)
+//		{
+//			autoRFG-=1;
+//			setRfg(autoRFG+mCbParam.RfgLevel);
+//			delayms(100);
+//		}
+//		else isautoRGF=0;		
+//	}
 		
 	if(mAgcaVoltage<0x0190)
   {
@@ -689,6 +689,7 @@ void eventHandler(void)
 	if(mFlag.SysMode == SYS_MODE_WIRELESS)
 	{
 		is4815Sleep=0;
+		Set_Mute();
 		calculateFreq();
 	  setEmission(0);  
 		saveAllParam();
@@ -783,9 +784,9 @@ void eventHandler(void)
 						setPower();
 					  setModulation();
 						calculateFreq();
-						setEmission(0);					
-						delayms(150);
-					
+					  if(mOpenSqDbLevel>0)	Set_Mute();
+						setEmission(0);
+					  delayms(20);
 						break;
 					case CMD_SET_SQ_ASQ:                                        //SQ…Ë÷√
 						mCbParam.Sq=mReceivePackage.RecvBuf[3];
@@ -856,6 +857,7 @@ void eventHandler(void)
 						{
 							setFrqCal(mCbParam.FreqCal);		
 						}
+						mFlag.VcoIdle=0;
 						setSQ();
 						setVol();
 						setPower();
@@ -919,6 +921,9 @@ void eventHandler(void)
 		}
 		else
 		{		
+			CLS_RX_EN;
+					CLS_TX_EN;
+					Set_Mute();
 			if(HM_DET==0)
 			{
 				BK4815Sleep();
@@ -927,14 +932,12 @@ void eventHandler(void)
 				{
 				  saveAllParam();					
 					POWER_ON_EN=0;
-					CLS_RX_EN;
-					CLS_TX_EN;
-					//Set_Mute();
+					
 					mFlag.SqOpen=0;
 					mFlag.VcoIdle=1;
 					mReceivePackage.RecvCount=0;
 					EA=0;
-					while(POWER_ON==0);;
+					while(POWER_ON==0);
 					EA=1;
 				}
 			}

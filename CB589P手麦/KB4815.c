@@ -44,6 +44,7 @@ code u16 SendDtmfLowArr[]=
 0xD0C, 0x9AA, 0x9AA, 0x9AA, 0xAAD, 0xAAD, 0xAAD, 0xBD0,
 0xBD0, 0xBD0, 0x9AA, 0xAAD, 0xBD0, 0xD0C, 0xD0C, 0xD0C
 };
+
 code u16 SendDtmfHighArr[]=
 {
 0x1285,0x10C3,0x1285,0x147A,0x10C3,0x1285,0x147A,0x10C3,
@@ -65,8 +66,7 @@ u16 BK_Read_Reg(u8 reg)
 	BK4815_SCN = 0;  
 	for(i=0; i<8; i++)
 	{
-		if(reg & 0x80) OUT_BK4815_SDA = 1;
-		else OUT_BK4815_SDA = 0;
+		if(reg & 0x80) OUT_BK4815_SDA = 1;	else OUT_BK4815_SDA = 0;  
 		BK4815_SCK = 1;
 		BK4815_SCK = 0;
 		reg <<= 1;

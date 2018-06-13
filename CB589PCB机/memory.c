@@ -308,21 +308,11 @@ void Power_On_Rx()
 			Set_XN31202(0x02c4,14);
 			Set_XN31202(0x3000 + (EXTERNAL_CRYSTAL/mReferenceFreq/2),14);
 			mFlag.Mute=0;
-			calculateFreq();
-			if(mCbParam.Country==COUNTRY_UK) 
-			{
-				setFrqCal(mCbParam.FreqCal+170);		
-			}
-			else
-			{
-				setFrqCal(mCbParam.FreqCal);		
-			}
+			calculateFreq();	
 			setSQ();
-			//setVol();
 			setPower();
 			setModulation();
-	    Set_Mute();
-			//setEmission(0);
+	    Set_Mute();		
 			saveAllParam();
 }
 /*-------------------------------------------------------------------------

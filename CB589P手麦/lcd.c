@@ -134,7 +134,7 @@ void ShowChannel()       //通道界面
 		LCD_NUM2(mCbParam.Channel%10);
 	}
 	if(mCbParam.RfgLevel!=0)LCD_NUM5(NUM5_R);
-
+  if(mFlag.SpkOpen==1)LCD_RX(1);
 	if(mCbParam.TxPower == POWER_1W)LCD_LOW(1);
 	if(mSqParam.IsAsq)LCD_ASQ(1);	
 	

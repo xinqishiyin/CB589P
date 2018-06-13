@@ -764,8 +764,10 @@ void CHANNEL_PPTUP_FUC()           //Õ£÷π∑¢…‰
 	  
 		while(mMenu.isTx==1)
 		{
+			initHandler();
 			if(mFlag.SysMode == SYS_MODE_LINE)
 			{
+				
 				if(isSendCmdOK(CMD_RECEIVE))
 				{
 					delayms(50);
