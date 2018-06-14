@@ -120,8 +120,8 @@ void wirelessCheckRec(void)
 		rssi=Get4815Rssi();
 		if((rssi >= mSq.open))
 		{
-			if(mDtmfRecive.DtmfSussece==1)
-			{
+//			if(mDtmfRecive.DtmfSussece==1)
+//			{
 				LED_TX=OFF;
 				LED_RX = ON;				
 				SPK_EN = 1;				
@@ -131,7 +131,7 @@ void wirelessCheckRec(void)
 				BK_TX2RX();
 				mDtmfRecive.DtmfSussece=0;
 				//delayms(50);
-			}
+			//}
 		}	
 	}
 	else 
@@ -328,11 +328,11 @@ void evenHandler()
 					isBK4815_Set=1;
 								
 				}
-				if(mRecive==MRECIVE_BK4815_INTERUPT)
-				{
-					BK_DTMF_RECIVE();
-					mRecive=MRECIVE_NONE;
-				}			
+//				if(mRecive==MRECIVE_BK4815_INTERUPT)
+//				{
+//					BK_DTMF_RECIVE();
+//					mRecive=MRECIVE_NONE;
+//				}			
 				wirelessCheckRec();   //0.6ms				
 				PPT_PRESS();         //3.7us				
 				PWR_MUTE_PRESS();

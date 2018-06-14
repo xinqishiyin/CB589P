@@ -12,13 +12,8 @@ extern tMenu mMenu;
 extern tFlag mFlag;
 extern tSqParam  	mSqParam;                 //SQģʽ
 extern tSysParam	  mSysParam;                //
-xdata tKey mKey;
-extern 	key_CombleFAF;
-extern 			key_CombleFUPAFRFGSCAN;
-extern 			key_UnLockcount;
-extern 			key_CombleFDN;
-extern 			key_CombleFUPAFRFGSCAN;
-extern 			key_CombleFUPEMG;
+
+
 u8 PPTpress=0;
 u8 LONG_UPDN_PRESS=0;
 
@@ -411,16 +406,28 @@ void IS_KEY2_PRESS(void)
 	}
 	if(mSysParam.isKeyCombo==1)
 	{
-		mSysParam.KeyComboLimit--;
+		if(mSysParam.KeyComboLimit>0)
+		mSysParam.KeyComboLimit--;		
 		if(mSysParam.KeyComboLimit==0)
 		{
-			key_CombleFAF=0;
-			key_CombleFUPAFRFGSCAN=0;
-			key_UnLockcount=0;
-			key_CombleFDN=0;
-			key_CombleFUPAFRFGSCAN=0;
-			key_CombleFUPEMG=0;
+			mKey.key_CombleFAF=0;			
+			mKey.key_UnLockcount=0;
+			mKey.key_CombleFDN=0;		
+			mKey.key_CombleFUPEMG=0;
+			mSysParam.isKeyCombo=0;
 		}
+		
+	}
+	if(mSysParam.isKeyComTable==1)
+	{
+
+		if(mSysParam.KeyComboTableLimit>0)
+			mSysParam.KeyComboTableLimit--;
+			if(mSysParam.KeyComboTableLimit==0)
+			{
+				mKey.key_CombleFUPAFRFGSCAN=0;			
+				mSysParam.isKeyComTable=0;
+			}
 	}
 	switch(keyvalee)	
 	{		
@@ -614,6 +621,17 @@ void InitKey()
 	mKey.LongSq_Time=15;
 	mKey.MutePress_Count=0;
   mKey.MuteDoublePress_Timelimit=60;
+	mKey.key_CombleFAF=0;
+ 	mKey.key_CombleFUPAFRFGSCAN=0;
+ 	mKey.key_UnLockcount=0;
+ 	mKey.key_CombleFDN=0;
+ 	mKey.key_CombleFUPAFRFGSCAN=0;
+ 	mKey.key_CombleFUPEMG=0;
+	mKey.key_CombleSQSet=0;	
+	
+	
+	
+	
 	mMenu.Back_Channel_Time=BACK_TIME;
 	
 	mSysParam.KeyComboLimit=KEY_COMBOlIMIT;

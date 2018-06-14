@@ -54,21 +54,7 @@
 
 //u8 key_ppt_count=0;
 //u8 key_power_count=0;
-typedef struct
-{
-	unsigned char KeyIndex1;	      //KEY1 AD值 索引
-	unsigned char KeyIndex2;		  //KEY2 AD值 索引
-	unsigned char ShortPressLimit1;	//按键1短按时限
-	unsigned char ShortPressLimit2;	//按键2短按时限
-	unsigned char Power_Time;	//电源键长按时长
-	unsigned char DoublePress_Limit;	//双击时限
-	unsigned char DoublePress_Count;  //双击次数
-	unsigned char Press_Count;          //按键次数
-	unsigned char MutePress_Timelimit;  //静音（电源）长按时长
-	unsigned char MuteDoublePress_Timelimit;  //静音（电源）双击时限
-	unsigned char LongSq_Time;          //长按SQ切换时长
-	unsigned char MutePress_Count;      //电源按键次数
-}tKey;
+
 
 
 /*-------------------------------------------------------------------------

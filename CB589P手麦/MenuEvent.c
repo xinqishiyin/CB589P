@@ -21,12 +21,7 @@ extern tSysParam	  mSysParam;                //
 extern tFlag  		  mFlag;                    //
 extern tMenu mMenu;   
 
-extern u8 key_CombleFAF;
-extern u8 key_CombleFUPAFRFGSCAN;
-extern u8 key_CombleFUPEMG;
-extern u8 key_CombleSQSet;
 
-extern u8 key_UnLockcount;
 
 
 u8 key_SQSetIndex=0;
@@ -958,8 +953,7 @@ void CHANNEL_LONG_AF_FUC()
 	{
 		playButtonTone();
 		mCbParam.Country=COUNTRY_CE;
-		oldchannel=mCbParam.Channel;
-		mCbParam.Channel=9;
+		oldchannel=mCbParam.Channel;		
 		if(isSendCmdOK(CMD_SET_ALL))
 		{		
 			LCD_CLEAR();
@@ -979,8 +973,7 @@ void CHANNEL_LONG_AF_FUC()
 	{
 		playButtonTone();
 		mCbParam.Country=COUNTRY_UK;
-		oldchannel=mCbParam.Channel;
-		mCbParam.Channel=9;
+		oldchannel=mCbParam.Channel;		
 		if(isSendCmdOK(CMD_SET_ALL))
 		{
 			close_sq();
@@ -1830,6 +1823,8 @@ void CHANNEL_FRECAL_DN_FUC()
 		mCbParam.FreqCal=oldfrecal;
 	}
 	delayms(70);
+	
+
 }
 
 /*-------------------------------------------------------------------------
@@ -1840,11 +1835,11 @@ void CHANNEL_FRECAL_DN_FUC()
 void FACTORY_SETTING_FUC()
 {
   
-	key_CombleFAF=0;
-  key_CombleFUPAFRFGSCAN=0;
-  key_CombleFUPEMG=0;
-  key_CombleSQSet=0;
-  key_UnLockcount=0;
+	mKey.key_CombleFAF=0;
+  mKey.key_CombleFUPAFRFGSCAN=0;
+  mKey.key_CombleFUPEMG=0;
+  mKey.key_CombleSQSet=0;
+  mKey.key_UnLockcount=0;
   mSqParam.Scan=1;
 	mSqParam.DWSet=0;
 

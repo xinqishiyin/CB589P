@@ -91,7 +91,7 @@ sbit ADGO = ADCON^2;
 #define SCAN_SPEED_DELAY           4         //扫描/双频守候间隔时间
 
 #define KEY_COMBOlIMIT             40         //x组合按件时
-#define KEY_COMBOlIMIT_LONG        80         //切换表组合按件时
+#define KEY_COMBOlIMIT_LONG        500        //切换表组合按件时
 
 /*---------------------引脚宏定义--------------------------*/
 #define AT24C08_SCL                P02
@@ -212,8 +212,10 @@ typedef struct
 	unsigned char DWBand2;
 	unsigned char DWModu2;
 	unsigned char isLastChannel;
-	unsigned char KeyComboLimit;
+	unsigned int  KeyComboLimit;
+	unsigned int  KeyComboTableLimit;
 	unsigned char isKeyCombo;
+	unsigned char isKeyComTable;
 	unsigned char isUK;
 }tSysParam;                      //
 enum 
@@ -280,6 +282,29 @@ typedef struct
 	unsigned char isTx;			        //发射状态
 	
 }tMenu;	
+typedef struct
+{
+	unsigned char KeyIndex1;	      //KEY1 AD值 索引
+	unsigned char KeyIndex2;		  //KEY2 AD值 索引
+	unsigned char ShortPressLimit1;	//按键1短按时限
+	unsigned char ShortPressLimit2;	//按键2短按时限
+	unsigned char Power_Time;	//电源键长按时长
+	unsigned char DoublePress_Limit;	//双击时限
+	unsigned char DoublePress_Count;  //双击次数
+	unsigned char Press_Count;          //按键次数
+	unsigned char MutePress_Timelimit;  //静音（电源）长按时长
+	unsigned char MuteDoublePress_Timelimit;  //静音（电源）双击时限
+	unsigned char LongSq_Time;          //长按SQ切换时长
+	unsigned char MutePress_Count;      //电源按键次
+	
+	
+	unsigned char key_CombleFAF;
+ 	unsigned char	key_CombleFUPAFRFGSCAN;
+ 	unsigned char	key_UnLockcount;
+ 	unsigned char	key_CombleFDN;
+ 	unsigned char	key_CombleFUPEMG;
+	unsigned char key_CombleSQSet;
+}tKey;
 
 
 #define SetBit(VAR,Place)         ( (VAR) |= (u8)((u8)1<<(u8)(Place)) )
@@ -308,6 +333,7 @@ extern xdata tSq			mSq;
 extern xdata uchar   isSendDtmf;
 extern xdata uchar     mRecive;
 extern xdata tDtmfRecive mDtmfRecive;
+extern xdata tKey mKey;
 extern xdata u16  dtmfNum;
 extern xdata u8  isPowerOn;
 extern u8 sendDtmfT;

@@ -552,8 +552,8 @@ void StartBK4815TX(void)
 	BK_Write_Reg(112,0xe000);                //RX TO TX	
 	BK_Write_Reg(12, 0xf823);                //TX POWER UP	
 
-	if(isDtmfSendOK())
-	{		
+//	if(isDtmfSendOK())
+//	{		
 	
 		BK_Write_Reg(44, 0x0017);//updated 4812
 		BK_Write_Reg(17, 0x5800);//updated 4812
@@ -566,11 +566,11 @@ void StartBK4815TX(void)
 			OPEN_TX;
 			OUT_APC=1;
 			mFlag.SqOpen = 1;		  
-	}
-	else
-	{
-		EnterBK4815RX();
-	}
+//	}
+//	else
+//	{
+//		EnterBK4815RX();
+//	}
 
 
 }

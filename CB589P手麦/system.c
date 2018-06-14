@@ -15,7 +15,7 @@ xdata uchar     mRecive;
 xdata uchar   isSendDtmf;
 xdata u16  dtmfNum;
 xdata u8  isPowerOn;
-
+xdata tKey mKey;
 /*-------------------------------------------------------------------------
 *函数：systemCLK_init  系统时钟选择  外部16M时钟
 *参数：无  

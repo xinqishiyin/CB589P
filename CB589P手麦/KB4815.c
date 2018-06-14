@@ -535,9 +535,9 @@ void StartBK4815TX(void)
 	BK_Write_Reg(112,0x4000);                //RX TO TX	
 	BK_Write_Reg(112,0xe000);                //RX TO TX	
 	BK_Write_Reg(12, 0xf823);                //TX POWER UP	
-	if(isDtmfSendOK())
-	{		
-		
+//	if(isDtmfSendOK())
+//	{		
+//		
 		BK_Write_Reg(44, 0x0017);//updated 4812
 		BK_Write_Reg(17, 0x5800);//updated 4812
 		val = BK_Read_Reg(40);
@@ -555,11 +555,11 @@ void StartBK4815TX(void)
 		mMenu.isTx=1;
 		LED_TX = 1;	
 		EN_MIC=1;
-	}
-	else
-	{
-		EnterBK4815RX();
-	}
+//	}
+//	else
+//	{
+//		EnterBK4815RX();
+//	}
 }
 /*-------------------------------------------------------------------------
 *º¯Êý£ºEnterRX  ½ÓÊÕ

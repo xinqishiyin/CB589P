@@ -15,12 +15,7 @@
 
 tMenu mMenu;                
 extern u8 ButtonLED;
-u8 key_CombleFAF=0;
-u8 key_CombleFUPAFRFGSCAN=0;
-u8 key_CombleFUPEMG=0;
-u8 key_CombleSQSet=0;
-u8 key_CombleFDN=0;
-u8 key_UnLockcount=0;
+
 
 /*--------------手麦4815默认设置--------------------*/
 extern float RX_Freq_Hand;
@@ -36,30 +31,42 @@ void MenuOperate(unsigned char key)
    mMenu.isBussy=1;
 	
   
-	if(key_CombleFAF==1&&key!=KEY_AF) key_CombleFAF=0;
+	if(mKey.key_CombleFAF==1&&key!=KEY_AF) mKey.key_CombleFAF=0;
 	if(mMenu.MenuIndex!=CHANNEL_DOUBLEF)
 	{
-	  if(key_CombleFUPAFRFGSCAN==1&&key!=KEY_UP) 
+	  if(mKey.key_CombleFUPAFRFGSCAN==1&&key!=KEY_UP) 
     { 
-			 key_CombleFUPAFRFGSCAN=0;
+			 mKey.key_CombleFUPAFRFGSCAN=0;
 			 mMenu.MenuIndex=CHANNEL;	
 			 CHANNEL_FUC();
 		}
 	}
-	if(key_UnLockcount==1&&key!=KEY_F)key_UnLockcount=0;
-	if(key_CombleFDN==1&&key!=KEY_DN)key_CombleFDN=0;
-	if(key_CombleFUPAFRFGSCAN==1&&key!=KEY_UP) { key_CombleFUPAFRFGSCAN=0; }	
-	if(key_CombleFUPAFRFGSCAN==2&&key!=KEY_AF) { key_CombleFUPAFRFGSCAN=0; }	
-	if(key_CombleFUPAFRFGSCAN==3&&key!=KEY_RFG) { key_CombleFUPAFRFGSCAN=0; }
-	if(key_CombleFUPAFRFGSCAN==4&&key!=KEY_SCAN) { key_CombleFUPAFRFGSCAN=0;} 
-	if(key_CombleFUPEMG==1&&key!=KEY_UP)  key_CombleFUPEMG=0;
-	if(key_CombleFUPEMG==2&&key!=KEY_EMG)  key_CombleFUPEMG=0;
+	if(mKey.key_UnLockcount==1&&key!=KEY_F)mKey.key_UnLockcount=0;
+	if(mKey.key_CombleFDN==1&&key!=KEY_DN)mKey.key_CombleFDN=0;
+	if(mKey.key_CombleFUPAFRFGSCAN==1&&key!=KEY_UP) 
+  {
+		mKey.key_CombleFUPAFRFGSCAN=0; 
+	}	
+	if(mKey.key_CombleFUPAFRFGSCAN==2&&key!=KEY_AF)
+	{ 
+		mKey.key_CombleFUPAFRFGSCAN=0;
+	}	
+	if(mKey.key_CombleFUPAFRFGSCAN==3&&key!=KEY_RFG) 
+	{ 
+		mKey.key_CombleFUPAFRFGSCAN=0; 
+	}
+	if(mKey.key_CombleFUPAFRFGSCAN==4&&key!=KEY_SCAN) 
+	{
+		mKey.key_CombleFUPAFRFGSCAN=0;
+	} 
+	if(mKey.key_CombleFUPEMG==1&&key!=KEY_UP)  mKey.key_CombleFUPEMG=0;
+	if(mKey.key_CombleFUPEMG==2&&key!=KEY_EMG)  mKey.key_CombleFUPEMG=0;
 	
-	if(key_CombleSQSet==1&&key!=KEY_SQ)  key_CombleSQSet=0;
-	else if(key_CombleSQSet==2&&key!=KEY_SQ) key_CombleSQSet=0;
-	else if(key_CombleSQSet==3&&key!=KEY_SQ) key_CombleSQSet=0;
-	else if(key_CombleSQSet==4&&key!=KEY_SQ) key_CombleSQSet=0;
-	else if(key_CombleSQSet==5&&key!=KEY_F) key_CombleSQSet=0;
+	if(mKey.key_CombleSQSet==1&&key!=KEY_SQ)  mKey.key_CombleSQSet=0;
+	else if(mKey.key_CombleSQSet==2&&key!=KEY_SQ) mKey.key_CombleSQSet=0;
+	else if(mKey.key_CombleSQSet==3&&key!=KEY_SQ) mKey.key_CombleSQSet=0;
+	else if(mKey.key_CombleSQSet==4&&key!=KEY_SQ) mKey.key_CombleSQSet=0;
+	else if(mKey.key_CombleSQSet==5&&key!=KEY_F) mKey.key_CombleSQSet=0;
 
 	switch(mMenu.MenuIndex)
 	{
@@ -67,16 +74,17 @@ void MenuOperate(unsigned char key)
 			switch(key)
 			{
 				case KEY_AF:			
-					playButtonTone();
-					if(key_CombleFAF==1) 	
+				
+					if(mKey.key_CombleFAF==1) 	
 					{
-						key_CombleFAF=0;
+						mKey.key_CombleFAF=0;
 						mMenu.MenuIndex=CHANNEL_FAF;
 						mMenu.BackMenuIndex=CHANNEL;
 						CHANNEL_FAF_FUC();						
 					}
 					else 	CHANNEL_AF_FUC();
-					if(key_CombleFUPAFRFGSCAN==2){key_CombleFUPAFRFGSCAN=3;mSysParam.KeyComboLimit=KEY_COMBOlIMIT_LONG;}					
+					if(mKey.key_CombleFUPAFRFGSCAN==2){mKey.key_CombleFUPAFRFGSCAN=3;mSysParam.KeyComboTableLimit=KEY_COMBOlIMIT_LONG;}		
+						playButtonTone();
 					break;
 				case KEY_LONG_AF:
 					
@@ -84,7 +92,7 @@ void MenuOperate(unsigned char key)
 					break;
 				case KEY_RFG:
 					playButtonTone();
-					if(key_CombleFUPAFRFGSCAN==3){key_CombleFUPAFRFGSCAN=4;mSysParam.KeyComboLimit=KEY_COMBOlIMIT_LONG;}
+					if(mKey.key_CombleFUPAFRFGSCAN==3){mKey.key_CombleFUPAFRFGSCAN=4;mSysParam.KeyComboTableLimit=KEY_COMBOlIMIT_LONG;}
 					mMenu.MenuIndex=CHANNEL_RFG;
 					mMenu.BackMenuIndex=CHANNEL;
 					CHANNEL_RFG_FUC();
@@ -94,8 +102,8 @@ void MenuOperate(unsigned char key)
 					CHANNEL_PPTUP_FUC();
 					break;
 				case KEY_DN:		
-					playButtonTone();
-					if(key_CombleFDN==1) 
+					
+					if(mKey.key_CombleFDN==1) 
 					{
 						if(mHmSetting.SpkerSwitch==1)
 						{
@@ -108,11 +116,15 @@ void MenuOperate(unsigned char key)
 						}
 						ShowSpeakSwitch();
 						saveData(EEP_SPK_SW,mHmSetting.SpkerSwitch);
-						delayms(400);
+						
+					
 						ShowChannel();
-						key_CombleFDN=0;
+						mKey.key_CombleFDN=0;
+						
 					}
 					else	CHANNEL_DN_FUC();
+					delayms(100);
+						playButtonTone();
 					break;				
 				case KEY_LONGDN:
 					playButtonTone();
@@ -121,11 +133,15 @@ void MenuOperate(unsigned char key)
 						CHANNEL_LONGDN_FUC();
 					}
 					break;
-				case KEY_UP:
-					playButtonTone();
-					if(key_CombleFUPAFRFGSCAN==1){key_CombleFUPAFRFGSCAN=2;mSysParam.KeyComboLimit=KEY_COMBOlIMIT_LONG;}
-					if(key_CombleFUPEMG==1){key_CombleFUPEMG=2;mSysParam.KeyComboLimit=KEY_COMBOlIMIT;}
+				case KEY_UP:					
+					if(mKey.key_CombleFUPAFRFGSCAN==1)
+					{
+						mKey.key_CombleFUPAFRFGSCAN=2;mSysParam.KeyComboTableLimit=KEY_COMBOlIMIT_LONG;
+					}
+					if(mKey.key_CombleFUPEMG==1){mKey.key_CombleFUPEMG=2;mSysParam.KeyComboLimit=KEY_COMBOlIMIT;}
 					CHANNEL_UP_FUC();
+					delayms(100);
+					playButtonTone();
 					break;
 				case KEY_LONGUP:	
 					playButtonTone();
@@ -136,22 +152,22 @@ void MenuOperate(unsigned char key)
 					break;
 				case KEY_SQ:
 					playButtonTone();
-					switch(key_CombleSQSet)
+					switch(mKey.key_CombleSQSet)
 				 {
-					 case 0: key_CombleSQSet=1;
+					 case 0: mKey.key_CombleSQSet=1;
 					 mSysParam.KeyComboLimit=KEY_COMBOlIMIT;
 					   mSysParam.isKeyCombo=1;
 						 break;
-					 case 1: key_CombleSQSet=2;
+					 case 1: mKey.key_CombleSQSet=2;
 					 mSysParam.KeyComboLimit=KEY_COMBOlIMIT;
 						 break;
-					 case 2: key_CombleSQSet=3;
+					 case 2: mKey.key_CombleSQSet=3;
 					 mSysParam.KeyComboLimit=KEY_COMBOlIMIT;
 						 break;
-					 case 3: key_CombleSQSet=4;
+					 case 3: mKey.key_CombleSQSet=4;
 					 mSysParam.KeyComboLimit=KEY_COMBOlIMIT;
 						 break;
-					 case 4: key_CombleSQSet=5;
+					 case 4: mKey.key_CombleSQSet=5;
 					 mSysParam.KeyComboLimit=KEY_COMBOlIMIT;
 						 break;
 					}
@@ -160,9 +176,10 @@ void MenuOperate(unsigned char key)
 					mMenu.BackMenuIndex=CHANNEL;
 					CHANNEL_SQ_FUC();
 					break;
-				case KEY_LONG_SQ:	
-					playButtonTone();
+				case KEY_LONG_SQ:						
 					CHANNEL_LONGSQ_FUC();
+				  delayms(100);
+						playButtonTone();
 					break;
 				case KEY_SCAN:		
 						if((mCbParam.Sq==0)||(mCbParam.Sq==0x20)) return;		
@@ -187,25 +204,27 @@ void MenuOperate(unsigned char key)
 					break;
 				
 				case KEY_F:		
-					key_CombleFDN=1;
-					key_CombleFAF=1;	
-					key_CombleFUPAFRFGSCAN=1;
-				  key_CombleFUPEMG=1;
+					mKey.key_CombleFDN=1;
+					mKey.key_CombleFAF=1;	
+					mKey.key_CombleFUPAFRFGSCAN=1;
+				  mKey.key_CombleFUPEMG=1;
 				  mSysParam.isKeyCombo=1;
+				  mSysParam.isKeyComTable=1;
+					mSysParam.KeyComboTableLimit=KEY_COMBOlIMIT_LONG;
 				  mSysParam.KeyComboLimit=KEY_COMBOlIMIT;
-  
+		
 				  playButtonTone();
-				  if(key_UnLockcount==0) 
+				  if(mKey.key_UnLockcount==0) 
 					{
-						key_UnLockcount=1;					
+						mKey.key_UnLockcount=1;					
 					}
-				  else if(key_UnLockcount==1) 
+				  else if(mKey.key_UnLockcount==1) 
 					{
 						mMenu.MenuIndex=CHANNEL_DOUBLEF;					  
 				    CHANNEL_DOUBLEF_FUC();
-						key_UnLockcount=0;					
+						mKey.key_UnLockcount=0;					
 					}
-					else key_UnLockcount=0;
+					else mKey.key_UnLockcount=0;
 					
 					break;
 				case KEY_LONG_F:
@@ -220,9 +239,9 @@ void MenuOperate(unsigned char key)
 				case KEY_EMG:		
 					
 					playButtonTone();
-					if(key_CombleFUPEMG==2)
+					if(mKey.key_CombleFUPEMG==2)
 					{
-						key_CombleFUPEMG=0;
+						mKey.key_CombleFUPEMG=0;
 						FACTORY_SETTING_FUC();
 					}
 					else CHANNEL_EMG_FUC();
@@ -358,9 +377,11 @@ void MenuOperate(unsigned char key)
 			switch(key)
 			{
 				case KEY_UP:
-					playButtonTone();
+		
 					mMenu.Back_Channel_Time=BACK_TIME;
 					CHANNEL_RFG_UP_FUC();
+				 delayms(100);
+						playButtonTone();
 					break;
 				case KEY_LONGUP:
 					playButtonTone();
@@ -372,9 +393,11 @@ void MenuOperate(unsigned char key)
 					}
 					break;
 				case KEY_DN:		
-					playButtonTone();
+				
 					mMenu.Back_Channel_Time=BACK_TIME;
 					CHANNEL_RFG_DN_FUC();
+				delayms(100);
+						playButtonTone();
 					break;
 				case KEY_LONGDN:
 					playButtonTone();
@@ -396,10 +419,10 @@ void MenuOperate(unsigned char key)
 					CHANNEL_MENU_BACK_FUC();
 					break;
 				case KEY_SCAN:					
-					if(key_CombleFUPAFRFGSCAN==4)
+					if(mKey.key_CombleFUPAFRFGSCAN==4)
 					{
 						playButtonTone();
-						key_CombleFUPAFRFGSCAN=0;
+						mKey.key_CombleFUPAFRFGSCAN=0;
 						mMenu.MenuIndex=CHANNEL_FUPAFRFGSCAN;          //切换国家表
 						CHANNEL_TABLE_FUC();
 					}					
@@ -418,31 +441,33 @@ void MenuOperate(unsigned char key)
 					
 					mMenu.Back_Channel_Time=BACK_TIME;
 					CHANNEL_SQ_VOLUP_FUC();
-					playButtonTone();
+					delayms(100);
+						playButtonTone();
 					break;				
 				case KEY_VOL_DN:		
           			
 					mMenu.Back_Channel_Time=BACK_TIME;
 					CHANNEL_SQ_VOLDN_FUC();
-					playButtonTone();		
+					delayms(100);
+						playButtonTone();		
 					break;				
 				case KEY_SQ:
 					playButtonTone();
-				  switch(key_CombleSQSet)
+				  switch(mKey.key_CombleSQSet)
 				 {
-					 case 0: key_CombleSQSet=1;
+					 case 0: mKey.key_CombleSQSet=1;
 					 mSysParam.KeyComboLimit=KEY_COMBOlIMIT;
 						 break;
-					 case 1: key_CombleSQSet=2;
+					 case 1: mKey.key_CombleSQSet=2;
 					 mSysParam.KeyComboLimit=KEY_COMBOlIMIT;
 						 break;
-					 case 2: key_CombleSQSet=3;
+					 case 2: mKey.key_CombleSQSet=3;
 					 mSysParam.KeyComboLimit=KEY_COMBOlIMIT;
 						 break;
-					 case 3: key_CombleSQSet=4;
+					 case 3: mKey.key_CombleSQSet=4;
 					 mSysParam.KeyComboLimit=KEY_COMBOlIMIT;
 						 break;
-					 case 4: key_CombleSQSet=5;
+					 case 4: mKey.key_CombleSQSet=5;
 					 mSysParam.KeyComboLimit=KEY_COMBOlIMIT;
 						 break;
 					}
@@ -458,9 +483,9 @@ void MenuOperate(unsigned char key)
 					CHANNEL_LONGPOWER_FUC();
 					break;
 				case KEY_F:
-					if(key_CombleSQSet==5)
+					if(mKey.key_CombleSQSet==5)
 					{
-						key_CombleSQSet=0;
+						mKey.key_CombleSQSet=0;
 						mMenu.MenuIndex=CHANNEL_SQ_SET;
 						CHANNEL_SQ_SET_FUC();
 					}
@@ -778,20 +803,20 @@ void MenuOperate(unsigned char key)
 				case KEY_F:	
 				
 				  playButtonTone();
-					if(key_UnLockcount==0) 
+					if(mKey.key_UnLockcount==0) 
 					{
 						mSysParam.KeyComboLimit=KEY_COMBOlIMIT;
 						mSysParam.isKeyCombo=1;
 						
-						key_UnLockcount=1;				
+						mKey.key_UnLockcount=1;				
 					}
-				  else if(key_UnLockcount==1) 
+				  else if(mKey.key_UnLockcount==1) 
 					{											  
 				    CHANNEL_DOUBLEF_FUC();
 							mMenu.MenuIndex=CHANNEL;
-						key_UnLockcount=0;					
+						mKey.key_UnLockcount=0;					
 					}
-					else key_UnLockcount=0;					
+					else mKey.key_UnLockcount=0;					
 					break;			
 				case KEY_LONG_POWER:
 					CHANNEL_LONGPOWER_FUC();

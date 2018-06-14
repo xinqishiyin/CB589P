@@ -58,8 +58,7 @@ void wirelessCheckRec(void)
 	rssi=Get4815Rssi();
 	if(mFlag.SpkOpen4815 == 0)
 	{		
-		if(mDtmfRecive.DtmfSussece==1)
-		{					
+						
 			if(rssi >= mSq.open)
 			{
 				mFlag.SpkOpen4815 = 1;
@@ -70,13 +69,7 @@ void wirelessCheckRec(void)
 			else
 			{
 				mDtmfRecive.DtmfSussece=0;
-      }
-		}
-		else
-		{
-			
-			mDtmfRecive.DtmfSussece=0;
-		}
+      }		
 	}
 	else 
 	{
@@ -316,10 +309,10 @@ void sysModeWireless(void)
 	mFlag.SpkOpen4815=0;
 	while((HM_DET==1)&&(POWER_ON==0))
 	{			
-		if(mDtmfRecive.DtmfSussece==1)
-		{
+//		if(mDtmfRecive.DtmfSussece==1)
+//		{
 			wirelessCheckRec();	
-		}
+		//}
 		if(mFlag.SpkOpen4815 == 0)
 		{
 			checkCBRadioRec();
