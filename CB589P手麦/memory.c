@@ -115,6 +115,9 @@ void saveAllParam(void)
 	saveData(EEP_FRE+2,(u8)((fre&0x0000ff00)>>8));
 	saveData(EEP_FRE+3,(u8)(fre&0x000000ff));
 	saveData(EEP_ISUK,mSysParam.isUK);
+	saveData(EEP_DWCHANNEL,mSysParam.DWChannel);
+	saveData(EEP_DWBAND,mSysParam.DWBand);
+	saveData(EEP_DWMODU,mSysParam.DWModu);
 }
 
 void saveDtmf()
@@ -168,7 +171,11 @@ void loadAllParam(void)
 		mSqParam.SqLevel = loadData(EEP_SQ_LEVEL);
 		if(mSqParam.IsAsq == ASQ_val)mCbParam.Sq = (mSqParam.AsqLevel | mSqParam.IsAsq);
 		else mCbParam.Sq = mSqParam.SqLevel;
-	
+	  mSysParam.DWChannel=loadData(EEP_DWCHANNEL);
+		
+		mSysParam.DWBand=loadData(EEP_DWBAND);
+		mSysParam.DWModu=loadData(EEP_DWMODU);
+		
 		mHmSetting.SpkerSwitch = loadData(EEP_SPK_SW);
 		mHmSetting.LcdColor = loadData(EEP_LCD_COLOR);
 		mHmSetting.ButtonLedSwitch = loadData(EEP_LED_SW);

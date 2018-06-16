@@ -99,6 +99,9 @@ void setDefaultParam(void)
 	mCbParam.Country = COUNTRY_EU;
 	mCbParam.Band = 0;
 	mCbParam.Channel = 9;
+	mSysParam.DWChannel=9;
+	mSysParam.DWBand=0;
+	mSysParam.DWModu=FM;
 	mCbParam.Modu = FM;
 	mCbParam.RfgLevel = 0;
 	mCbParam.TxPower = POWER_LOW;
@@ -109,7 +112,7 @@ void setDefaultParam(void)
 	mSqParam.AsqLevel = 3;
 	mSqParam.SqLevel = 10;
 	channel.RX_Freq=260.015;
-	mSqParam.Scan=0;
+	mSqParam.Scan=1;
 	mSqParam.ScanDir=0;
 	mSqParam.ScanHould=1;
 	mSqParam.DWSet=0;
@@ -139,16 +142,17 @@ void checkAllParam(void)
 	mSysParam.MinChannel = 1;
 	switch(mCbParam.Country)
 	{
-		case COUNTRY_EU: mSysParam.MaxChannel = 40;mCbParam.Band=0;mSysParam.isUK=0;break;
-		case COUNTRY_CE: mSysParam.MaxChannel = 40;mCbParam.Band=0;break;
-		case COUNTRY_UK: mSysParam.MaxChannel = 40;mCbParam.Band=0;mSysParam.isUK=0;break;
-		case COUNTRY_PL: mSysParam.MaxChannel = 40;mCbParam.Band=0;mSysParam.isUK=0;break;
-		case COUNTRY_I0: mSysParam.MaxChannel = 40;mCbParam.Band=0;mSysParam.isUK=0;break;
-		case COUNTRY_AU: mSysParam.MaxChannel = 40;mCbParam.Band=0;mSysParam.isUK=0;break;
-		case COUNTRY_NL: mSysParam.MaxChannel = 40;mCbParam.Band=0;mSysParam.isUK=0;break;
+		case COUNTRY_EU: mSysParam.MaxChannel = 40;mCbParam.Band=0;mSysParam.DWBand=0;mSysParam.isUK=0;break;
+		case COUNTRY_CE: mSysParam.MaxChannel = 40;mCbParam.Band=0;mSysParam.DWBand=0;break;
+		case COUNTRY_UK: mSysParam.MaxChannel = 40;mCbParam.Band=0;mSysParam.DWBand=0;mSysParam.isUK=0;break;
+		case COUNTRY_PL: mSysParam.MaxChannel = 40;mCbParam.Band=0;mSysParam.DWBand=0;mSysParam.isUK=0;break;
+		case COUNTRY_I0: mSysParam.MaxChannel = 40;mCbParam.Band=0;mSysParam.DWBand=0;mSysParam.isUK=0;break;
+		case COUNTRY_AU: mSysParam.MaxChannel = 40;mCbParam.Band=0;mSysParam.DWBand=0;mSysParam.isUK=0;break;
+		case COUNTRY_NL: mSysParam.MaxChannel = 40;mCbParam.Band=0;mSysParam.DWBand=0;mSysParam.isUK=0;break;
 		case COUNTRY_RU:
 		{		
 			if(mCbParam.Band>9) mCbParam.Band=0;
+			if(mSysParam.DWBand>9)  mSysParam.DWBand=0;
 			mSysParam.MaxChannel = 40;
 			mSysParam.isUK=0;
 		}
@@ -156,15 +160,16 @@ void checkAllParam(void)
 		case COUNTRY_PX: 
 			{
 				if(mCbParam.Band>9) mCbParam.Band=0;
+				if(mSysParam.DWBand>9)  mSysParam.DWBand=0;
 				mSysParam.MaxChannel = 40;
 				mSysParam.isUK=0;
 			}
 			break;
-		case COUNTRY_I2: mSysParam.MaxChannel = 34;mCbParam.Band=0;mSysParam.isUK=0;break;
-		case COUNTRY_DE: mSysParam.MaxChannel = 80;mCbParam.Band=0;mSysParam.isUK=0;break;
-		case COUNTRY_IN: mSysParam.MaxChannel = 27;mCbParam.Band=0;mSysParam.isUK=0;break;
-		case COUNTRY_PC: mSysParam.MaxChannel = 50;mCbParam.Band=0;mSysParam.isUK=0;break;
-		case COUNTRY_AM: mSysParam.MaxChannel = 10;mCbParam.Band=0;mSysParam.isUK=0;break;
+		case COUNTRY_I2: mSysParam.MaxChannel = 34;mCbParam.Band=0;mSysParam.DWBand=0;mSysParam.isUK=0;break;
+		case COUNTRY_DE: mSysParam.MaxChannel = 80;mCbParam.Band=0;mSysParam.DWBand=0;mSysParam.isUK=0;break;
+		case COUNTRY_IN: mSysParam.MaxChannel = 27;mCbParam.Band=0;mSysParam.DWBand=0;mSysParam.isUK=0;break;
+		case COUNTRY_PC: mSysParam.MaxChannel = 50;mCbParam.Band=0;mSysParam.DWBand=0;mSysParam.isUK=0;break;
+		case COUNTRY_AM: mSysParam.MaxChannel = 10;mCbParam.Band=0;mSysParam.DWBand=0;mSysParam.isUK=0;break;
 	}
 	
 	if(mSysParam.isUK>1)mSysParam.isUK=0;
@@ -175,7 +180,8 @@ else if (mCbParam.CountryTable==0) mCbParam.CountryTable = 1;
 		
 	mSysParam.ActivityChannel = mCbParam.Channel;
 	if((mCbParam.Channel > mSysParam.MaxChannel) || (mCbParam.Channel < mSysParam.MinChannel))mCbParam.Channel = mSysParam.MinChannel;
-	
+	if((mSysParam.DWChannel > mSysParam.MaxChannel) || (mSysParam.DWChannel < mSysParam.MinChannel))mSysParam.DWChannel = mSysParam.MinChannel;
+
 
 	if((mSysParam.LastChannel < mSysParam.MinChannel) || (mSysParam.LastChannel > mSysParam.MaxChannel))
 	{
@@ -208,7 +214,8 @@ else if (mCbParam.CountryTable==0) mCbParam.CountryTable = 1;
 	mSysParam.Rssi=0;
 	mFlag.SpkOpen=0;
 	mDtmfRecive.DtmfSussece=0;
-	
+	if( (mCbParam.Modu!=AM)&&(mCbParam.Modu!=FM))mCbParam.Modu=FM;
+	if( (mSysParam.DWModu!=AM) && (mSysParam.DWModu!=FM))mSysParam.DWModu=FM;
 }
 
 void CheckTxPower()

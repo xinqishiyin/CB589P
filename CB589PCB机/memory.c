@@ -170,7 +170,7 @@ void checkAllParam(void)
 		{
 			mSqParam.SqCloseSet[i]=0;
 		}		
-	
+
 	}
 	for(i=0;i<5;i++)
 	{
@@ -184,7 +184,8 @@ void checkAllParam(void)
 		}	
 
 	}
-	
+	mFlag.SqOpen=0;
+	mRssi=0;
 }
 
 
@@ -244,7 +245,7 @@ void loadAllParam(void)
 	
 	u8 i;
 	u32 fre=0;
-	u8 ddt=loadData(EEP_BASE);
+	
 	if(loadData(EEP_BASE) != 0xa5)
 	{
 		setDefaultParam();

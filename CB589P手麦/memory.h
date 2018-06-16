@@ -26,7 +26,10 @@ enum                   //保存地址
   EEP_HIT_POWER	,
 	EEP_DTMF,
 	EEP_FRE,
-	EEP_ISUK=25
+	EEP_ISUK=25,
+	EEP_DWCHANNEL=26,
+	EEP_DWBAND=27,
+	EEP_DWMODU=28
 }; 
 /*-------------------------------------------------------------------------
 *函数：saveData  保存数据

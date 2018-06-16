@@ -43,17 +43,18 @@ void Check_Scan()
 		{
 			mSqParam.ScanHould=2;
 			scandwPPTPress=0;
+			mSqParam.HouldTime=HOULD_TIME;
 		}
 		else
 		{
-			if(mSysParam.Rssi>=mSqParam.SqLevel)
-			{			
-				mSqParam.ScanHould=2;
-			}	
-			else
-			{
-				mSqParam.ScanHould=1;
-			}
+//			if(mSysParam.Rssi>=mSqParam.SqLevel)
+//			{
+//				mSqParam.ScanHould=2;
+//			}
+//			else
+//			{
+//				mSqParam.ScanHould=1;
+//			}
 		}
 	}
 	else
@@ -62,17 +63,18 @@ void Check_Scan()
 		{
 			mSqParam.ScanHould=2;
 			scandwPPTPress=0;
+			mSqParam.HouldTime=HOULD_TIME;
 		}
 		else
 		{
-			if(mSysParam.Rssi>=mSqParam.AsqLevel)
-			{
-				mSqParam.ScanHould=2;
-			}		
-			else
-			{
-				mSqParam.ScanHould=1;
-			}
+//			if(mSysParam.Rssi>=mSqParam.AsqLevel)
+//			{
+//				mSqParam.ScanHould=2;
+//			}		
+//			else
+//			{
+//				mSqParam.ScanHould=1;
+//			}
 		}
 	}
 	
@@ -91,7 +93,7 @@ void Check_Scan()
 	else
 	{
 		mSqParam.DisHould=0;
-		mSqParam.HouldTime=HOULD_TIME;
+		
 	}
 	
 	if(mSqParam.DisHould==1)
@@ -99,17 +101,15 @@ void Check_Scan()
 		 if(mSqParam.ScanDir)
 		 {			 
 				CHANNEL_UP_FUC();
-			  //ShowChannel();
-				
+			  //ShowChannel();				
 		 }
 		 else
 		 {
-			 CHANNEL_DN_FUC();			 			
-			 //ShowChannel();			 
+			 CHANNEL_DN_FUC();
+			 //ShowChannel();
 		 }
 	}
-	isScanInrupt=SCAN_SPEED_DELAY;
-	
+	isScanInrupt=SCAN_SPEED_DELAY;	
 }
 /*-------------------------------------------------------------------------
 *º¯Êý£ºCheckDW  Ë«ÆµÊØºò
@@ -128,30 +128,31 @@ void Check_DW()
 		{
 			mSqParam.DWHould=2;
 			scandwPPTPress=0;
+			mSqParam.HouldTime=HOULD_TIME;
 		}
 		else
 		{
 		 if(mSqParam.IsAsq==0)                              //ÊÇ·ñÍ£Ö¹
 		 {
-				if(mSysParam.Rssi>=(mSqParam.SqLevel))
-				{
-					mSqParam.DWHould=2;
-				}
-				else
-				{
-					mSqParam.DWHould=1;
-				}
+//				if(mSysParam.Rssi>=(mSqParam.SqLevel))
+//				{
+//					mSqParam.DWHould=2;
+//				}
+//				else
+//				{
+//					mSqParam.DWHould=1;
+//				}
 			}
 			else
 			{
-				if(mSysParam.Rssi>=mSqParam.AsqLevel)
-				{
-					mSqParam.DWHould=2;
-				}
-				else
-				{
-					mSqParam.DWHould=1;
-				}
+//				if(mSysParam.Rssi>=mSqParam.AsqLevel)
+//				{
+//					mSqParam.DWHould=2;
+//				}
+//				else
+//				{
+//					mSqParam.DWHould=1;
+//				}
 			}
 		}
 		if(mSqParam.DWHould==1)
@@ -169,7 +170,7 @@ void Check_DW()
 		else
 		{
 			mSqParam.DisHould=0;
-			mSqParam.HouldTime=HOULD_TIME;
+			
 		}
 		
 		if(mSqParam.DisHould==1)                        //²»Í£Ö¹µÄ»°ÇÐ»»ÁíÒ»ÆµµÀ

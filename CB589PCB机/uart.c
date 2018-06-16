@@ -72,7 +72,10 @@ void sendCommand(uchar cmd)
 	{
 		
 		case CMD_GET_RSSI:
-			if(mFlag.SqOpen)rssi=mRssi| 0x40;
+			if(mFlag.SqOpen)
+			{
+				rssi=mRssi| 0x40;
+			}
 			else rssi = mRssi;
 			mCbParam.UartTxBuf[2]=2;
 			mCbParam.UartTxBuf[3]=rssi;
@@ -158,8 +161,9 @@ void analyseCMD(void)
 {
 	
 	mUartCmd = mReceivePackage.RecvBuf[1];          //1为参数名	
-		
+		if(mUartCmd==CMD_SET_ALL) mFlag.VcoIdle=0;
 	response(CMD_ACK);
+	
 }
 
 
@@ -175,7 +179,6 @@ void	Uart0(void)	interrupt	4
 
 	
 	dat=SBUF0;
-	
 	if(dat == MAGIC)
 	{
 		mReceivePackage.RecvStatus = MSG_HEADER;

@@ -183,6 +183,7 @@ void SystemInit()
 	initPWM();
 	initAd();
 	initTimer0();
+	
 	UART0_Init();
 	INT0_Init();
 	EA=1;

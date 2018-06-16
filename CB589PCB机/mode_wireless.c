@@ -58,13 +58,17 @@ void wirelessCheckRec(void)
 	rssi=Get4815Rssi();
 	if(mFlag.SpkOpen4815 == 0)
 	{		
-						
 			if(rssi >= mSq.open)
 			{
-				mFlag.SpkOpen4815 = 1;
-				BK4815RxAudio();
-				setEmission(1);
-				delayms(70);			
+				delayms(50);
+				rssi=Get4815Rssi();
+				if(rssi >= mSq.open)
+				{
+					mFlag.SpkOpen4815 = 1;
+					BK4815RxAudio();
+					setEmission(1);
+					delayms(70);	
+				}				
 			}
 			else
 			{
@@ -76,7 +80,7 @@ void wirelessCheckRec(void)
 		rssi=Get4815Rssi();
 		if(rssi <= mSq.close)
 		{
-			delayms(30);
+			delayms(50);
 			rssi=Get4815Rssi();
 			if(rssi <= mSq.close)
 			{
@@ -150,11 +154,15 @@ void checkCBRadioRec(void)
 			//SET_SPK_MUTE; //关闭喇叭
 			if(mAsqVoltage <= asq_open_table[val_db])	//因为db是负值，所以相反
 			{				
-				if((mFlag.Mute == 0)&&(mCbParam.VolLevel != 0)) Cls_Mute();	//打开喇叭
-				else mFlag.SqOpenButMute = 1;
-				
-				StartBK4815TX();
-				mLastOpenSqDbLevel = mOpenSqDbLevel;
+				delayms(50);
+				checkRssi();
+				if(mAsqVoltage <= asq_open_table[val_db])	//因为db是负值，所以相反
+				{	
+					if((mFlag.Mute == 0)&&(mCbParam.VolLevel != 0)) Cls_Mute();	//打开喇叭
+					else mFlag.SqOpenButMute = 1;				
+					StartBK4815TX();
+					mLastOpenSqDbLevel = mOpenSqDbLevel;
+				}
 			}
 		}
 		else 
@@ -174,8 +182,13 @@ void checkCBRadioRec(void)
 			
 				if(mAsqVoltage >= asq_close_table[val_db])
 				{
-					closeSq();
-					EnterBK4815RX();
+					delayms(50);
+					checkRssi();
+					if(mAsqVoltage >= asq_close_table[val_db])
+					{
+						closeSq();
+						EnterBK4815RX();
+					}
 				}
 				else if(mFlag.Mute||(mCbParam.VolLevel == 0))mFlag.SqOpenButMute = 1;
 				else
@@ -228,14 +241,18 @@ void checkCBRadioRec(void)
 			//SET_SPK_MUTE; //关闭喇叭
 			if(cSqSum >= sq_open_table[val_db])	//因为db是负值，所以相反
 			{			
+				delayms(50);
+					checkRssi();
 				
-				
-				StartBK4815TX();
-				mLastOpenSqDbLevel = mOpenSqDbLevel;
-				if(mFlag.SqOpen == 0)
-				{
-					if((mFlag.Mute == 0)&&(mCbParam.VolLevel != 0)) Cls_Mute();	//打开喇叭
-				else mFlag.SqOpenButMute = 1;
+				if(cSqSum >= sq_open_table[val_db])	//因为db是负值，所以相反
+				{		
+					StartBK4815TX();
+					mLastOpenSqDbLevel = mOpenSqDbLevel;
+					if(mFlag.SqOpen == 0)
+					{
+						if((mFlag.Mute == 0)&&(mCbParam.VolLevel != 0)) Cls_Mute();	//打开喇叭
+					else mFlag.SqOpenButMute = 1;
+					}
 				}
 			}					
 		}
@@ -281,7 +298,8 @@ void checkCBRadioRec(void)
 				asq_close_db=sq_close_table[val_db];				
 				if(cSqSum <= asq_close_db)
 				{
-					
+					delayms(50);
+					checkRssi();
 					if(cSqSum <= asq_close_db)
 					{
 						closeSq();

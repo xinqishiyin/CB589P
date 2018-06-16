@@ -76,9 +76,9 @@ void CHANNEL_SCAN_UP_FUC()
 	mSqParam.HouldTime=0;
 	  if(mSqParam.ScanHould==2)
 		{
-			reStartScan=1;				
+			CHANNEL_UP_FUC();
+			delayms(100);
 			
-			mSysParam.Rssi=0;
 		}
 		//mSqParam.ScanHould=1;
 }
@@ -88,9 +88,9 @@ void CHANNEL_SCAN_DN_FUC()
 	mSqParam.HouldTime=0;
 	if(mSqParam.ScanHould==2)
 		{
-			reStartScan=1;				
 			
-			mSysParam.Rssi=0;
+			CHANNEL_DN_FUC();
+			delayms(100);
 		}
 }
 
@@ -427,7 +427,10 @@ void CHANNEL_VOLDN_FUC()				 			//音量减
 		saveData(CMD_SET_VOL,mCbParam.VolLevel);
 		if(mCbParam.VolLevel==0)
 		{
-			SPK_EN=0;			
+			if(mFlag.SpkOpen==1)
+			{
+				SPK_EN=0;
+			}
 		}
 		
 	}
@@ -604,23 +607,32 @@ void CHANNEL_LONGSQ_FUC()							//进入ASQ等级设置
 *返回值：无
 *-------------------------------------------------------------------------*/
 void CHANNEL_DW_FUC()                 //双频守候
-{
-	
+{	
 	switch(mSqParam.DWSet)
 	{
 		case 0:			
-		  mSysParam.DWChannel1=mCbParam.Channel;
+		  mSysParam.DWChannel1=mCbParam.Channel;		
 		  mSysParam.DWBand1=mCbParam.Band;
 		  mSysParam.DWModu1=mCbParam.Modu;
+		
+		  mCbParam.Channel=mSysParam.DWChannel;
+		  mCbParam.Band=mSysParam.DWBand;
+		  mCbParam.Modu=mSysParam.DWModu;
 		  mSqParam.DWSet=1;
 			break;
 		case 1:
 			if(mSysParam.DWChannel1!=mCbParam.Channel||mSysParam.DWBand1!=mCbParam.Band||mSysParam.DWModu1!=mCbParam.Modu)
 			{
-				mSysParam.DWChannel2=mCbParam.Channel;
+				mSysParam.DWChannel2=mCbParam.Channel;				
 				mSysParam.DWBand2=mCbParam.Band;
 				mSysParam.DWModu2=mCbParam.Modu;
 				mSqParam.DWSet=2;
+				mSysParam.DWChannel=mCbParam.Channel;
+				mSysParam.DWBand=mCbParam.Band;
+				mSysParam.DWModu=mCbParam.Modu;
+				saveData(EEP_DWCHANNEL,mSysParam.DWChannel);
+				saveData(EEP_DWBAND,mSysParam.DWBand);
+				saveData(EEP_DWMODU,mSysParam.DWModu);
 			}
 			else if(mSysParam.DWChannel1==mCbParam.Channel&&mSysParam.DWBand1==mCbParam.Band)
 			{
@@ -629,7 +641,7 @@ void CHANNEL_DW_FUC()                 //双频守候
 				ShowChannel();
 			}
 			break;
-		case 2:
+		case 2:			
 			mCbParam.Channel=mSysParam.DWChannel1;
 		  mCbParam.Band=mSysParam.DWBand1;
 		  mCbParam.Modu=mSysParam.DWModu1;
@@ -1366,6 +1378,7 @@ void CHANNEL_LONGPOWER_FUC()
 		BK4815Sleep();
 	IDLE
 	LCD_CLEAR();
+	LCD_BATT(0);
 	TM1722_SHOW();
 	LIGHT_B=0;
 	LIGHT_G=0;
@@ -1481,20 +1494,48 @@ void CHANNEL_FAF_PPT_FUC()
 		mSysParam.MinChannel = 1;
 	switch(mCbParam.Country)
 	{
-		case COUNTRY_EU: mSysParam.MaxChannel = 40;mSysParam.isUK=0;break;
-		case COUNTRY_CE: mSysParam.MaxChannel = 40;mSysParam.isUK=0;break;
-		case COUNTRY_UK: mSysParam.MaxChannel = 40;mSysParam.isUK=0;break;
-		case COUNTRY_PL: mSysParam.MaxChannel = 40;mSysParam.isUK=0;break;
-		case COUNTRY_I0: mSysParam.MaxChannel = 40;mSysParam.isUK=0;break;
-		case COUNTRY_AU: mSysParam.MaxChannel = 40;mSysParam.isUK=0;break;
-		case COUNTRY_NL: mSysParam.MaxChannel = 40;mSysParam.isUK=0;break;
-		case COUNTRY_RU: mSysParam.MaxChannel = 40;mCbParam.Band=3;mSysParam.isUK=0;break;
-		case COUNTRY_PX: mSysParam.MaxChannel = 40;mCbParam.Band=3;mSysParam.isUK=0;break;
-		case COUNTRY_I2: mSysParam.MaxChannel = 34;mSysParam.isUK=0;break;
-		case COUNTRY_DE: mSysParam.MaxChannel = 80;mSysParam.isUK=0;break;
-		case COUNTRY_IN: mSysParam.MaxChannel = 27;mSysParam.isUK=0;break;
-		case COUNTRY_PC: mSysParam.MaxChannel = 50;mSysParam.isUK=0;break;
-		case COUNTRY_AM: mSysParam.MaxChannel = 10;mSysParam.isUK=0;break;
+		case COUNTRY_EU: mSysParam.MaxChannel = 40;mSysParam.isUK=0;mSysParam.DWChannel=9;
+				mSysParam.DWBand=0;
+				mSysParam.DWModu=mCbParam.Modu;break;
+		case COUNTRY_CE: mSysParam.MaxChannel = 40;mSysParam.isUK=0;mSysParam.DWChannel=9;
+				mSysParam.DWBand=0;
+				mSysParam.DWModu=mCbParam.Modu;break;
+		case COUNTRY_UK: mSysParam.MaxChannel = 40;mSysParam.isUK=0;mSysParam.DWChannel=9;
+				mSysParam.DWBand=0;
+				mSysParam.DWModu=mCbParam.Modu;break;
+		case COUNTRY_PL: mSysParam.MaxChannel = 40;mSysParam.isUK=0;mSysParam.DWChannel=9;
+				mSysParam.DWBand=0;
+				mSysParam.DWModu=mCbParam.Modu;break;
+		case COUNTRY_I0: mSysParam.MaxChannel = 40;mSysParam.isUK=0;mSysParam.DWChannel=9;
+				mSysParam.DWBand=0;
+				mSysParam.DWModu=mCbParam.Modu;break;
+		case COUNTRY_AU: mSysParam.MaxChannel = 40;mSysParam.isUK=0;mSysParam.DWChannel=9;
+				mSysParam.DWBand=0;
+				mSysParam.DWModu=mCbParam.Modu;break;
+		case COUNTRY_NL: mSysParam.MaxChannel = 40;mSysParam.isUK=0;mSysParam.DWChannel=9;
+				mSysParam.DWBand=0;
+				mSysParam.DWModu=mCbParam.Modu;break;
+		case COUNTRY_RU: mSysParam.MaxChannel = 40;mCbParam.Band=3;mSysParam.isUK=0;mSysParam.DWChannel=9;
+				mSysParam.DWBand=3;
+				mSysParam.DWModu=mCbParam.Modu;break;
+		case COUNTRY_PX: mSysParam.MaxChannel = 40;mCbParam.Band=3;mSysParam.isUK=0;mSysParam.DWChannel=9;
+				mSysParam.DWBand=3;
+				mSysParam.DWModu=mCbParam.Modu;break;
+		case COUNTRY_I2: mSysParam.MaxChannel = 34;mSysParam.isUK=0;mSysParam.DWChannel=9;
+				mSysParam.DWBand=0;
+				mSysParam.DWModu=mCbParam.Modu;break;
+		case COUNTRY_DE: mSysParam.MaxChannel = 80;mSysParam.isUK=0;mSysParam.DWChannel=9;
+				mSysParam.DWBand=0;
+				mSysParam.DWModu=mCbParam.Modu;break;
+		case COUNTRY_IN: mSysParam.MaxChannel = 27;mSysParam.isUK=0;mSysParam.DWChannel=9;
+				mSysParam.DWBand=0;
+				mSysParam.DWModu=mCbParam.Modu;break;
+		case COUNTRY_PC: mSysParam.MaxChannel = 50;mSysParam.isUK=0;mSysParam.DWChannel=9;
+				mSysParam.DWBand=0;
+				mSysParam.DWModu=mCbParam.Modu;break;
+		case COUNTRY_AM: mSysParam.MaxChannel = 10;mSysParam.isUK=0;mSysParam.DWChannel=9;
+				mSysParam.DWBand=0;
+				mSysParam.DWModu=mCbParam.Modu;break;
 	}
 	if(mCbParam.Country==COUNTRY_AM) 
 	{
@@ -1842,7 +1883,7 @@ void FACTORY_SETTING_FUC()
   mKey.key_UnLockcount=0;
   mSqParam.Scan=1;
 	mSqParam.DWSet=0;
-
+  mHmSetting.isCheckHitPower=0;
   key_SQSetIndex=0;
 	LCD_CLEAR();
 	setDefaultParam();	

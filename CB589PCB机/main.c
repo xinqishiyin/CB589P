@@ -13,7 +13,9 @@ u8 isPowerOn=0;
 u16 timePowOn=0;
 void main()
 {
+	
 	SystemInit();
+	
 	ini=BK4815_INIT;	
 	initM62429();
 	initXN31202();
@@ -39,6 +41,7 @@ void main()
 			timePowOn=0;
 		}
 	}
+	//delayms(1000);
 	while(1)
 	{
 		initHandler();

@@ -90,9 +90,6 @@ void CheckHitPowerPress()
 {
 	u8 i;
 	i=PPT_KEY;
-	i=PPT_KEY;
-	i=PPT_KEY;
-	i=PPT_KEY;
 	mHmSetting.isCheckHitPower=0;
 	if(	mCbParam.CountryTable==2||mCbParam.CountryTable==3)//&&PPT_KEY==0&&Get_AD(Key2)==0x0a&&Get_AD(Key1)==0x03)
 	{

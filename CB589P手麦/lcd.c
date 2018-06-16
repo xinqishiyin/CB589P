@@ -429,6 +429,9 @@ void Twinkle_Control(void)
 					{
 						LCD_NUM1(NUM1_OFF);
 						LCD_NUM2(NUM2_OFF);	
+					  LCD_NUM3(NUM3_OFF);
+						LCD_FM(0);
+							LCD_AM(0);
 						LCD_Twinkle_tag=1;
 					}
 					else 
@@ -449,11 +452,29 @@ void Twinkle_Control(void)
 								case 10:	LCD_NUM1(9);	LCD_NUM2(8);	break;
 							}
 						}
+						else if(mCbParam.Country==COUNTRY_RU||mCbParam.Country==COUNTRY_PX)
+						{
+							LCD_NUM1(mCbParam.Channel/10);	
+							LCD_NUM2(mCbParam.Channel%10);
+							LCD_NUM3(mCbParam.Band+10);
+						}
 						else 
 						{
-							LCD_NUM1(mCbParam.Channel/10);
+							LCD_NUM1(mCbParam.Channel/10);	
 							LCD_NUM2(mCbParam.Channel%10);
+						}					
+					
+						if( mCbParam.Modu==FM)
+						{
+							LCD_FM(1);
+							LCD_AM(0);
 						}
+						else
+						{
+							LCD_AM(1);
+							LCD_FM(0);
+						}
+						
 						LCD_Twinkle_tag=0;
 					}
 					LCD_twinkle_Show=SHOW_TWINKLE_TIME;
@@ -1077,7 +1098,7 @@ void CheckHitPower()
 {
 	if(mHmSetting.isCheckHitPower!=0)
 	{
-						LCD_CLEAR();
+		LCD_CLEAR();
 		if(mSysParam.HitPower==0)
 		{
 			mSysParam.HitPower=1;
@@ -1091,6 +1112,7 @@ void CheckHitPower()
 		LCD_NUM2(NUM2_Y);
 		LCD_NUM3(NUM3_P);
 		TM1722_SHOW();
+		mHmSetting.isCheckHitPower=0;
 		delayms(700);
     saveData(EEP_HIT_POWER,mSysParam.HitPower);
 	 

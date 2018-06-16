@@ -327,6 +327,22 @@ void checkRssi(void)
 //		else isautoRGF=0;		
 //	}
 		
+	if(mAgcaVoltage<0x008f)
+	{
+		isautoRGF=1;		
+		setRfg(5);
+		delayms(100);
+	}
+	else if(mAgcaVoltage>0x0100)
+	{
+		if(isautoRGF==1)
+		{
+			isautoRGF=0;
+			setRfg(mCbParam.RfgLevel);
+			delayms(100);
+		}		
+	}	
+		
 	if(mAgcaVoltage<0x0190)
   {
 		cSqSum= mRssiVoltage + (0x0200 - mAgcaVoltage);
@@ -420,15 +436,19 @@ void checkIsSqOpen(void)
 			//SET_SPK_MUTE; //关闭喇叭
 			if(mAsqVoltage <= asq_open_table[val_db])	//因为db是负值，所以相反
 			{
+				delayms(50);
+				checkRssi();
+				if(mAsqVoltage <= asq_open_table[val_db])	//因为db是负值，所以相反
+				{
+					mFlag.SqOpen = 1;				
+					//sendCommand(CMD_GET_RSSI);				
+					setEmission(0);				//CLS_SPK_MUTE;	
 				
-				mFlag.SqOpen = 1;				
-				//sendCommand(CMD_GET_RSSI);				
-				setEmission(0);				//CLS_SPK_MUTE;	
-			
-				mLastOpenSqDbLevel = mOpenSqDbLevel;
-				//delayms(200);
-				if((mFlag.Mute == 0)&&(mCbParam.VolLevel != 0)) Cls_Mute();	//打开喇叭
-				else mFlag.SqOpenButMute = 1;
+					mLastOpenSqDbLevel = mOpenSqDbLevel;
+					//delayms(200);
+					if((mFlag.Mute == 0)&&(mCbParam.VolLevel != 0)) Cls_Mute();	//打开喇叭
+					else mFlag.SqOpenButMute = 1;
+				}
 			}
 		}
 		else 
@@ -448,9 +468,14 @@ void checkIsSqOpen(void)
 			
 				if(mAsqVoltage >= asq_close_table[val_db])
 				{
-					closeSq();					
-					sendCommand(CMD_GET_RSSI);
-					setEmission(0);					
+					delayms(50);
+					checkRssi();
+					if(mAsqVoltage >= asq_close_table[val_db])
+					{
+						closeSq();					
+						sendCommand(CMD_GET_RSSI);
+						setEmission(0);			
+					}						
 				}
 				else if(mFlag.Mute||(mCbParam.VolLevel == 0))mFlag.SqOpenButMute = 1;
 				else 
@@ -503,15 +528,20 @@ void checkIsSqOpen(void)
 			//SET_SPK_MUTE; //关闭喇叭
 			if(cSqSum >= sq_open_table[val_db])	//因为db是负值，所以相反
 			{			
-				mFlag.SqOpen = 1; 
-				
-				//sendCommand(CMD_GET_RSSI);							
-				setEmission(0);
-				mLastOpenSqDbLevel = mOpenSqDbLevel;
-				//CLS_SPK_MUTE;
-				
-				if((mFlag.Mute == 0)&&(mCbParam.VolLevel != 0)) Cls_Mute();	//打开喇叭
-				else mFlag.SqOpenButMute = 1;
+				delayms(50);
+					checkRssi();
+				if(cSqSum >= sq_open_table[val_db])	//因为db是负值，所以相反
+				{	
+					mFlag.SqOpen = 1; 
+					
+					//sendCommand(CMD_GET_RSSI);							
+					setEmission(0);
+					mLastOpenSqDbLevel = mOpenSqDbLevel;
+					//CLS_SPK_MUTE;
+					
+					if((mFlag.Mute == 0)&&(mCbParam.VolLevel != 0)) Cls_Mute();	//打开喇叭
+					else mFlag.SqOpenButMute = 1;
+				}
 			}					
 		}
 		else
@@ -555,9 +585,14 @@ void checkIsSqOpen(void)
 		else if(val_db>84) val_db=84;	
 				if(cSqSum <= sq_close_table[val_db])
 				{	
+					delayms(50);
+					checkRssi();
+					if(cSqSum <= sq_close_table[val_db])
+					{	
 						closeSq();
 						sendCommand(CMD_GET_RSSI);					
 						setEmission(0);
+					}
 				}
 				else if(mFlag.Mute||(mCbParam.VolLevel == 0))mFlag.SqOpenButMute = 1;
 				else
@@ -609,8 +644,8 @@ void start1Rx(void)
 	mFlag.VcoIdle=0;
 	setFreq(mXn31202Ch1_Rx);	
 	setRfg(autoRFG+mCbParam.RfgLevel);
-	while(PLL_LD == 0);
-	//delayms(300);
+	//while(PLL_LD == 0);
+	delayms(50);
 	SET_RX_EN; 
 }
 /*-------------------------------------------------------------------------
@@ -640,9 +675,9 @@ void start1Tx(void)
 	 	CLS_AT_MUTE;
 	}
 
-	while(PLL_LD == 0);
+	//while(PLL_LD == 0);
 
-	//delayms(300);
+	delayms(50);
 	SET_TX_EN;
 	CLS_MIC_MUTE;
 }
@@ -653,7 +688,7 @@ void start1Tx(void)
 *-------------------------------------------------------------------------*/
 void setEmission(uchar tx_rx)
 {
-	mFlag.VcoIdle=0;
+	
 	if(tx_rx)		start1Tx();
 	else start1Rx();
 	
@@ -716,6 +751,7 @@ void eventHandler(void)
 				{
 					case CMD_TRANSMIT: 
 						{
+							
 							calculateFreq();
 							setEmission(1);        					  		 //发射
 						}
@@ -786,7 +822,9 @@ void eventHandler(void)
 						calculateFreq();
 					  if(mOpenSqDbLevel>0)	Set_Mute();
 						setEmission(0);
+					  
 					  delayms(20);
+					  mFlag.VcoIdle=0;
 						break;
 					case CMD_SET_SQ_ASQ:                                        //SQ设置
 						mCbParam.Sq=mReceivePackage.RecvBuf[3];
@@ -822,9 +860,10 @@ void eventHandler(void)
 						{						
 							mDtmfRecive.dtmfCode= mReceivePackage.RecvBuf[3]<<4|mReceivePackage.RecvBuf[4];					
 							fre=(((u32)mReceivePackage.RecvBuf[5])<<28)|(((u32)mReceivePackage.RecvBuf[6])<<21)|(((u32)mReceivePackage.RecvBuf[7])<<14)|((u32)mReceivePackage.RecvBuf[8]<<7)|((u32)mReceivePackage.RecvBuf[9]);
-							channel.RX_Freq=((float)fre/1000);	 	  
-							saveDtmf();
-						}
+							channel.RX_Freq=((float)fre/1000);	
+							
+						}			
+						
 	          //if(channel.RX_Freq<200||channel.RX_Freq>400)channel.RX_Freq=300;
 						break;
 					case CMD_SET_ALL:			
@@ -864,6 +903,7 @@ void eventHandler(void)
 						setModulation();
 						setEmission(0);
 						saveAllParam();
+						
 					break;
 					case CMD_SET_FREQ_CAL:			
 						mCbParam.FreqCal = mReceivePackage.RecvBuf[3];
@@ -908,10 +948,8 @@ void eventHandler(void)
 			}
 			
 			if(mFlag.VcoIdle==0)
-			{
-				
+			{				
 				checkSq();
-				
 			}
 			if(isSendRSSI==1)
 			{						

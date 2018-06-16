@@ -67,6 +67,17 @@ void receiveRssi(void)
 			else SPK_EN=0;
 		}
 		else SPK_EN=0;
+		if(mSqParam.Scan==2)
+		{
+			mSqParam.ScanHould=2;
+			mSqParam.HouldTime=HOULD_TIME;
+		}
+		if(mSqParam.DWSet==2) 
+		{
+			mSqParam.DWHould=2;
+			mSqParam.HouldTime=HOULD_TIME;
+		}
+	
 		LED_TX=OFF;
 		LED_RX = ON;		
 		mSysParam.Rssi &= 0x3f;
@@ -82,6 +93,14 @@ void receiveRssi(void)
 	}
 	else
 	{
+		if(mSqParam.Scan==2)
+		{
+			mSqParam.ScanHould=1;		
+		}
+		if(mSqParam.DWSet==2) 
+		{
+			mSqParam.DWHould=1;
+		}
 		StopSpk=1;		
 		if(isButtonTone==0)
 		{			

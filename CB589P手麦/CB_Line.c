@@ -54,22 +54,22 @@ void Keys_Press_Scan()
 	  Check_Scan();
 	  Check_DW();
 	  TM1722_SHOW();
-		if(PPTpress==1)
-		{
-			
-				TX_LimitTime++;				
-				if(TX_LimitTime>=7000)
-				{				
-					while(PPT_KEY==0)
-					{
-						MenuOperate(KEY_PPTUP);
-					}
-				}
-		}
-		else
-		{
-			TX_LimitTime=0;
-		}
+//		if(PPTpress==1)
+//		{
+//			
+//				TX_LimitTime++;				
+//				if(TX_LimitTime>=7000)
+//				{				
+//					while(PPT_KEY==0)
+//					{
+//						MenuOperate(KEY_PPTUP);
+//					}
+//				}
+//		}
+//		else
+//		{
+//			TX_LimitTime=0;
+//		}
 }
 
 
@@ -257,10 +257,11 @@ void evenHandler()
 						SPK_EN=1;
 					}
 					delayms(200);
-					if(isSendCmdOK(CMD_SET_ALL))
-					{
-						isConnect=1;
-					}
+					while(!isSendCmdOK(CMD_SET_ALL));			
+					delayms(200);
+					while(!isSendCmdOK(CMD_SET_ALL));	
+					isConnect=1;
+					
 				}
 				if(isSendDtmf==1)
 				{
@@ -319,6 +320,7 @@ void evenHandler()
 					LED_RX=0;
 					SPK_EN=0;
 					LCD_CLEAR();
+					mSqParam.Scan=1;
 					mMenu.MenuIndex=CHANNEL;
 				  ShowChannel();					
 					initBK4815();	
@@ -337,7 +339,6 @@ void evenHandler()
 				PPT_PRESS();         //3.7us				
 				PWR_MUTE_PRESS();
 				wriless_button();
-
 				TM1722_SHOW();	   //2ms	
 				if(isWending==0)
 				{

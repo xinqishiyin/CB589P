@@ -74,7 +74,7 @@ void MenuOperate(unsigned char key)
 			switch(key)
 			{
 				case KEY_AF:			
-				
+				  playButtonTone();
 					if(mKey.key_CombleFAF==1) 	
 					{
 						mKey.key_CombleFAF=0;
@@ -84,7 +84,7 @@ void MenuOperate(unsigned char key)
 					}
 					else 	CHANNEL_AF_FUC();
 					if(mKey.key_CombleFUPAFRFGSCAN==2){mKey.key_CombleFUPAFRFGSCAN=3;mSysParam.KeyComboTableLimit=KEY_COMBOlIMIT_LONG;}		
-						playButtonTone();
+						
 					break;
 				case KEY_LONG_AF:
 					
@@ -105,6 +105,7 @@ void MenuOperate(unsigned char key)
 					
 					if(mKey.key_CombleFDN==1) 
 					{
+						playButtonTone();
 						if(mHmSetting.SpkerSwitch==1)
 						{
 							 mHmSetting.SpkerSwitch=0;
@@ -116,15 +117,17 @@ void MenuOperate(unsigned char key)
 						}
 						ShowSpeakSwitch();
 						saveData(EEP_SPK_SW,mHmSetting.SpkerSwitch);
-						
-					
+						delayms(500);					
 						ShowChannel();
 						mKey.key_CombleFDN=0;
 						
 					}
-					else	CHANNEL_DN_FUC();
-					delayms(100);
+					else	
+					{
+						CHANNEL_DN_FUC();
+						delayms(50);
 						playButtonTone();
+					}
 					break;				
 				case KEY_LONGDN:
 					playButtonTone();
@@ -140,7 +143,7 @@ void MenuOperate(unsigned char key)
 					}
 					if(mKey.key_CombleFUPEMG==1){mKey.key_CombleFUPEMG=2;mSysParam.KeyComboLimit=KEY_COMBOlIMIT;}
 					CHANNEL_UP_FUC();
-					delayms(100);
+					delayms(50);
 					playButtonTone();
 					break;
 				case KEY_LONGUP:	
@@ -261,8 +264,7 @@ void MenuOperate(unsigned char key)
 					playButtonTone();
 					CHANNEL_LONGPOWER_FUC();
 					break;
-				case KEY_DW:
-					
+				case KEY_DW:					
 					if((mCbParam.Sq==0)||(mCbParam.Sq==0x20)) 
 					{
 						mSqParam.DWSet=0;
@@ -279,7 +281,10 @@ void MenuOperate(unsigned char key)
 		case CHANNEL_DW:                                     //Ë«ÆµÊØºò
 			switch(key)
 			{				
-				
+				case KEY_AF:			
+				  playButtonTone();
+					CHANNEL_AF_FUC();
+					break;
 				case KEY_RFG:					
 					if(mSqParam.DWSet==2)
 					{
@@ -380,7 +385,7 @@ void MenuOperate(unsigned char key)
 		
 					mMenu.Back_Channel_Time=BACK_TIME;
 					CHANNEL_RFG_UP_FUC();
-				 delayms(100);
+				 delayms(50);
 						playButtonTone();
 					break;
 				case KEY_LONGUP:
@@ -396,7 +401,7 @@ void MenuOperate(unsigned char key)
 				
 					mMenu.Back_Channel_Time=BACK_TIME;
 					CHANNEL_RFG_DN_FUC();
-				delayms(100);
+				delayms(50);
 						playButtonTone();
 					break;
 				case KEY_LONGDN:
@@ -441,14 +446,14 @@ void MenuOperate(unsigned char key)
 					
 					mMenu.Back_Channel_Time=BACK_TIME;
 					CHANNEL_SQ_VOLUP_FUC();
-					delayms(100);
+					delayms(50);
 						playButtonTone();
 					break;				
 				case KEY_VOL_DN:		
           			
 					mMenu.Back_Channel_Time=BACK_TIME;
 					CHANNEL_SQ_VOLDN_FUC();
-					delayms(100);
+					delayms(50);
 						playButtonTone();		
 					break;				
 				case KEY_SQ:
@@ -625,7 +630,10 @@ void MenuOperate(unsigned char key)
 					break;
 				
 				case KEY_VOL_DN:
-					playButtonTone();
+					if(mCbParam.VolLevel>0)
+					{
+						playButtonTone();
+					}
 					mMenu.Back_Channel_Time=BACK_TIME;
 					CHANNEL_VOLDN_FUC();									
 					break;
@@ -819,6 +827,7 @@ void MenuOperate(unsigned char key)
 					else mKey.key_UnLockcount=0;					
 					break;			
 				case KEY_LONG_POWER:
+					
 					CHANNEL_LONGPOWER_FUC();
 					break;				
 				case KEY_VOL_UP:
@@ -834,6 +843,7 @@ void MenuOperate(unsigned char key)
 					CHANNEL_VOLDN_FUC();
 					break;
 				default:
+					playButtonTone();
 					CHANNEL_LOCK_PRESSOTHER_FUC();
 					break;
 			}

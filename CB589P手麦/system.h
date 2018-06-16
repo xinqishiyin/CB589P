@@ -217,6 +217,9 @@ typedef struct
 	unsigned char isKeyCombo;
 	unsigned char isKeyComTable;
 	unsigned char isUK;
+	unsigned char DWChannel;
+	unsigned char DWBand;
+	unsigned char DWModu;
 }tSysParam;                      //
 enum 
 {

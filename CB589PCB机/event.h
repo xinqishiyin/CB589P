@@ -46,4 +46,5 @@ void setSQ(void);  //SQ 28级
 *返回值：无
 *-------------------------------------------------------------------------*/
 void setVol(void);
+void checkRssi(void);
 #endif
