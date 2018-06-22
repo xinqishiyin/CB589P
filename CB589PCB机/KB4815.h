@@ -83,12 +83,13 @@ typedef struct
 	CDC_MODE TX_CDCS_Mode;            //发射数字亚音频正反相
   u16 TX_CDCSS_Freq;							  //发射数字亚音频率
 		
-	
+	float Old_Freq;
   float RX_Freq;                    //接收频率
   CTCSType RXCTCStype;					    //接收亚音频类型
   float RX_CTCSS_Freq;							//接收模拟亚音频率
   CDC_MODE RX_CDCS_Mode;				    //接收数字亚音频正反相
 	u16 RX_CDCSS_Freq;                //接收数字亚音频率
+	
 	
 	
 }Channel; 

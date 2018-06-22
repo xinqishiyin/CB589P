@@ -277,7 +277,7 @@ void loadAllParam(void)
 		
 		fre=(((u32)loadData(EEP_FRE))<<24)|(((u32)loadData(EEP_FRE+1))<<16)|(((u32)loadData(EEP_FRE+2))<<8)|((u32)loadData(EEP_FRE+3));
 		channel.RX_Freq=((float)fre/1000);
-		
+		channel.Old_Freq=channel.RX_Freq;
 		for(i=0;i<28;i++)
 		{
 			mSqParam.SqOpenSet[i]=loadData(EEP_SQ_OPEN_SET+i);
@@ -313,6 +313,7 @@ void Power_On_Rx()
 			setSQ();
 			setPower();
 			setModulation();
+	    setVol();
 	    Set_Mute();		
 			saveAllParam();
 }

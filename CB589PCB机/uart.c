@@ -161,7 +161,10 @@ void analyseCMD(void)
 {
 	
 	mUartCmd = mReceivePackage.RecvBuf[1];          //1为参数名	
-		if(mUartCmd==CMD_SET_ALL) mFlag.VcoIdle=0;
+	if(mUartCmd==CMD_SET_ALL) 
+	{		
+		mFlag.CbInit=1;
+	}
 	response(CMD_ACK);
 	
 }

@@ -12,35 +12,20 @@ u8 ini;
 u8 isPowerOn=0;
 u16 timePowOn=0;
 void main()
-{
-	
-	SystemInit();
-	
-	ini=BK4815_INIT;	
+{	
+	mFlag.VcoIdle=1;
+
+	mFlag.CbInit=0;
+	SystemInit();	
+	ini=BK4815_INIT;
 	initM62429();
 	initXN31202();
-  SetBK4815Pragram();		
-	initMemory();	
+  SetBK4815Pragram();
+	initMemory();
 	CLS_RX_EN;
 	CLS_TX_EN;
 	Set_Mute();
-	mFlag.VcoIdle=1;
-	while(isPowerOn)
-	{
-		if(POWER_ON == 0||(HM_DET==1))
-		{
-			timePowOn++;
-			delayms(10);
-			if(timePowOn>50)
-			{
-				isPowerOn=1;
-			}
-		}
-		else
-		{
-			timePowOn=0;
-		}
-	}
+	setEmission(0);
 	//delayms(1000);
 	while(1)
 	{

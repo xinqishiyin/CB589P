@@ -81,6 +81,7 @@ typedef struct
 	unsigned char VcoIdle		:1;
 	unsigned char SysMode   :1;
 	unsigned char SpkOpen4815 	:1;
+	unsigned char CbInit;
 }tFlag;
 
 typedef struct

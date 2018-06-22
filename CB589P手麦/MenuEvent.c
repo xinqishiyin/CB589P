@@ -613,18 +613,21 @@ void CHANNEL_DW_FUC()                 //Ë«ÆµÊØºò
 		case 0:			
 		  mSysParam.DWChannel1=mCbParam.Channel;		
 		  mSysParam.DWBand1=mCbParam.Band;
-		  mSysParam.DWModu1=mCbParam.Modu;
-		
-		  mCbParam.Channel=mSysParam.DWChannel;
-		  mCbParam.Band=mSysParam.DWBand;
-		  mCbParam.Modu=mSysParam.DWModu;
+		  mSysParam.DWModu1=mCbParam.Modu;		
+		  mCbParam.Channel=mSysParam.DWChannel;		  
+		  if((mCbParam.Country==COUNTRY_RU)||(mCbParam.Country==COUNTRY_PX))
+			{
+				 mCbParam.Band=mSysParam.DWBand;
+			}
+			else mCbParam.Band=0;	
+			mCbParam.Modu=mSysParam.DWModu;
 		  mSqParam.DWSet=1;
 			break;
 		case 1:
-			if(mSysParam.DWChannel1!=mCbParam.Channel||mSysParam.DWBand1!=mCbParam.Band||mSysParam.DWModu1!=mCbParam.Modu)
+			if(mSysParam.DWChannel1!=mCbParam.Channel||mSysParam.DWBand1!=mCbParam.Band)
 			{
 				mSysParam.DWChannel2=mCbParam.Channel;				
-				mSysParam.DWBand2=mCbParam.Band;
+				mSysParam.DWBand2=mCbParam.Band;				
 				mSysParam.DWModu2=mCbParam.Modu;
 				mSqParam.DWSet=2;
 				mSysParam.DWChannel=mCbParam.Channel;
@@ -637,6 +640,9 @@ void CHANNEL_DW_FUC()                 //Ë«ÆµÊØºò
 			else if(mSysParam.DWChannel1==mCbParam.Channel&&mSysParam.DWBand1==mCbParam.Band)
 			{
 				mSqParam.DWSet=0;
+				mCbParam.Channel=mSysParam.DWChannel1;
+				mCbParam.Band=mSysParam.DWBand1;
+				mCbParam.Modu=mSysParam.DWModu1;
 				mMenu.MenuIndex=CHANNEL;
 				ShowChannel();
 			}
@@ -1494,48 +1500,34 @@ void CHANNEL_FAF_PPT_FUC()
 		mSysParam.MinChannel = 1;
 	switch(mCbParam.Country)
 	{
-		case COUNTRY_EU: mSysParam.MaxChannel = 40;mSysParam.isUK=0;mSysParam.DWChannel=9;
-				mSysParam.DWBand=0;
-				mSysParam.DWModu=mCbParam.Modu;break;
-		case COUNTRY_CE: mSysParam.MaxChannel = 40;mSysParam.isUK=0;mSysParam.DWChannel=9;
-				mSysParam.DWBand=0;
-				mSysParam.DWModu=mCbParam.Modu;break;
-		case COUNTRY_UK: mSysParam.MaxChannel = 40;mSysParam.isUK=0;mSysParam.DWChannel=9;
-				mSysParam.DWBand=0;
-				mSysParam.DWModu=mCbParam.Modu;break;
-		case COUNTRY_PL: mSysParam.MaxChannel = 40;mSysParam.isUK=0;mSysParam.DWChannel=9;
-				mSysParam.DWBand=0;
-				mSysParam.DWModu=mCbParam.Modu;break;
-		case COUNTRY_I0: mSysParam.MaxChannel = 40;mSysParam.isUK=0;mSysParam.DWChannel=9;
-				mSysParam.DWBand=0;
-				mSysParam.DWModu=mCbParam.Modu;break;
-		case COUNTRY_AU: mSysParam.MaxChannel = 40;mSysParam.isUK=0;mSysParam.DWChannel=9;
-				mSysParam.DWBand=0;
-				mSysParam.DWModu=mCbParam.Modu;break;
-		case COUNTRY_NL: mSysParam.MaxChannel = 40;mSysParam.isUK=0;mSysParam.DWChannel=9;
-				mSysParam.DWBand=0;
-				mSysParam.DWModu=mCbParam.Modu;break;
+		case COUNTRY_EU: mSysParam.MaxChannel = 40;mSysParam.isUK=0;mSysParam.DWChannel=9;mCbParam.Band=0;
+				mSysParam.DWBand=0;mSysParam.DWModu=FM;break;
+		case COUNTRY_CE: mSysParam.MaxChannel = 40;mSysParam.isUK=0;mSysParam.DWChannel=9;mCbParam.Band=0;
+				mSysParam.DWBand=0;mSysParam.DWModu=FM;break;
+		case COUNTRY_UK: mSysParam.MaxChannel = 40;mSysParam.isUK=0;mSysParam.DWChannel=9;mCbParam.Band=0;
+				mSysParam.DWBand=0;mSysParam.DWModu=FM;break;
+		case COUNTRY_PL: mSysParam.MaxChannel = 40;mSysParam.isUK=0;mSysParam.DWChannel=9;mCbParam.Band=0;
+				mSysParam.DWBand=0;mSysParam.DWModu=FM;break;
+		case COUNTRY_I0: mSysParam.MaxChannel = 40;mSysParam.isUK=0;mSysParam.DWChannel=9;mCbParam.Band=0;
+				mSysParam.DWBand=0;mSysParam.DWModu=FM;break;
+		case COUNTRY_AU: mSysParam.MaxChannel = 40;mSysParam.isUK=0;mSysParam.DWChannel=9;mCbParam.Band=0;
+				mSysParam.DWBand=0;mSysParam.DWModu=AM;break;
+		case COUNTRY_NL: mSysParam.MaxChannel = 40;mSysParam.isUK=0;mSysParam.DWChannel=9;mCbParam.Band=0;
+				mSysParam.DWBand=0;mSysParam.DWModu=AM;break;
 		case COUNTRY_RU: mSysParam.MaxChannel = 40;mCbParam.Band=3;mSysParam.isUK=0;mSysParam.DWChannel=9;
-				mSysParam.DWBand=3;
-				mSysParam.DWModu=mCbParam.Modu;break;
+				mSysParam.DWBand=3;mSysParam.DWModu=FM;;break;
 		case COUNTRY_PX: mSysParam.MaxChannel = 40;mCbParam.Band=3;mSysParam.isUK=0;mSysParam.DWChannel=9;
-				mSysParam.DWBand=3;
-				mSysParam.DWModu=mCbParam.Modu;break;
-		case COUNTRY_I2: mSysParam.MaxChannel = 34;mSysParam.isUK=0;mSysParam.DWChannel=9;
-				mSysParam.DWBand=0;
-				mSysParam.DWModu=mCbParam.Modu;break;
-		case COUNTRY_DE: mSysParam.MaxChannel = 80;mSysParam.isUK=0;mSysParam.DWChannel=9;
-				mSysParam.DWBand=0;
-				mSysParam.DWModu=mCbParam.Modu;break;
-		case COUNTRY_IN: mSysParam.MaxChannel = 27;mSysParam.isUK=0;mSysParam.DWChannel=9;
-				mSysParam.DWBand=0;
-				mSysParam.DWModu=mCbParam.Modu;break;
-		case COUNTRY_PC: mSysParam.MaxChannel = 50;mSysParam.isUK=0;mSysParam.DWChannel=9;
-				mSysParam.DWBand=0;
-				mSysParam.DWModu=mCbParam.Modu;break;
-		case COUNTRY_AM: mSysParam.MaxChannel = 10;mSysParam.isUK=0;mSysParam.DWChannel=9;
-				mSysParam.DWBand=0;
-				mSysParam.DWModu=mCbParam.Modu;break;
+				mSysParam.DWBand=3;mSysParam.DWModu=FM;break;
+		case COUNTRY_I2: mSysParam.MaxChannel = 34;mSysParam.isUK=0;mSysParam.DWChannel=9;mCbParam.Band=0;
+				mSysParam.DWBand=0;mSysParam.DWModu=FM;break;
+		case COUNTRY_DE: mSysParam.MaxChannel = 80;mSysParam.isUK=0;mSysParam.DWChannel=9;mCbParam.Band=0;
+				mSysParam.DWBand=0;mSysParam.DWModu=FM;break;
+		case COUNTRY_IN: mSysParam.MaxChannel = 27;mSysParam.isUK=0;mSysParam.DWChannel=9;mCbParam.Band=0;
+				mSysParam.DWBand=0;mSysParam.DWModu=FM;break;
+		case COUNTRY_PC: mSysParam.MaxChannel = 50;mSysParam.isUK=0;mSysParam.DWChannel=9;mCbParam.Band=0;
+				mSysParam.DWBand=0;mSysParam.DWModu=FM;break;
+		case COUNTRY_AM: mSysParam.MaxChannel = 10;mSysParam.isUK=0;mSysParam.DWChannel=9;mCbParam.Band=0;
+				mSysParam.DWBand=0;mSysParam.DWModu=AM;break;
 	}
 	if(mCbParam.Country==COUNTRY_AM) 
 	{

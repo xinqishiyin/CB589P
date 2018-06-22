@@ -243,8 +243,7 @@ void evenHandler()
 				if(isConnect==0)
 				{					
 					SPK_EN=0;
-					BK4815Sleep();
-					
+					BK4815Sleep();					
 					isBK4815_Set=0;
 					isWending=0;
 					LED_TX=OFF;
@@ -255,13 +254,14 @@ void evenHandler()
 						LCD_RX(1);						
 						LED_RX=ON;
 						SPK_EN=1;
-					}
-					delayms(200);
-					while(!isSendCmdOK(CMD_SET_ALL));			
-					delayms(200);
-					while(!isSendCmdOK(CMD_SET_ALL));	
-					isConnect=1;
-					
+					}			
+					delayms(50);
+					isSendCmdOK(CMD_SET_ALL);								
+					delayms(50);
+					isSendCmdOK(CMD_SET_ALL);	
+					delayms(50);
+					isSendCmdOK(CMD_SET_ALL);		
+					isConnect=1;					
 				}
 				if(isSendDtmf==1)
 				{
@@ -340,11 +340,7 @@ void evenHandler()
 				PWR_MUTE_PRESS();
 				wriless_button();
 				TM1722_SHOW();	   //2ms	
-				if(isWending==0)
-				{
-					delayms(500);
-					isWending=1;
-				}       		
+//				      		
 				break;
 			}			
 			default: break;

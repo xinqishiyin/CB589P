@@ -175,7 +175,7 @@ void Check_DW()
 		
 		if(mSqParam.DisHould==1)                        //不停止的话切换另一频道
 		{
-			if(mCbParam.Channel==mSysParam.DWChannel1)
+			if((mCbParam.Channel==mSysParam.DWChannel1) &&(mCbParam.Band==mSysParam.DWBand1))
 			{
 				mCbParam.Channel=mSysParam.DWChannel2;
 				mCbParam.Band=mSysParam.DWBand2;

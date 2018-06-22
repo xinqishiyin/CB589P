@@ -229,10 +229,12 @@ void setSQ(void)  //SQ 28级
 	if(mCbParam.Sq > 0x1f)	//Asq标志位在mCbParam.Sq的0x20位置
 	{
 		mSqParam.IsAsq = 1;
+		mSqParam.AsqLevel=mOpenSqDbLevel;
 	}
 	else
 	{
 		mSqParam.IsAsq = 0;
+		mSqParam.SqLevel=mOpenSqDbLevel;
 	}
 }
 void setSQSet()
@@ -741,6 +743,7 @@ void eventHandler(void)
 		{
 			BK4815Sleep();
 			is4815Sleep=1;
+			setEmission(0);
 		}
 		if(POWER_ON == 1)
 		{
@@ -822,26 +825,34 @@ void eventHandler(void)
 						calculateFreq();
 					  if(mOpenSqDbLevel>0)	Set_Mute();
 						setEmission(0);
-					  
-					  delayms(20);
+					  saveData(EEP_BAND,mCbParam.Band);		
+						saveData(EEP_CHANNEL,mCbParam.Channel);		
+						saveData(EEP_MODU,mCbParam.Modu);	
+					  saveData(EEP_POWER,mCbParam.TxPower);	
 					  mFlag.VcoIdle=0;
 						break;
 					case CMD_SET_SQ_ASQ:                                        //SQ设置
 						mCbParam.Sq=mReceivePackage.RecvBuf[3];
 						setSQ();
 						checkSq();
+						saveData(EEP_IS_ASQ,mSqParam.IsAsq);
+					  saveData(EEP_ASQ_LEVEL,mSqParam.AsqLevel);
+					  saveData(EEP_SQ_LEVEL,mSqParam.SqLevel);
 						break;
 					case CMD_SET_RFG:																						//RFG设置
 						mCbParam.RfgLevel=mReceivePackage.RecvBuf[3];
 						setRfg(autoRFG+mCbParam.RfgLevel);
+						saveData(EEP_RFG,mCbParam.RfgLevel);
 						break;
 					case CMD_SET_VOL:																						//声音设置
 						mCbParam.VolLevel=mReceivePackage.RecvBuf[3];
 						setVol();
+					  saveData(EEP_VOL,mCbParam.VolLevel);
 						break;
 					case CMD_SET_TX_POWER:																			//发射功率设置
 						mCbParam.TxPower = mReceivePackage.RecvBuf[3];
 						setPower();
+					  saveData(EEP_POWER,mCbParam.TxPower);
 						break;
 					case CMD_SET_MODULATION:																		//模式切换
 						mCbParam.Modu = mReceivePackage.RecvBuf[3];
@@ -849,20 +860,26 @@ void eventHandler(void)
 						setPower();
 						setModulation();
 						setEmission(0);
+					  saveData(EEP_MODU,mCbParam.Modu);
 						break;
 					case CMD_SET_BAND:                                          //频段
 						mCbParam.Band= mReceivePackage.RecvBuf[3];
 						calculateFreq();
 						setEmission(0);
+					  saveData(EEP_BAND,mCbParam.Band);		
 						break;
 					case CMD_SET_DTMF:
 						if(HM_DET==0)
 						{						
 							mDtmfRecive.dtmfCode= mReceivePackage.RecvBuf[3]<<4|mReceivePackage.RecvBuf[4];					
 							fre=(((u32)mReceivePackage.RecvBuf[5])<<28)|(((u32)mReceivePackage.RecvBuf[6])<<21)|(((u32)mReceivePackage.RecvBuf[7])<<14)|((u32)mReceivePackage.RecvBuf[8]<<7)|((u32)mReceivePackage.RecvBuf[9]);
-							channel.RX_Freq=((float)fre/1000);	
-							
-						}			
+							channel.RX_Freq=((float)fre/1000);		
+							if(channel.Old_Freq!=channel.RX_Freq)
+							{
+								saveDtmf();
+							}							
+						}
+					
 						
 	          //if(channel.RX_Freq<200||channel.RX_Freq>400)channel.RX_Freq=300;
 						break;
@@ -947,7 +964,7 @@ void eventHandler(void)
 				mUartCmd=0;
 			}
 			
-			if(mFlag.VcoIdle==0)
+			if(mFlag.VcoIdle==0&&mFlag.CbInit==1)
 			{				
 				checkSq();
 			}
