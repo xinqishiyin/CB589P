@@ -6,13 +6,12 @@
 #include "XN31202.H"
 #include "vco.h"
 #include "event.h"
-extern tCbParam  	mCbParam;
-extern tSqParam  	mSqParam;
+
 
 
 
 /*--------EEPROM中读出的数据----------*/
-extern Channel channel;
+
 
 
 /*--------------------------------------------*/
@@ -83,7 +82,7 @@ void saveAllParam(void)
 	saveData(EEP_POWER,mCbParam.TxPower);		
 	saveData(EEP_RFG,mCbParam.RfgLevel);			
 	saveData(EEP_VOL,mCbParam.VolLevel);	
-	
+	saveData(EEP_MUTE,mFlag.Mute);	
 	saveData(EEP_IS_ASQ,mSqParam.IsAsq);		
 	saveData(EEP_SQ_LEVEL,mSqParam.SqLevel);			
 	saveData(EEP_ASQ_LEVEL,mSqParam.AsqLevel);			
@@ -132,10 +131,7 @@ void saveDtmf()
 	
 
 }
-void loadToBK4815(void)
-{
-	
-}
+
 /*-------------------------------------------------------------------------
 *函数：checkAllParam  验证加载信息
 *参数：无   
@@ -185,7 +181,7 @@ void checkAllParam(void)
 
 	}
 	mFlag.SqOpen=0;
-	mRssi=0;
+	mParameter.mRssi=0;
 }
 
 
@@ -212,7 +208,7 @@ void setDefaultParam(void)
 	mSqParam.SqLevel = 10;
 	mCbParam.Sq = (mSqParam.AsqLevel | mSqParam.IsAsq);	
 	mDtmfRecive.dtmfCode=10;
-
+  mFlag.Mute=0; 
 	
 for(i=0;i<28;i++)
 {
@@ -271,7 +267,7 @@ void loadAllParam(void)
 		if(mSqParam.IsAsq == 1)mCbParam.Sq = (mSqParam.AsqLevel | mSqParam.IsAsq);
 		else mCbParam.Sq = mSqParam.SqLevel;
 		mDtmfRecive.dtmfCode=loadData(EEP_DTMF);
-		
+		mFlag.Mute=loadData(EEP_MUTE); 
 
 	
 		
@@ -300,15 +296,33 @@ void loadAllParam(void)
 
 	}
 	checkAllParam();
-
+  mParameter.mRecive=0;
+	mParameter.mUartCmd=0;
+	mParameter.mOpenSqDbLevel=0;
+	mParameter.mLastOpenSqDbLevel=0;
+	mParameter.mRssi=0;
+	mParameter.mXn31202Ch1_Tx=0;
+	mParameter.mXn31202Ch1_Rx=0;
+	mParameter.mReferenceFreq=0;
+	mParameter.mCurrentFreq=0;
+	mParameter.mAsqVoltage=0;
+	mParameter.mRssiVoltage=0;
+	mParameter.mAgcaVoltage=0;
+	mParameter.cTxLength=0;
+	mParameter.cSqSum=0;
+	mParameter.isautoRGF=0;
+	mParameter.autoRFG=0;
+	mParameter.isSendRSSI=0;
+	mParameter.sengRssiCount=0;
+	mParameter.is4815Sleep=0;
 }
 
 void Power_On_Rx()
 {							
 					
 			Set_XN31202(0x02c4,14);
-			Set_XN31202(0x3000 + (EXTERNAL_CRYSTAL/mReferenceFreq/2),14);
-			mFlag.Mute=0;
+			Set_XN31202(0x3000 + (EXTERNAL_CRYSTAL/mParameter.mReferenceFreq/2),14);
+
 			calculateFreq();	
 			setSQ();
 			setPower();

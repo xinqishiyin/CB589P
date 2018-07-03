@@ -103,9 +103,9 @@ void CHANNEL_SQ_SET_F_FUC();    //SQ调节切换设置对象
 /*
 ----------------------------------------------------------------频偏调节设置------------------------------
 */
-void CHANNEL_FRECAL_FUC();   //进入频偏调节
-void CHANNEL_FRECAL_UP_FUC();   //频偏调节加键
-void CHANNEL_FRECAL_DN_FUC();   //频偏调节减键
+//void CHANNEL_FRECAL_FUC();   //进入频偏调节
+//void CHANNEL_FRECAL_UP_FUC();   //频偏调节加键
+//void CHANNEL_FRECAL_DN_FUC();   //频偏调节减键
 
 /*
 ------------------------------------------------------------------出厂设置------------------------------

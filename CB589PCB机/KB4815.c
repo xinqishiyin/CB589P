@@ -3,9 +3,6 @@
 
 /*--------设置参数结构体----------------*/
 Channel channel;
-u8 rexci[20];
-u8 reccount=0;
-u8 recivecode[1]={1};
 
 /*--------------全局变量-------------------------*/
 u16 g_reg0_15_buff[16];
@@ -27,26 +24,26 @@ u16 xdata ramp_table[]=
 	0xC3BF,0xC7C7,0xCBCE,0xCFD5,0xD3DB,0xD7E1,0xDBE6,0xDFEB,
 	0xE3EF,0xE7F3,0xEBF6,0xEFF9,0xF3FB,0xF7FD,0xFBFE,0xFFFF
 };
-code u16 RecvDtmfLowArr[]= 
-{
-0x3ab, 0x2B8, 0x2B8, 0x2B8, 0x301, 0x301, 0x301, 0x353, 
-0x353, 0x353, 0x2B8, 0x301, 0x353, 0x3AB, 0x3AB, 0x3AB
-};
-code u16 RecvDtmfHighArr[]=
-{
-0x536, 0x4B7, 0x536, 0x5C2, 0x4B7, 0x536, 0x5C2, 0x4B7,
-0x536, 0x5C2, 0x65E, 0x65E, 0x65E, 0x65E, 0x4B7, 0x5C2
-};
-code u16 SendDtmfLowArr[]= 
-{
-0xD0C, 0x9AA, 0x9AA, 0x9AA, 0xAAD, 0xAAD, 0xAAD, 0xBD0,
-0xBD0, 0xBD0, 0x9AA, 0xAAD, 0xBD0, 0xD0C, 0xD0C, 0xD0C
-};
-code u16 SendDtmfHighArr[]=
-{
-0x1285,0x10C3,0x1285,0x147A,0x10C3,0x1285,0x147A,0x10C3,
-0x1285,0x147A,0x16A4,0x16A4,0x16A4,0x16A4,0x10C3,0x147A
-};
+//code u16 RecvDtmfLowArr[]= 
+//{
+//0x3ab, 0x2B8, 0x2B8, 0x2B8, 0x301, 0x301, 0x301, 0x353, 
+//0x353, 0x353, 0x2B8, 0x301, 0x353, 0x3AB, 0x3AB, 0x3AB
+//};
+//code u16 RecvDtmfHighArr[]=
+//{
+//0x536, 0x4B7, 0x536, 0x5C2, 0x4B7, 0x536, 0x5C2, 0x4B7,
+//0x536, 0x5C2, 0x65E, 0x65E, 0x65E, 0x65E, 0x4B7, 0x5C2
+//};
+//code u16 SendDtmfLowArr[]= 
+//{
+//0xD0C, 0x9AA, 0x9AA, 0x9AA, 0xAAD, 0xAAD, 0xAAD, 0xBD0,
+//0xBD0, 0xBD0, 0x9AA, 0xAAD, 0xBD0, 0xD0C, 0xD0C, 0xD0C
+//};
+//code u16 SendDtmfHighArr[]=
+//{
+//0x1285,0x10C3,0x1285,0x147A,0x10C3,0x1285,0x147A,0x10C3,
+//0x1285,0x147A,0x16A4,0x16A4,0x16A4,0x16A4,0x10C3,0x147A
+//};
 
 /*-------------------------------------------------------------------------
 *函数：SetBK4815Pragram  BK4815初使化参数
@@ -58,8 +55,6 @@ void SetBK4815Pragram()
 	channel.band=narrow;
 	channel.isVOXOpen=1;
 	channel.VOXLevel=0x32;
-	channel.TX_Freq=406.7125;
-	channel.RX_Freq=406.7125;
 	mDtmfRecive.DtmfSussece=0;
 	mDtmfRecive.DtmfRecvCount=0;
 }
@@ -149,19 +144,20 @@ void initBK4815(void)
 	u16 val=0;
 
 	BK4815_SCN = 1; 
-	delayus(2);
+	delayms(2);
 	BK4815_SCN = 1;
-	delayms(1);
+	delayms(2);
 
 //	IDLE	
 //	BK_Write_Reg(117,	0x0492);
 	IDLE
-//	delayms(10);
-//	BK_Write_Reg(12,	0xFBAB);
-	delayus(5);
-	BK_Write_Reg(115, 0x8400);//updated           //DTMF interrupt
-	
-	BK_Write_Reg(116, 0x0000);//updated
+	delayms(200);
+
+	BK_Write_Reg(12,	0xFBAB);
+	delayms(5);
+//	BK_Write_Reg(115, 0x8400);//updated           //DTMF interrupt
+//	
+//	BK_Write_Reg(116, 0x0000);//updated
 	for(i=1;i<=15;i++)
 	{
 		g_reg0_15_buff[i]=reg0_18[i];
@@ -317,32 +313,34 @@ void initBK4815(void)
 	
 	//BK_DTMF_SET_CODE(mDtmfRecive.dtmfCode[0]);
 	
-	 EX0 = 1; 		                      //使能INT1中断
-			/*-----------------允许DTMF接收-----------------------*/
-	val=BK_Read_Reg(66);
-	val|=(0x0001<<11);
-	BK_Write_Reg(66,val);	
+//	 EX0 = 1; 		                      //使能INT1中断
+//			/*-----------------允许DTMF接收-----------------------*/
+//	val=BK_Read_Reg(66);
+//	val|=(0x0001<<11);
+//	BK_Write_Reg(66,val);	
 
-  val=BK_Read_Reg(78);
-	val&=0xf000;
-	val|=0x010f;
-	BK_Write_Reg(78,val);
-	
-	val=BK_Read_Reg(115);
-	val|=(0x0001<<10);
-	BK_Write_Reg(115,val);
-	
-	for(i = 0; i < 16; i++)
-	{
-		BK_Write_Reg(77, ((i) << 12) | 
-					 ((1  << 11)) |
-					 RecvDtmfHighArr[i]);
-		
-		BK_Write_Reg(77, ((i) << 12) |
-					 RecvDtmfLowArr[i]);
-	}
+//  val=BK_Read_Reg(78);
+//	val&=0xf000;
+//	val|=0x010f;
+//	BK_Write_Reg(78,val);
+//	
+//	val=BK_Read_Reg(115);
+//	val|=(0x0001<<10);
+//	BK_Write_Reg(115,val);
+//	
+//	for(i = 0; i < 16; i++)
+//	{
+//		BK_Write_Reg(77, ((i) << 12) | 
+//					 ((1  << 11)) |
+//					 RecvDtmfHighArr[i]);
+//		
+//		BK_Write_Reg(77, ((i) << 12) |
+//					 RecvDtmfLowArr[i]);
+//	}
 
+	delayms(50);
 	EnterBK4815RX();
+
 }
 
 /*-------------------------------------------------------------------------
@@ -383,26 +381,26 @@ u16 BK4815RssiAndSnr(void)
   ??:?
 	??:?
 *----------------------------------------------------------------*/
-void BK_Enable_TX_InbandSignal()
-{
-	u16 val = 0;
-	val = BK_Read_Reg(40);
-	val |= 0x8000;
-	
-	BK_Write_Reg(40, val);
-}
+//void BK_Enable_TX_InbandSignal()
+//{
+//	u16 val = 0;
+//	val = BK_Read_Reg(40);
+//	val |= 0x8000;
+//	
+//	BK_Write_Reg(40, val);
+//}
 /*----------------------------------------------------------------
   ??:BK_Disable_TX_InbandSignal ??TX???? 
   ??:
 	??:?
 *----------------------------------------------------------------*/
-void BK_Disable_TX_InbandSignal()
-{
-	u16 val = 0;
-	val = BK_Read_Reg(40);
-	val &= 0x7FFF;	
-	BK_Write_Reg(40, val);
-}
+//void BK_Disable_TX_InbandSignal()
+//{
+//	u16 val = 0;
+//	val = BK_Read_Reg(40);
+//	val &= 0x7FFF;	
+//	BK_Write_Reg(40, val);
+//}
 /*----------------------------------------------------------------
   ??:BK_RX2TX ?????
   ??:
@@ -426,88 +424,88 @@ void BK_RX2TX()
   ??:
 	??:?
 *----------------------------------------------------------------*/
-void BK_TX2RX()
-{
-  BK_Write_Reg(112,0xa000);
-  BK_Write_Reg(12, 0x0603);
-}
+//void BK_TX2RX()
+//{
+//  BK_Write_Reg(112,0xa000);
+//  BK_Write_Reg(12, 0x0603);
+//}
 
-void BK_DTMF_INTERUPT_CLEAR()
-{
-	u16 val;
-	val=BK_Read_Reg(116);
-	val|=0x0400;
-	BK_Write_Reg(116,val);
-		val=BK_Read_Reg(78);
-	val&=0xff0f;
-	BK_Write_Reg(78,val);
-}
+//void BK_DTMF_INTERUPT_CLEAR()
+//{
+//	u16 val;
+//	val=BK_Read_Reg(116);
+//	val|=0x0400;
+//	BK_Write_Reg(116,val);
+//		val=BK_Read_Reg(78);
+//	val&=0xff0f;
+//	BK_Write_Reg(78,val);
+//}
 
-/*-------------------------------------------------------------------------
-*函数：BK_DTMF_RX_Read  读DTMF编码
-*参数：无
-*返回值：DTMF编码
-*-------------------------------------------------------------------------*/
-u8 BK_DTMF_RX_Read()
-{
-	u8 dtmf_addr=0;
-	u16 val=0;
-	val=BK_Read_Reg(78);
-	dtmf_addr=(val>>4)&0x0f;
-	return dtmf_addr;
-}
-/*-------------------------------------------------------------------------
-*??:BK_DTMF_TX  DTMF??
-*??:  *buf DTMF??   len ???? 
-*???:?
-*-------------------------------------------------------------------------*/
-void BK_DTMF_TX(u8 buf)
-{
-	u16 val;
-	 IDLE;
-	OPEN_TX;
-	
-		/*------------------------DTMF模式-------------------------------------*/
-		val = BK_Read_Reg(40);
-		val &= 0x1FFF;
-		val |= 0x2000;				/* bit14,13 :01 */  //revised 2009.12.09, inband send was enabled in BK_DTMF_TX
-		BK_Write_Reg(40, val);		/* DTMF */
-	BK_RX2TX();
-	BK_Disable_TX_InbandSignal();
-	OUT_APC=1;
+///*-------------------------------------------------------------------------
+//*函数：BK_DTMF_RX_Read  读DTMF编码
+//*参数：无
+//*返回值：DTMF编码
+//*-------------------------------------------------------------------------*/
+//u8 BK_DTMF_RX_Read()
+//{
+//	u8 dtmf_addr=0;
+//	u16 val=0;
+//	val=BK_Read_Reg(78);
+//	dtmf_addr=(val>>4)&0x0f;
+//	return dtmf_addr;
+//}
+///*-------------------------------------------------------------------------
+//*??:BK_DTMF_TX  DTMF??
+//*??:  *buf DTMF??   len ???? 
+//*???:?
+//*-------------------------------------------------------------------------*/
+//void BK_DTMF_TX(u8 buf)
+//{
+//	u16 val;
+//	 IDLE;
+//	OPEN_TX;
+//	
+//		/*------------------------DTMF模式-------------------------------------*/
+//		val = BK_Read_Reg(40);
+//		val &= 0x1FFF;
+//		val |= 0x2000;				/* bit14,13 :01 */  //revised 2009.12.09, inband send was enabled in BK_DTMF_TX
+//		BK_Write_Reg(40, val);		/* DTMF */
+//	BK_RX2TX();
+//	BK_Disable_TX_InbandSignal();
+//	OUT_APC=1;
 
-	BK_Write_Reg(24, SendDtmfLowArr[buf]);
-	BK_Write_Reg(25, SendDtmfHighArr[buf]);
+//	BK_Write_Reg(24, SendDtmfLowArr[buf]);
+//	BK_Write_Reg(25, SendDtmfHighArr[buf]);
 
-	BK_Enable_TX_InbandSignal();	
+//	BK_Enable_TX_InbandSignal();	
 
-	delayms(70); /* DelayMs 40ms */
-	BK_Disable_TX_InbandSignal();
+//	delayms(70); /* DelayMs 40ms */
+//	BK_Disable_TX_InbandSignal();
 
-	
-}
-u8 isDtmfSendOK() 
-{
-	uchar dat;	
-	mRecive=MRECIVE_NONE;
-	OUT_APC=1;
-	BK_DTMF_INTERUPT_CLEAR();
-	BK_DTMF_TX((mDtmfRecive.dtmfCode&0xf0)>>4);
-	OUT_APC=0;
-	EnterBK4815RX();		
-	delayms(70);
-	dat=BK_DTMF_RX_Read();
+//	
+//}
+//u8 isDtmfSendOK() 
+//{
+//	uchar dat;	
+//	mRecive=MRECIVE_NONE;
+//	OUT_APC=1;
+//	BK_DTMF_INTERUPT_CLEAR();
+//	BK_DTMF_TX((mDtmfRecive.dtmfCode&0xf0)>>4);
+//	OUT_APC=0;
+//	EnterBK4815RX();		
+//	delayms(70);
+//	dat=BK_DTMF_RX_Read();
 
-	if((dat==(mDtmfRecive.dtmfCode&0x0f))&&(mRecive==MRECIVE_BK4815_INTERUPT)) 		
-	{
-		mRecive=MRECIVE_NONE;			
-		return 1;
-	}		
-	else
-	{
-		return 0;	
-	}
-}
+//	if((dat==(mDtmfRecive.dtmfCode&0x0f))&&(mRecive==MRECIVE_BK4815_INTERUPT)) 		
+//	{
+//		mRecive=MRECIVE_NONE;			
+//		return 1;
+//	}		
+//	else
+//	{
+//		return 0;	
+//	}
+//}
 /*-------------------------------------------------------------------------
 *函数：StartBK4815TX  发射
 *参数：无
@@ -611,32 +609,32 @@ void EnterBK4815RX(void)
 
 	delayms(10);
 
-	EX0 = 1;
+	//EX0 = 1;
   BK_Write_Reg(112,0xa000);
 
   BK_Write_Reg(12, 0x0603);
 
 }
 
-void BK_DTMF_RECIVE()
-{
-		uchar dat=0;
-	uchar i=0;  
-	dat=BK_DTMF_RX_Read();
-	if(dat == ((mDtmfRecive.dtmfCode&0xf0)>>4))
-	{				
-		delayms(10);
-		BK_DTMF_TX(mDtmfRecive.dtmfCode&0x0f);
-		mDtmfRecive.DtmfSussece=1;
-		EnterBK4815RX();
-		BK_TX2RX();
-		delayms(80);
-	}			
-	else
-	{		
-		mDtmfRecive.DtmfSussece=0;
-	}
-	BK_DTMF_INTERUPT_CLEAR();
-}
+//void BK_DTMF_RECIVE()
+//{
+//		uchar dat=0;
+//	uchar i=0;  
+//	dat=BK_DTMF_RX_Read();
+//	if(dat == ((mDtmfRecive.dtmfCode&0xf0)>>4))
+//	{				
+//		delayms(10);
+//		BK_DTMF_TX(mDtmfRecive.dtmfCode&0x0f);
+//		mDtmfRecive.DtmfSussece=1;
+//		EnterBK4815RX();
+//		BK_TX2RX();
+//		delayms(80);
+//	}			
+//	else
+//	{		
+//		mDtmfRecive.DtmfSussece=0;
+//	}
+//	BK_DTMF_INTERUPT_CLEAR();
+//}
 
 

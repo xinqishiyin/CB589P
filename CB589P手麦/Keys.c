@@ -8,26 +8,25 @@
 #include "MenuEvent.h"
 #include "CB_Line.h"
 #include "TM1722.h"
-extern tMenu mMenu;
-extern tFlag mFlag;
-extern tSqParam  	mSqParam;                 //SQ模式
-extern tSysParam	  mSysParam;                //
+//extern tMenu mMenu;
+//extern tFlag mFlag;
+//extern tSqParam  	mSqParam;                 //SQ模式
+//extern tSysParam	  mSysParam;                //
 
 
-u8 PPTpress=0;
-u8 LONG_UPDN_PRESS=0;
+//u8 PPTpress=0;
+//u8 LONG_UPDN_PRESS=0;
 
-u8 inDex2=0;
-u8 inDex1=0;
-u8 oldkey=0;
-u8 inDexMute=0;
-u8 scandwPPTPress=0;
-u8 keydelay=10;
-
-extern u8 ButtonLED;
+//u8 inDex2=0;
+//u8 inDex1=0;
+//u8 oldkey=0;
+//u8 inDexMute=0;
+//u8 scandwPPTPress=0;
 
 
-extern u8 isScanInrupt;
+
+
+//extern u16 isScanInrupt;
 
 void Check_Scan()
 {
@@ -36,13 +35,13 @@ void Check_Scan()
 		return;
 	}
 	if(mMenu.MenuIndex!=CHANNEL_SCAN) return;
-	if(isScanInrupt>0)return;
+	if(mParameter.isScanInrupt>0)return;
 	if(mSqParam.IsAsq==0)
 	{
-		if(scandwPPTPress==1)
+		if(mParameter.scandwPPTPress==1)
 		{
 			mSqParam.ScanHould=2;
-			scandwPPTPress=0;
+			mParameter.scandwPPTPress=0;
 			mSqParam.HouldTime=HOULD_TIME;
 		}
 		else
@@ -59,10 +58,10 @@ void Check_Scan()
 	}
 	else
 	{
-		if(scandwPPTPress==1)
+		if(mParameter.scandwPPTPress==1)
 		{
 			mSqParam.ScanHould=2;
-			scandwPPTPress=0;
+			mParameter.scandwPPTPress=0;
 			mSqParam.HouldTime=HOULD_TIME;
 		}
 		else
@@ -101,15 +100,17 @@ void Check_Scan()
 		 if(mSqParam.ScanDir)
 		 {			 
 				CHANNEL_UP_FUC();
+			   mSqParam.ScanHould=1;
 			  //ShowChannel();				
 		 }
 		 else
 		 {
 			 CHANNEL_DN_FUC();
+			 mSqParam.ScanHould=1;
 			 //ShowChannel();
 		 }
 	}
-	isScanInrupt=SCAN_SPEED_DELAY;	
+	mParameter.isScanInrupt=SCAN_SPEED_DELAY;	
 }
 /*-------------------------------------------------------------------------
 *函数：CheckDW  双频守候
@@ -120,14 +121,14 @@ void Check_DW()
 {
 	u8 oldchannel=mCbParam.Channel;
 	u8 oldband=mCbParam.Band;
-	if(isScanInrupt>0)return;
+	if(mParameter.isScanInrupt>0)return;
 	if(mSqParam.DWSet==2)                            //双频守候状态
 	{
 		if(mMenu.MenuIndex!=CHANNEL_DW) return;
-		if(scandwPPTPress==1)
+		if(mParameter.scandwPPTPress==1)
 		{
 			mSqParam.DWHould=2;
-			scandwPPTPress=0;
+			mParameter.scandwPPTPress=0;
 			mSqParam.HouldTime=HOULD_TIME;
 		}
 		else
@@ -190,6 +191,7 @@ void Check_DW()
 			CheckTxPower();
 			if(isSendCmdOK(CMD_SET_CHANNEL))
 			{		
+				mSqParam.DWHould=1;
 				close_sq();
 						//saveData(EEP_CHANNEL,mCbParam.Channel);
 						//saveData(EEP_BAND,mCbParam.Band);
@@ -202,7 +204,7 @@ void Check_DW()
 			}							
 		}			
 	}
-	isScanInrupt=SCAN_SPEED_DELAY;
+	mParameter.isScanInrupt=SCAN_SPEED_DELAY;
 }
 u8 Check_Key(u8 key)
 {
@@ -218,7 +220,7 @@ u8 Check_Key(u8 key)
 		if(vae2==vae3) 
 		{
 			vae=vae3;
-			ButtonLED=BUTTON_LED_TIME;
+			mSysParam.ButtonLED = BUTTON_LED_TIME;
 		}
 		else
 		{
@@ -229,7 +231,7 @@ u8 Check_Key(u8 key)
 			if(vae2==vae3)
 			{
 				vae=vae3;
-				ButtonLED=BUTTON_LED_TIME;
+				mSysParam.ButtonLED = BUTTON_LED_TIME;
 			}
 		}
 	}
@@ -246,43 +248,41 @@ void IS_KEY1_PRESS(void)
 	switch(vae)	
 	{
 		case 0x0F:
-			MenuOperate(KEY_SCAN);
-		  while(Get_AD(Key1)==0x0f);
+			MenuOperate(KEY_SCAN);		  
 			break;
 		case 0x06:
-			inDex1=RFG;
+			mParameter.inDex1=RFG;
 			MenuOperate(KEY_RFG);		  
-		  while(Get_AD(Key1)==0x06);
 		  break;
 		case 0x0D:
-			inDex1=UP;
-			if(LONG_UPDN_PRESS<8)LONG_UPDN_PRESS++;
-			if(LONG_UPDN_PRESS==8)
+			mParameter.inDex1=UP;
+			if(mParameter.LONG_UPDN_PRESS<8)mParameter.LONG_UPDN_PRESS++;
+			if(mParameter.LONG_UPDN_PRESS==8)
 			{			
-				MenuOperate(KEY_LONGUP);
+				MenuOperate(KEY_LONGUP);				
 			}			
 			if(mKey.ShortPressLimit1>0) mKey.ShortPressLimit1--;
 			break;
 		case 0x0A:
-			inDex1=DN;
-			if(LONG_UPDN_PRESS<8)LONG_UPDN_PRESS++;
-			if(LONG_UPDN_PRESS==8)
-			{				
+			mParameter.inDex1=DN;
+			if(mParameter.LONG_UPDN_PRESS<8)mParameter.LONG_UPDN_PRESS++;
+			if(mParameter.LONG_UPDN_PRESS==8)
+			{
 				MenuOperate(KEY_LONGDN);
+				
 			}
 			if(mKey.ShortPressLimit1>0) mKey.ShortPressLimit1--;
 			break;
 		case 0x03:
-			inDex1=AF;
+			mParameter.inDex1=AF;
 			if(mKey.ShortPressLimit1>0) mKey.ShortPressLimit1--;	
 			if(mKey.ShortPressLimit1==0)
 			{
-				MenuOperate(KEY_LONG_AF);	
-				while(Get_AD(Key1)==0x03);
+				MenuOperate(KEY_LONG_AF);					
 			}
 			break;
 		case 0x0B:
-			inDex1=SQ;
+			mParameter.inDex1=SQ;
 			if(mKey.ShortPressLimit1>0) mKey.ShortPressLimit1--;
 			if(mKey.LongSq_Time>0) mKey.LongSq_Time--;
 			if(mKey.LongSq_Time==0)          //长按3秒
@@ -294,29 +294,28 @@ void IS_KEY1_PRESS(void)
 		default:
 			if((mKey.ShortPressLimit1>0) && (mKey.ShortPressLimit1<15))	
 			{
-				switch(inDex1)              //短按
+				switch(mParameter.inDex1)              //短按
 				{
 					case SCAN:
 						
 						break;
-					case RFG:
-				
+					case RFG:				
 						break;
 					case UP:
-						if(LONG_UPDN_PRESS<8)
+						if(mParameter.LONG_UPDN_PRESS<8)
 						{
-							LONG_UPDN_PRESS=0;
+							mParameter.LONG_UPDN_PRESS=0;
 							MenuOperate(KEY_UP);
 						}
-						LONG_UPDN_PRESS=0;
+						mParameter.LONG_UPDN_PRESS=0;
 						break;
 					case DN:
-						if(LONG_UPDN_PRESS<8)
+						if(mParameter.LONG_UPDN_PRESS<8)
 						{
-							LONG_UPDN_PRESS=0;
+							mParameter.LONG_UPDN_PRESS=0;
 							MenuOperate(KEY_DN);
 						}
-						LONG_UPDN_PRESS=0;
+						mParameter.LONG_UPDN_PRESS=0;
 						break;
 					case AF:
 						MenuOperate(KEY_AF);
@@ -330,7 +329,7 @@ void IS_KEY1_PRESS(void)
 			}
 			else if(mKey.ShortPressLimit1==0)
 			{
-				switch(inDex1)            //长按
+				switch(mParameter.inDex1)            //长按
 				{
 					case SCAN:						
 						break;
@@ -376,7 +375,7 @@ void IS_KEY2_PRESS(void)
 	}
 	if(mKey.DoublePress_Limit==0)                                            //按F
 	{
-		oldkey=0;
+//		oldkey=0;
 	}
 
   if(mMenu.MenuIndex!=CHANNEL&&mMenu.MenuIndex!=CHANNEL_FAF&&mMenu.MenuIndex!=CHANNEL_FUPAFRFGSCAN&&mMenu.MenuIndex!=CHANNEL_DW&&mMenu.MenuIndex!=CHANNEL_SCAN&& mMenu.MenuIndex!=CHANNEL_DOUBLEF&&mMenu.MenuIndex!=CHANNEL_SQ_SET&&mMenu.MenuIndex!=CHANNEL_FRECAL&&mMenu.MenuIndex!=CHANNEL_PPTDN)       //不返回主界面的菜单
@@ -426,7 +425,7 @@ void IS_KEY2_PRESS(void)
 			mSysParam.KeyComboTableLimit--;
 			if(mSysParam.KeyComboTableLimit==0)
 			{
-				mKey.key_CombleFUPAFRFGSCAN=0;			
+				mKey.key_CombleFUPAFRFGSCAN=0;
 				mSysParam.isKeyComTable=0;
 			}
 	}
@@ -434,38 +433,37 @@ void IS_KEY2_PRESS(void)
 	{		
 	
 		case 0x0a:
-			inDex2=EMG;
-			MenuOperate(KEY_EMG);
-		  while(Check_Key(Key2)==0x0a);
+			mParameter.inDex2=EMG;
+			MenuOperate(KEY_EMG);		  
 			break;
 		case 0x0D:
-			inDex2=F;	
-		
+			mParameter.inDex2=F;
 			if( mKey.ShortPressLimit2>0)  mKey.ShortPressLimit2--;
 		  if(mKey.ShortPressLimit2==0)     //长按1次F
 			{
 				MenuOperate(KEY_LONG_F);			
-			}				
+			}
 			break;
 		case 0x0B:
 			MenuOperate(KEY_DW);
-		  while(Get_AD(Key2)==0x0B);
+		  StopTwinkle();
+		  
 			break;
 		case 0x06:
-			inDex2=VOL_DN;			
-		
+			mParameter.inDex2=VOL_DN;			
+		  StopTwinkle();
 			MenuOperate(KEY_VOL_DN);			
 			break;
 		case 0x03:
-			inDex2=VOL_UP;			
-		
+			mParameter.inDex2=VOL_UP;			
+		  StopTwinkle();
 			MenuOperate(KEY_VOL_UP);		
 
 			break;		
 		default:
 			if(( mKey.ShortPressLimit2>0) && ( mKey.ShortPressLimit2<15))	
 			{
-				switch(inDex2)              //短按
+				switch(mParameter.inDex2)              //短按
 				{					
 					case EMG:
 						
@@ -489,7 +487,7 @@ void IS_KEY2_PRESS(void)
 			}
 			else if( mKey.ShortPressLimit2==0)
 			{
-				switch(inDex2)            //长按
+				switch(mParameter.inDex2)            //长按
 				{					
 					case EMG:
 						
@@ -509,13 +507,9 @@ void IS_KEY2_PRESS(void)
 					default:
 						break;
 				}
-				
-				
-				
-				
 			}			
 			 mKey.ShortPressLimit2=15;
-			inDex2=0;
+			mParameter.inDex2=0;
 			break;			
 	}	
 }
@@ -529,18 +523,19 @@ void PPT_PRESS(void)
   u16 i=0;
 	if(PPT_KEY==0)	
 	{	
-		ButtonLED=BUTTON_LED_TIME;
-		PPTpress=1;
+		mSysParam.ButtonLED=BUTTON_LED_TIME;
+		mParameter.PPTpress=1;
+		StopTwinkle();
 		MenuOperate(KEY_PPTDN);
 	}
 	else
 	{		
 		
-		if(PPTpress==1)
+		if(mParameter.PPTpress==1)
 		{
 			MenuOperate(KEY_PPTUP);
 			
-			PPTpress=0;
+			mParameter.PPTpress=0;
 			
 		}
 	}
@@ -562,31 +557,29 @@ void PWR_MUTE_PRESS(void)
 	}
 	if(POW_IN)
 	{
-		inDexMute=1;
-		ButtonLED=BUTTON_LED_TIME;
-		if(mKey.MutePress_Timelimit>0)
+		mParameter.inDexMute=1;
+		mSysParam.ButtonLED=BUTTON_LED_TIME;
+		mKey.Pow_Press=1;
+		while(POW_IN)
 		{
-			mKey.MutePress_Timelimit--;
+			if(mKey.Pow_Press_Time==0)
+			{
+				MenuOperate(KEY_LONG_POWER);	
+			}
 		}
-		if(mKey.MutePress_Timelimit==0)      //长按
-		{
-			MenuOperate(KEY_LONG_POWER);	
-			mKey.MutePress_Timelimit=150;
-			inDexMute=0;
-		}			
-		//while(POW_IN);
 	}
 	else
 	{
-		if(inDexMute==1)
+		if(mParameter.inDexMute==1)
 		{
+		mKey.Pow_Press=0;
 			if(mFlag.SysMode == SYS_MODE_LINE)
 			{
 				playButtonTone();
 				if(mKey.Press_Count==0)
 				{
 					mKey.Press_Count=1;
-					mKey.MuteDoublePress_Timelimit=60;
+					mKey.MuteDoublePress_Timelimit=200;
 				}
 				else if(mKey.Press_Count==1)
 				{
@@ -594,11 +587,61 @@ void PWR_MUTE_PRESS(void)
 					mKey.Press_Count=0;
 					mKey.MuteDoublePress_Timelimit=0;
 				}	
-				inDexMute=0;
+				mParameter.inDexMute=0;
 			}
 	  }
-		mKey.MutePress_Timelimit=150;
+    mKey.Pow_Press_Time=KEY_LONG_MUTE_TIME;
+
 	}
+//	if(mKey.MuteDoublePress_Timelimit>0)
+//	{
+//		mKey.MuteDoublePress_Timelimit--;
+//	}
+//	else 
+//	{
+//		mKey.Press_Count=0;
+//	}
+//	if(POW_IN)
+//	{
+//		inDexMute=1;
+//		mSysParam.ButtonLED=BUTTON_LED_TIME;
+//		if(mKey.MutePress_Timelimit>0)
+//		{
+//			mKey.MutePress_Timelimit--;
+//		}
+//		if(mKey.MutePress_Timelimit==0)      //长按
+//		{
+//			MenuOperate(KEY_LONG_POWER);	
+//			if(mFlag.SysMode == SYS_MODE_LINE) mKey.MutePress_Timelimit=650;
+//	    else mKey.MutePress_Timelimit=800;
+//			inDexMute=0;
+//		}			
+//		//while(POW_IN);
+//	}
+//	else
+//	{
+//		if(inDexMute==1)
+//		{
+//			if(mFlag.SysMode == SYS_MODE_LINE)
+//			{
+//				playButtonTone();
+//				if(mKey.Press_Count==0)
+//				{
+//					mKey.Press_Count=1;
+//					mKey.MuteDoublePress_Timelimit=200;
+//				}
+//				else if(mKey.Press_Count==1)
+//				{
+//					MenuOperate(KEY_DOUBLE_MUTE);
+//					mKey.Press_Count=0;
+//					mKey.MuteDoublePress_Timelimit=0;
+//				}	
+//				inDexMute=0;
+//			}
+//	  }
+//		if(mFlag.SysMode == SYS_MODE_LINE) mKey.MutePress_Timelimit=650;
+//	else mKey.MutePress_Timelimit=800;
+//	}
 	
 }
 
@@ -617,8 +660,9 @@ void InitKey()
 	mKey.DoublePress_Limit=60;
 	mKey.DoublePress_Count=0;
 	mKey.Press_Count=0;
-	
-	mKey.MutePress_Timelimit=150;
+	if(mFlag.SysMode == SYS_MODE_LINE) mKey.MutePress_Timelimit=650;
+	else mKey.MutePress_Timelimit=800;
+	mKey.Pow_Press=0;
 	mKey.LongSq_Time=15;
 	mKey.MutePress_Count=0;
   mKey.MuteDoublePress_Timelimit=60;
@@ -630,11 +674,34 @@ void InitKey()
  	mKey.key_CombleFUPEMG=0;
 	mKey.key_CombleSQSet=0;	
 	
-	
-	
+	mKey.Pow_Press=0;
+
+	mKey.Pow_Press_Time=KEY_LONG_MUTE_TIME;
 	
 	mMenu.Back_Channel_Time=BACK_TIME;
-	
+	mSysParam.ButtonLED=BUTTON_LED_TIME;
 	mSysParam.KeyComboLimit=KEY_COMBOlIMIT;
   mSysParam.isKeyCombo=0;
+	
+	mParameter.sendDtmfT=SendDtmfTime;
+	mParameter.isButtonTone=0;
+	mParameter.isScanInrupt=SCAN_SPEED_DELAY;
+	mParameter.timePowOn=0;
+	mParameter.isSendDtmf=0;
+	mParameter.isPowerOn=0;
+	mParameter.PPTpress=0;
+	mParameter.ButtonToneTime=BUTTON_TIME;
+	mParameter.LONG_UPDN_PRESS=0;
+	mParameter.inDex2=0;
+	mParameter.inDex1=0;
+	mParameter.inDexMute=0;
+	mParameter.scandwPPTPress=0;
+	mParameter.mTxLength=0;
+	mParameter.LCD_twinkle_Show=0;
+	mParameter.LCD_Twinkle_tag=0;
+	mParameter.isBK4815_Set=0;
+	mParameter.isConnect=0;
+	mParameter.changeDtmf=0;
+	mParameter.Time_Space_POWLow_Show=500;
+	mParameter.key_SQSetIndex=0;
 }

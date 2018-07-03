@@ -9,13 +9,13 @@
 #include "KB4815.h"
 
 extern Channel channel;
-u8 mOldRssi = 255;
-xdata uint cSqSum;
-u8 isautoRGF=0;
-u8 autoRFG=0;
-u8 isSendRSSI=0;
-u8 sengRssiCount=0;
-u8 is4815Sleep=0;
+//u8 mOldRssi = 255;
+//xdata uint cSqSum;
+//u8 isautoRGF=0;
+//u8 autoRFG=0;
+//u8 isSendRSSI=0;
+//u8 sengRssiCount=0;
+//u8 is4815Sleep=0;
 code uint asq_open_table[] = 
 { 
   ASQ_OPEN_LEVEL_127DB,	ASQ_OPEN_LEVEL_126DB,	ASQ_OPEN_LEVEL_125DB,	ASQ_OPEN_LEVEL_124DB,	ASQ_OPEN_LEVEL_123DB,	ASQ_OPEN_LEVEL_122DB,  //                 3
@@ -84,15 +84,15 @@ void irq_timer0(void) interrupt 1
 		TH0 = (65535 - 1000) / 256;	
 		TL0 = (65535 - 1000) % 256;	//100ms		
   	TR0 = 1; 
-	sengRssiCount++;
-	if(sengRssiCount>2)
+	mParameter.sengRssiCount++;
+	if(mParameter.sengRssiCount>2)
 	{	  
 		if(POWER_ON == 1&&(HM_DET==0))	
 		{		
 
-		    isSendRSSI=1;
+		    mParameter.isSendRSSI=1;
 		}
-		sengRssiCount=0;
+		mParameter.sengRssiCount=0;
   }
 
 }
@@ -129,22 +129,22 @@ void setModda(void)
 {
 	uchar modda;
 	PWM_MODDA_CLOSE;
-	if(mCurrentFreq < 26315000)
+	if(mParameter.mCurrentFreq < 26315000)
 		modda=115;
-	else if(mCurrentFreq <26765000) 
+	else if(mParameter.mCurrentFreq <26765000) 
 		modda=100;
-	else if(mCurrentFreq<27205000)  
+	else if(mParameter.mCurrentFreq<27205000)  
 		modda=90;
 	//else if(mCurrentFreq < 27415000) modda = 80;
-	else if(mCurrentFreq < 27785000) 
+	else if(mParameter.mCurrentFreq < 27785000) 
 		modda = 80;               //中间频率
-	else if(mCurrentFreq < 28285000) 
+	else if(mParameter.mCurrentFreq < 28285000) 
 		modda = 70;
-	else if(mCurrentFreq < 28725500) 
+	else if(mParameter.mCurrentFreq < 28725500) 
 		modda = 50;
-	else if(mCurrentFreq < 29605000)
+	else if(mParameter.mCurrentFreq < 29605000)
 		modda = 144;
-	else if(mCurrentFreq < 31000000) 
+	else if(mParameter.mCurrentFreq < 31000000) 
 		modda = 148;
 	if(modda != 0)
 	{
@@ -224,23 +224,20 @@ void setPower(void)
 void setSQ(void)  //SQ 28级
 {
 	//closeSq();
-	mOpenSqDbLevel = mCbParam.Sq & 0x1f;
+	mParameter.mOpenSqDbLevel = mCbParam.Sq & 0x1f;
 	
 	if(mCbParam.Sq > 0x1f)	//Asq标志位在mCbParam.Sq的0x20位置
 	{
 		mSqParam.IsAsq = 1;
-		mSqParam.AsqLevel=mOpenSqDbLevel;
+		mSqParam.AsqLevel=mParameter.mOpenSqDbLevel;
 	}
 	else
 	{
 		mSqParam.IsAsq = 0;
-		mSqParam.SqLevel=mOpenSqDbLevel;
+		mSqParam.SqLevel=mParameter.mOpenSqDbLevel;
 	}
 }
-void setSQSet()
-{
-	
-}
+
 
 /*-------------------------------------------------------------------------
 *函数：setVol  设置音量
@@ -303,9 +300,9 @@ void checkRssi(void)
 		temp_rssi+=buf_rssi[i];
 		temp_agca+=buf_agca[i];
 	}	
-	mAsqVoltage = temp_asq/2;
-	mRssiVoltage = temp_rssi/2;
-	mAgcaVoltage = temp_agca/2;
+	mParameter.mAsqVoltage = temp_asq/2;
+	mParameter.mRssiVoltage = temp_rssi/2;
+	mParameter.mAgcaVoltage = temp_agca/2;
 
 //	if(mAgcaVoltage<0x009f)
 //	{
@@ -329,66 +326,66 @@ void checkRssi(void)
 //		else isautoRGF=0;		
 //	}
 		
-	if(mAgcaVoltage<0x008f)
+	if(mParameter.mAgcaVoltage<0x008f)
 	{
-		isautoRGF=1;		
+		mParameter.isautoRGF=1;		
 		setRfg(5);
 		delayms(100);
 	}
-	else if(mAgcaVoltage>0x0100)
+	else if(mParameter.mAgcaVoltage>0x0100)
 	{
-		if(isautoRGF==1)
+		if(mParameter.isautoRGF==1)
 		{
-			isautoRGF=0;
+			mParameter.isautoRGF=0;
 			setRfg(mCbParam.RfgLevel);
 			delayms(100);
 		}		
 	}	
 		
-	if(mAgcaVoltage<0x0190)
+	if(mParameter.mAgcaVoltage<0x0190)
   {
-		cSqSum= mRssiVoltage + (0x0200 - mAgcaVoltage);
+		mParameter.cSqSum= mParameter.mRssiVoltage + (0x0200 - mParameter.mAgcaVoltage);
 	}
 	else
 	{
-		cSqSum= mRssiVoltage ;
+		mParameter.cSqSum= mParameter.mRssiVoltage ;
 	}
-	mRssi = 0;
+	mParameter.mRssi = 0;
 //	if(cSqSum >= sq_table[28])		mRssi = 5;
 //	else if(cSqSum >= sq_table[17])	mRssi = 4;
 //	else if(cSqSum >= sq_table[10]) mRssi = 3;
 //	else if(cSqSum >= sq_table[6]) 	mRssi = 2;
 //	else if(cSqSum >= sq_table[1]) 	mRssi = 1;	
 	
-		if(cSqSum >= sq_open_table[82+mSqParam.SqOpenSet[27]])		mRssi = 28;
-		else if(cSqSum >= sq_open_table[77+mSqParam.SqOpenSet[26]])	mRssi =27;
-		else if(cSqSum >= sq_open_table[71+mSqParam.SqOpenSet[25]])	mRssi =26;
-		else if(cSqSum >= sq_open_table[61+mSqParam.SqOpenSet[24]])	mRssi =25;
-		else if(cSqSum >= sq_open_table[51+mSqParam.SqOpenSet[23]])	mRssi =24;
-		else if(cSqSum >= sq_open_table[47+mSqParam.SqOpenSet[22]])	mRssi =23;
-		else if(cSqSum >= sq_open_table[45+mSqParam.SqOpenSet[21]])	mRssi =22;
-		else if(cSqSum >= sq_open_table[43+mSqParam.SqOpenSet[20]])	mRssi =21;
-		else if(cSqSum >= sq_open_table[41+mSqParam.SqOpenSet[19]])	mRssi =20;
-		else if(cSqSum >= sq_open_table[39+mSqParam.SqOpenSet[18]])	mRssi =19;
-		else if(cSqSum >= sq_open_table[37+mSqParam.SqOpenSet[17]])	mRssi =18;
-		else if(cSqSum >= sq_open_table[35+mSqParam.SqOpenSet[16]])	mRssi =17;
-		else if(cSqSum >= sq_open_table[33+mSqParam.SqOpenSet[15]])	mRssi =16;
-		else if(cSqSum >= sq_open_table[31+mSqParam.SqOpenSet[14]])	mRssi =15;
-		else if(cSqSum >= sq_open_table[29+mSqParam.SqOpenSet[13]])	mRssi =14;
-		else if(cSqSum >= sq_open_table[27+mSqParam.SqOpenSet[12]])	mRssi =13;
-		else if(cSqSum >= sq_open_table[25+mSqParam.SqOpenSet[11]])	mRssi =12;
-		else if(cSqSum >= sq_open_table[23+mSqParam.SqOpenSet[10]])	mRssi =11;
-		else if(cSqSum >= sq_open_table[21+mSqParam.SqOpenSet[9]])	mRssi =10;
-		else if(cSqSum >= sq_open_table[19+mSqParam.SqOpenSet[8]])	mRssi =9;
-		else if(cSqSum >= sq_open_table[17+mSqParam.SqOpenSet[7]])	mRssi =8;
-		else if(cSqSum >= sq_open_table[15+mSqParam.SqOpenSet[6]])	mRssi =7;
-		else if(cSqSum >= sq_open_table[13+mSqParam.SqOpenSet[5]])	mRssi =6;
-		else if(cSqSum >= sq_open_table[11+mSqParam.SqOpenSet[4]])	mRssi =5;
-		else if(cSqSum >= sq_open_table[9+mSqParam.SqOpenSet[3]])	mRssi =4;
-		else if(cSqSum >= sq_open_table[7+mSqParam.SqOpenSet[2]])	mRssi =3;
-		else if(cSqSum >= sq_open_table[5+mSqParam.SqOpenSet[1]])	mRssi =2;
-		else if(cSqSum >= sq_open_table[3+mSqParam.SqOpenSet[0]])	mRssi =1;
-		else mRssi = 0;
+		if(mParameter.cSqSum >= sq_open_table[82+mSqParam.SqOpenSet[27]])		mParameter.mRssi = 28;
+		else if(mParameter.cSqSum >= sq_open_table[77+mSqParam.SqOpenSet[26]])	mParameter.mRssi =27;
+		else if(mParameter.cSqSum >= sq_open_table[71+mSqParam.SqOpenSet[25]])	mParameter.mRssi =26;
+		else if(mParameter.cSqSum >= sq_open_table[61+mSqParam.SqOpenSet[24]])	mParameter.mRssi =25;
+		else if(mParameter.cSqSum >= sq_open_table[51+mSqParam.SqOpenSet[23]])	mParameter.mRssi =24;
+		else if(mParameter.cSqSum >= sq_open_table[47+mSqParam.SqOpenSet[22]])	mParameter.mRssi =23;
+		else if(mParameter.cSqSum >= sq_open_table[45+mSqParam.SqOpenSet[21]])	mParameter.mRssi =22;
+		else if(mParameter.cSqSum >= sq_open_table[43+mSqParam.SqOpenSet[20]])	mParameter.mRssi =21;
+		else if(mParameter.cSqSum >= sq_open_table[41+mSqParam.SqOpenSet[19]])	mParameter.mRssi =20;
+		else if(mParameter.cSqSum >= sq_open_table[39+mSqParam.SqOpenSet[18]])	mParameter.mRssi =19;
+		else if(mParameter.cSqSum >= sq_open_table[37+mSqParam.SqOpenSet[17]])	mParameter.mRssi =18;
+		else if(mParameter.cSqSum >= sq_open_table[35+mSqParam.SqOpenSet[16]])	mParameter.mRssi =17;
+		else if(mParameter.cSqSum >= sq_open_table[33+mSqParam.SqOpenSet[15]])	mParameter.mRssi =16;
+		else if(mParameter.cSqSum >= sq_open_table[31+mSqParam.SqOpenSet[14]])	mParameter.mRssi =15;
+		else if(mParameter.cSqSum >= sq_open_table[29+mSqParam.SqOpenSet[13]])	mParameter.mRssi =14;
+		else if(mParameter.cSqSum >= sq_open_table[27+mSqParam.SqOpenSet[12]])	mParameter.mRssi =13;
+		else if(mParameter.cSqSum >= sq_open_table[25+mSqParam.SqOpenSet[11]])	mParameter.mRssi =12;
+		else if(mParameter.cSqSum >= sq_open_table[23+mSqParam.SqOpenSet[10]])	mParameter.mRssi =11;
+		else if(mParameter.cSqSum >= sq_open_table[21+mSqParam.SqOpenSet[9]])	mParameter.mRssi =10;
+		else if(mParameter.cSqSum >= sq_open_table[19+mSqParam.SqOpenSet[8]])	mParameter.mRssi =9;
+		else if(mParameter.cSqSum >= sq_open_table[17+mSqParam.SqOpenSet[7]])	mParameter.mRssi =8;
+		else if(mParameter.cSqSum >= sq_open_table[15+mSqParam.SqOpenSet[6]])	mParameter.mRssi =7;
+		else if(mParameter.cSqSum >= sq_open_table[13+mSqParam.SqOpenSet[5]])	mParameter.mRssi =6;
+		else if(mParameter.cSqSum >= sq_open_table[11+mSqParam.SqOpenSet[4]])	mParameter.mRssi =5;
+		else if(mParameter.cSqSum >= sq_open_table[9+mSqParam.SqOpenSet[3]])	mParameter.mRssi =4;
+		else if(mParameter.cSqSum >= sq_open_table[7+mSqParam.SqOpenSet[2]])	mParameter.mRssi =3;
+		else if(mParameter.cSqSum >= sq_open_table[5+mSqParam.SqOpenSet[1]])	mParameter.mRssi =2;
+		else if(mParameter.cSqSum >= sq_open_table[3+mSqParam.SqOpenSet[0]])	mParameter.mRssi =1;
+		else mParameter.mRssi = 0;
 }
 void Set_Mute()
 {
@@ -422,7 +419,7 @@ void checkIsSqOpen(void)
 	{		
 		if(mFlag.SqOpen == 0)
 		{
-			switch(mOpenSqDbLevel)
+			switch(mParameter.mOpenSqDbLevel)
 		 {
 			 case 1:sq_db_count=6;				 break;
 			 case 2:sq_db_count=8;				 break;
@@ -432,21 +429,21 @@ void checkIsSqOpen(void)
 			 default:
 				 break;
 		 }
-		 val_db=sq_db_count+mSqParam.AsqOpenSet[mOpenSqDbLevel-1];
+		 val_db=sq_db_count+mSqParam.AsqOpenSet[mParameter.mOpenSqDbLevel-1];
 		if(val_db<0)val_db=0;
 		else if(val_db>17) val_db=17;			 
 			//SET_SPK_MUTE; //关闭喇叭
-			if(mAsqVoltage <= asq_open_table[val_db])	//因为db是负值，所以相反
+			if(mParameter.mAsqVoltage <= asq_open_table[val_db])	//因为db是负值，所以相反
 			{
 				delayms(50);
 				checkRssi();
-				if(mAsqVoltage <= asq_open_table[val_db])	//因为db是负值，所以相反
+				if(mParameter.mAsqVoltage <= asq_open_table[val_db])	//因为db是负值，所以相反
 				{
 					mFlag.SqOpen = 1;				
 					//sendCommand(CMD_GET_RSSI);				
 					setEmission(0);				//CLS_SPK_MUTE;	
 				
-					mLastOpenSqDbLevel = mOpenSqDbLevel;
+					mParameter.mLastOpenSqDbLevel = mParameter.mOpenSqDbLevel;
 					//delayms(200);
 					if((mFlag.Mute == 0)&&(mCbParam.VolLevel != 0)) Cls_Mute();	//打开喇叭
 					else mFlag.SqOpenButMute = 1;
@@ -455,7 +452,7 @@ void checkIsSqOpen(void)
 		}
 		else 
 		{		
-			 switch(mOpenSqDbLevel)
+			 switch(mParameter.mOpenSqDbLevel)
 			 {
 				 case 1:sq_db_count=3;				 break;
 				 case 2:sq_db_count=5;				 break;
@@ -465,14 +462,14 @@ void checkIsSqOpen(void)
 				 default:
 					 break;
 			 }
-			 val_db=sq_db_count+mSqParam.AsqCloseSet[mOpenSqDbLevel-1];
+			 val_db=sq_db_count+mSqParam.AsqCloseSet[mParameter.mOpenSqDbLevel-1];
 			 if(val_db<0)val_db=0;
 			
-				if(mAsqVoltage >= asq_close_table[val_db])
+				if(mParameter.mAsqVoltage >= asq_close_table[val_db])
 				{
 					delayms(50);
 					checkRssi();
-					if(mAsqVoltage >= asq_close_table[val_db])
+					if(mParameter.mAsqVoltage >= asq_close_table[val_db])
 					{
 						closeSq();					
 						sendCommand(CMD_GET_RSSI);
@@ -488,7 +485,7 @@ void checkIsSqOpen(void)
 	}
 	else
 	{
-		switch(mOpenSqDbLevel)
+		switch(mParameter.mOpenSqDbLevel)
 		{
 			case 1:sq_db_count=3;  break;
 			case 2:sq_db_count=5;  break;
@@ -521,24 +518,24 @@ void checkIsSqOpen(void)
 			default:
 				break;
 		}
-		val_db=sq_db_count+mSqParam.SqOpenSet[mOpenSqDbLevel-1];
+		val_db=sq_db_count+mSqParam.SqOpenSet[mParameter.mOpenSqDbLevel-1];
 		if(val_db<0)val_db=0;
 		else if(val_db>84) val_db=84;		
 		
 		if(mFlag.SqOpen == 0)
 		{
 			//SET_SPK_MUTE; //关闭喇叭
-			if(cSqSum >= sq_open_table[val_db])	//因为db是负值，所以相反
+			if(mParameter.cSqSum >= sq_open_table[val_db])	//因为db是负值，所以相反
 			{			
 				delayms(50);
 					checkRssi();
-				if(cSqSum >= sq_open_table[val_db])	//因为db是负值，所以相反
+				if(mParameter.cSqSum >= sq_open_table[val_db])	//因为db是负值，所以相反
 				{	
 					mFlag.SqOpen = 1; 
 					
 					//sendCommand(CMD_GET_RSSI);							
 					setEmission(0);
-					mLastOpenSqDbLevel = mOpenSqDbLevel;
+					mParameter.mLastOpenSqDbLevel = mParameter.mOpenSqDbLevel;
 					//CLS_SPK_MUTE;
 					
 					if((mFlag.Mute == 0)&&(mCbParam.VolLevel != 0)) Cls_Mute();	//打开喇叭
@@ -548,7 +545,7 @@ void checkIsSqOpen(void)
 		}
 		else
 		{
-			switch(mOpenSqDbLevel)
+			switch(mParameter.mOpenSqDbLevel)
 		{
 			case 1:sq_db_count=4;  break;
 			case 2:sq_db_count=6;  break;
@@ -582,14 +579,14 @@ void checkIsSqOpen(void)
 				break;
 		}
 			
-			val_db=sq_db_count+mSqParam.SqCloseSet[mOpenSqDbLevel-1];
+			val_db=sq_db_count+mSqParam.SqCloseSet[mParameter.mOpenSqDbLevel-1];
 		if(val_db<0)val_db=0;
 		else if(val_db>84) val_db=84;	
-				if(cSqSum <= sq_close_table[val_db])
+				if(mParameter.cSqSum <= sq_close_table[val_db])
 				{	
 					delayms(50);
 					checkRssi();
-					if(cSqSum <= sq_close_table[val_db])
+					if(mParameter.cSqSum <= sq_close_table[val_db])
 					{	
 						closeSq();
 						sendCommand(CMD_GET_RSSI);					
@@ -644,8 +641,8 @@ void start1Rx(void)
 	SET_FT_MUTE;
 	//Set_Mute();
 	mFlag.VcoIdle=0;
-	setFreq(mXn31202Ch1_Rx);	
-	setRfg(autoRFG+mCbParam.RfgLevel);
+	setFreq(mParameter.mXn31202Ch1_Rx);	
+	setRfg(mParameter.autoRFG+mCbParam.RfgLevel);
 	//while(PLL_LD == 0);
 	delayms(50);
 	SET_RX_EN; 
@@ -663,7 +660,7 @@ void start1Tx(void)
 	CLS_RX_EN;
 	CLS_TX_EN;
 	//mFlag.SqOpen = 0;
-	setFreq(mXn31202Ch1_Tx);
+	setFreq(mParameter.mXn31202Ch1_Tx);
 	setModda();
 	mFlag.VcoIdle=1;
 	if(mCbParam.Modu == FM) 
@@ -703,12 +700,13 @@ void initHandler(void)
 	{
 		//IE &= 0xef;	     //dis  ES0             关闭串口中断
 		mFlag.SysMode = SYS_MODE_WIRELESS;
-
+  
 	}
 	else 
 	{
-		//IE |= 0x10;	     //en  ES0              开启串口中断
+		IE |= 0x10;	     //en  ES0              开启串口中断
 		mFlag.SysMode = SYS_MODE_LINE;
+		EA=1;
 	}
 }
 
@@ -725,7 +723,7 @@ void eventHandler(void)
 	u32 fre;
 	if(mFlag.SysMode == SYS_MODE_WIRELESS)
 	{
-		is4815Sleep=0;
+		mParameter.is4815Sleep=0;
 		Set_Mute();
 		calculateFreq();
 	  setEmission(0);  
@@ -734,20 +732,20 @@ void eventHandler(void)
 		mFlag.SpkOpen4815=0;
 		initSysModeWireless();
 		sysModeWireless();
-		mOldRssi = 0;
+//		mOldRssi = 0;
 		
 	}
 	else
 	{				
-		if(is4815Sleep==0)
+		if(mParameter.is4815Sleep==0)
 		{
-			BK4815Sleep();
-			is4815Sleep=1;
+			//BK4815Sleep();
+			mParameter.is4815Sleep=1;
 			setEmission(0);
 		}
 		if(POWER_ON == 1)
 		{
-			event=mUartCmd;
+			event=mParameter.mUartCmd;
 			if(event !=0)
 			{
 				switch(event)
@@ -776,19 +774,19 @@ void eventHandler(void)
 							{
 								if((mReceivePackage.RecvBuf[4]&0x20)!=0)
 								{
-									mSqParam.SqOpenSet[mOpenSqDbLevel-1]=(mReceivePackage.RecvBuf[4]&~0x20);
-									mSqParam.SqOpenSet[mOpenSqDbLevel-1]=-mSqParam.SqOpenSet[mOpenSqDbLevel-1];
+									mSqParam.SqOpenSet[mParameter.mOpenSqDbLevel-1]=(mReceivePackage.RecvBuf[4]&~0x20);
+									mSqParam.SqOpenSet[mParameter.mOpenSqDbLevel-1]=-mSqParam.SqOpenSet[mParameter.mOpenSqDbLevel-1];
 								}
-								else mSqParam.SqOpenSet[mOpenSqDbLevel-1]=mReceivePackage.RecvBuf[4];
+								else mSqParam.SqOpenSet[mParameter.mOpenSqDbLevel-1]=mReceivePackage.RecvBuf[4];
 							}
 							else
 							{
 								if((mReceivePackage.RecvBuf[4]&0x20)!=0)
 								{
-									mSqParam.SqCloseSet[mOpenSqDbLevel-1]=(mReceivePackage.RecvBuf[4]&~0x20);
-									mSqParam.SqCloseSet[mOpenSqDbLevel-1]=-mSqParam.SqCloseSet[mOpenSqDbLevel-1];
+									mSqParam.SqCloseSet[mParameter.mOpenSqDbLevel-1]=(mReceivePackage.RecvBuf[4]&~0x20);
+									mSqParam.SqCloseSet[mParameter.mOpenSqDbLevel-1]=-mSqParam.SqCloseSet[mParameter.mOpenSqDbLevel-1];
 								}
-								else mSqParam.SqCloseSet[mOpenSqDbLevel-1]=mReceivePackage.RecvBuf[4];
+								else mSqParam.SqCloseSet[mParameter.mOpenSqDbLevel-1]=mReceivePackage.RecvBuf[4];
 							
 							}							
 						}
@@ -798,19 +796,19 @@ void eventHandler(void)
 							{
 								if((mReceivePackage.RecvBuf[4]&0x20)!=0)
 								{
-									mSqParam.AsqOpenSet[mOpenSqDbLevel-1]=(mReceivePackage.RecvBuf[4]&~0x20);
-									mSqParam.AsqOpenSet[mOpenSqDbLevel-1]=-mSqParam.AsqOpenSet[mOpenSqDbLevel-1];
+									mSqParam.AsqOpenSet[mParameter.mOpenSqDbLevel-1]=(mReceivePackage.RecvBuf[4]&~0x20);
+									mSqParam.AsqOpenSet[mParameter.mOpenSqDbLevel-1]=-mSqParam.AsqOpenSet[mParameter.mOpenSqDbLevel-1];
 								}
-								else mSqParam.AsqOpenSet[mOpenSqDbLevel-1]=mReceivePackage.RecvBuf[4];
+								else mSqParam.AsqOpenSet[mParameter.mOpenSqDbLevel-1]=mReceivePackage.RecvBuf[4];
 							}
 							else
 							{
 								if((mReceivePackage.RecvBuf[4]&0x20)!=0)
 								{
-									mSqParam.AsqCloseSet[mOpenSqDbLevel-1]=(mReceivePackage.RecvBuf[4]&~0x20);
-									mSqParam.AsqCloseSet[mOpenSqDbLevel-1]=-mSqParam.AsqCloseSet[mOpenSqDbLevel-1];
+									mSqParam.AsqCloseSet[mParameter.mOpenSqDbLevel-1]=(mReceivePackage.RecvBuf[4]&~0x20);
+									mSqParam.AsqCloseSet[mParameter.mOpenSqDbLevel-1]=-mSqParam.AsqCloseSet[mParameter.mOpenSqDbLevel-1];
 								}
-								else mSqParam.AsqCloseSet[mOpenSqDbLevel-1]=mReceivePackage.RecvBuf[4];							
+								else mSqParam.AsqCloseSet[mParameter.mOpenSqDbLevel-1]=mReceivePackage.RecvBuf[4];							
 							}
 						}
 						saveSQSet();
@@ -823,7 +821,7 @@ void eventHandler(void)
 						setPower();
 					  setModulation();
 						calculateFreq();
-					  if(mOpenSqDbLevel>0)	Set_Mute();
+					  if(mParameter.mOpenSqDbLevel>0)	Set_Mute();
 						setEmission(0);
 					  saveData(EEP_BAND,mCbParam.Band);		
 						saveData(EEP_CHANNEL,mCbParam.Channel);		
@@ -841,7 +839,7 @@ void eventHandler(void)
 						break;
 					case CMD_SET_RFG:																						//RFG设置
 						mCbParam.RfgLevel=mReceivePackage.RecvBuf[3];
-						setRfg(autoRFG+mCbParam.RfgLevel);
+						setRfg(mParameter.autoRFG+mCbParam.RfgLevel);
 						saveData(EEP_RFG,mCbParam.RfgLevel);
 						break;
 					case CMD_SET_VOL:																						//声音设置
@@ -902,7 +900,7 @@ void eventHandler(void)
 						channel.RX_Freq=((float)fre/1000);	
 //						if(channel.RX_Freq<200||channel.RX_Freq>400)channel.RX_Freq=300;
 						Set_XN31202(0x02c4,14);
-						Set_XN31202(0x3000 + (EXTERNAL_CRYSTAL/mReferenceFreq/2),14);
+						Set_XN31202(0x3000 + (EXTERNAL_CRYSTAL/mParameter.mReferenceFreq/2),14);
 						
 						calculateFreq();
 						if(mCbParam.Country==COUNTRY_UK) 
@@ -936,13 +934,13 @@ void eventHandler(void)
 			
 					case CMD_IDLE:		
 						CLS_RX_EN;
-						CLS_TX_EN;
+						CLS_TX_EN;			
 						Set_Mute(); //关闭喇叭
 						mFlag.SqOpen = 0;
 						mFlag.VcoIdle = 1;
 						break;	
 					case CMD_SET_SQ_DB:			
-						mDebugSqLevel = mReceivePackage.RecvBuf[3];
+//						mDebugSqLevel = mReceivePackage.RecvBuf[3];
 						//saveDbValue();
 						break;	
          case CMD_REQUEST_SQ_SET:
@@ -956,22 +954,22 @@ void eventHandler(void)
 						SET_SPK_MUTE; //关闭喇叭
 					}
 				  else if(mFlag.SqOpen == 1)Cls_Mute(); 
-					
+					saveData(EEP_MUTE,mFlag.Mute);	
 					 break;
 					default:
 						break;		
 				}
-				mUartCmd=0;
+				mParameter.mUartCmd=0;
 			}
 			
 			if(mFlag.VcoIdle==0&&mFlag.CbInit==1)
 			{				
 				checkSq();
 			}
-			if(isSendRSSI==1)
+			if(mParameter.isSendRSSI==1)
 			{						
 				sendCommand(CMD_GET_RSSI);
-				isSendRSSI=0;
+				mParameter.isSendRSSI=0;
 			}
 		}
 		else
@@ -979,23 +977,29 @@ void eventHandler(void)
 			CLS_RX_EN;
 					CLS_TX_EN;
 					Set_Mute();
-			if(HM_DET==0)
-			{
-				BK4815Sleep();
-				delayms(70);
 				if(HM_DET==0)
 				{
-				  saveAllParam();					
-					POWER_ON_EN=0;
-					
-					mFlag.SqOpen=0;
-					mFlag.VcoIdle=1;
-					mReceivePackage.RecvCount=0;
-					EA=0;
-					while(POWER_ON==0);
-					EA=1;
-				}
+					delayms(200);
+					if(HM_DET==0)
+					{
+						
+						
+						BK4815Sleep();
+						delayms(200);
+						if(HM_DET==0)
+						{
+							saveAllParam();					
+							POWER_ON_EN=0;
+							
+							mFlag.SqOpen=0;
+							mFlag.VcoIdle=1;
+							mReceivePackage.RecvCount=0;
+							//EA=0;
+							while(POWER_ON==0);
+							EA=1;
+					}
 			}
+		}
 		}
 	}
 }

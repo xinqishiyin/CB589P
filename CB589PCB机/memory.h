@@ -25,10 +25,13 @@ enum                   //保存地址
 	EEP_SPK_SW,
 	EEP_DTMF,
 	EEP_FRE,
+
 	EEP_SQ_OPEN_SET=25,
 	EEP_SQ_CLOSE_SET=53,
 	EEP_ASQ_OPEN_SET=81,
-	EEP_ASQ_CLOSE_SET=87
+	EEP_ASQ_CLOSE_SET=87,
+	EEP_MUTE=93
+
 }; 
 /*-------------------------------------------------------------------------
 *函数：saveData  保存数据

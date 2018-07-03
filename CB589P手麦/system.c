@@ -1,21 +1,25 @@
 
 #include "system.h"
 
-u32	        mMessage;                 //
+//u32	        mMessage;                 //
 tCbParam  	mCbParam;                 //需要发送到CB机的数据
 tSqParam  	mSqParam;                 //SQ模式
 tHmSetting  mHmSetting;               //手咪上面需要设置的数据
 
 tSysParam	  mSysParam;                //
 tFlag  		  mFlag;     
-xdata uchar     mRecive;
-xdata tDtmfRecive mDtmfRecive;
-xdata tSq			mSq;
-xdata uchar     mRecive;
-xdata uchar   isSendDtmf;
-xdata u16  dtmfNum;
-xdata u8  isPowerOn;
-xdata tKey mKey;
+//uchar     mRecive;
+tDtmfRecive mDtmfRecive;
+tSq			mSq;
+
+//uchar     mRecive;
+//uchar   isSendDtmf;
+//u16  dtmfNum=0;
+//u8  isPowerOn;
+tKey mKey;
+tParameter mParameter;
+/*--------设置参数结构体----------------*/
+Channel channel;
 /*-------------------------------------------------------------------------
 *函数：systemCLK_init  系统时钟选择  外部16M时钟
 *参数：无  
@@ -157,15 +161,15 @@ void UART0_Init()
   
 	 
 }
-void UART1_Init()
-{
-	xIOMUX2 |= 0x01;        //P24/P23复用做UART1端口
-  SCON1 |= 0x50;         //工作模式1,8位异步，波特率可调 使能接收
- 
-  xBRCON1  = 0XE8;//0x68;         //波特率计算公式为1/16（2smod=1），波特率发生器开启，高精度波特率控制使能   
-  xBRTIM1  = 0x98;
-  EIE2 |=0X10;                    //使能ES1中断
-}
+//void UART1_Init()
+//{
+//	xIOMUX2 |= 0x01;        //P24/P23复用做UART1端口
+//  SCON1 |= 0x50;         //工作模式1,8位异步，波特率可调 使能接收
+// 
+//  xBRCON1  = 0XE8;//0x68;         //波特率计算公式为1/16（2smod=1），波特率发生器开启，高精度波特率控制使能   
+//  xBRTIM1  = 0x98;
+//  EIE2 |=0X10;                    //使能ES1中断
+//}
 void INT1_Init(void)
 {
     EA = 0;

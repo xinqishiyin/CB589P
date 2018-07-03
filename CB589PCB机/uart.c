@@ -2,33 +2,30 @@
 #include "uart.h"
 #include "vco.h"
 
-uchar cTxLength = 0;
+//uchar cTxLength = 0;
 
-void delayuus(u8 i)
-{
-    while(--i);
-}
+
 void uart0SendByte(unsigned char dat)
 {
 	SBUF0 = dat;	
 	while((TI == 0)&&(HM_DET==0));
 	TI = 0;
 }
-/*-------------------------------------------------------------------------
-*函数：uart0SendString  发送数组
-*参数：dat    
-*返回值：无
-*-------------------------------------------------------------------------*/
-void uart0SendString(u8 *p)
-{
-	ES=0;
-	while(*p!='\0')
-	{
-		uart0SendByte(*p);
-		p++;
-	}
-	ES=1;
-}
+///*-------------------------------------------------------------------------
+//*函数：uart0SendString  发送数组
+//*参数：dat    
+//*返回值：无
+//*-------------------------------------------------------------------------*/
+//void uart0SendString(u8 *p)
+//{
+//	ES=0;
+//	while(*p!='\0')
+//	{
+//		uart0SendByte(*p);
+//		p++;
+//	}
+//	ES=1;
+//}
 /*-------------------------------------------------------------------------
 *函数：uart0SendData  发送对应长度数组
 *参数：cTxLength 长度    
@@ -37,7 +34,7 @@ void uart0SendString(u8 *p)
 void uart0SendData(unsigned char *p)
 {
 	ES = 0;
-	while(cTxLength--)
+	while(mParameter.cTxLength--)
 	{
 		uart0SendByte(*p);
 		p++;
@@ -53,7 +50,7 @@ void response(uchar ack)
 {
 	mCbParam.UartTxBuf[1]=ack;
 	mCbParam.UartTxBuf[2]=0;
-	cTxLength=3;
+	mParameter.cTxLength=3;
 	uart0SendData(mCbParam.UartTxBuf);
 }
 
@@ -74,37 +71,37 @@ void sendCommand(uchar cmd)
 		case CMD_GET_RSSI:
 			if(mFlag.SqOpen)
 			{
-				rssi=mRssi| 0x40;
+				rssi=mParameter.mRssi| 0x40;
 			}
-			else rssi = mRssi;
+			else rssi = mParameter.mRssi;
 			mCbParam.UartTxBuf[2]=2;
 			mCbParam.UartTxBuf[3]=rssi;
 			mCbParam.UartTxBuf[4]=rssi;
 		
-			cTxLength=5;
+			mParameter.cTxLength=5;
 			break;
 		
 		case CMD_REQUEST_SQ_SET:
 			if(mSqParam.IsAsq==0)
 			{
 				mCbParam.UartTxBuf[2]=3;
-				if(mSqParam.SqOpenSet[mOpenSqDbLevel-1]>=0)
+				if(mSqParam.SqOpenSet[mParameter.mOpenSqDbLevel-1]>=0)
 				{
-					mCbParam.UartTxBuf[3]=mSqParam.SqOpenSet[mOpenSqDbLevel-1];			
+					mCbParam.UartTxBuf[3]=mSqParam.SqOpenSet[mParameter.mOpenSqDbLevel-1];			
 				}
 				else 
 				{
-					mCbParam.UartTxBuf[3]=(-mSqParam.SqOpenSet[mOpenSqDbLevel-1])|0x20;
+					mCbParam.UartTxBuf[3]=(-mSqParam.SqOpenSet[mParameter.mOpenSqDbLevel-1])|0x20;
 				
 				}
-				if(mSqParam.SqCloseSet[mOpenSqDbLevel-1]>=0)
+				if(mSqParam.SqCloseSet[mParameter.mOpenSqDbLevel-1]>=0)
 				{
 					
-					mCbParam.UartTxBuf[4]=mSqParam.SqCloseSet[mOpenSqDbLevel-1];
+					mCbParam.UartTxBuf[4]=mSqParam.SqCloseSet[mParameter.mOpenSqDbLevel-1];
 				}
 				else 
 				{					
-					mCbParam.UartTxBuf[4]=(-mSqParam.SqCloseSet[mOpenSqDbLevel-1])|0x20;
+					mCbParam.UartTxBuf[4]=(-mSqParam.SqCloseSet[mParameter.mOpenSqDbLevel-1])|0x20;
 				}
 				
 				mCbParam.UartTxBuf[5]=0;
@@ -113,28 +110,28 @@ void sendCommand(uchar cmd)
 					mCbParam.UartTxBuf[5] ^=  mCbParam.UartTxBuf[i];
 				}
 				mCbParam.UartTxBuf[5]&=0x7f;
-				cTxLength=6;
+				mParameter.cTxLength=6;
 			}
 			else
 			{
 				mCbParam.UartTxBuf[2]=3;
-				if(mSqParam.AsqOpenSet[mOpenSqDbLevel-1]>=0)
+				if(mSqParam.AsqOpenSet[mParameter.mOpenSqDbLevel-1]>=0)
 				{
-					mCbParam.UartTxBuf[3]=mSqParam.AsqOpenSet[mOpenSqDbLevel-1];			
+					mCbParam.UartTxBuf[3]=mSqParam.AsqOpenSet[mParameter.mOpenSqDbLevel-1];			
 				}
 				else 
 				{
-					mCbParam.UartTxBuf[3]=(-mSqParam.AsqOpenSet[mOpenSqDbLevel-1])|0x20;
+					mCbParam.UartTxBuf[3]=(-mSqParam.AsqOpenSet[mParameter.mOpenSqDbLevel-1])|0x20;
 				
 				}
-				if(mSqParam.AsqCloseSet[mOpenSqDbLevel-1]>=0)
+				if(mSqParam.AsqCloseSet[mParameter.mOpenSqDbLevel-1]>=0)
 				{
 					
-					mCbParam.UartTxBuf[4]=mSqParam.AsqCloseSet[mOpenSqDbLevel-1];
+					mCbParam.UartTxBuf[4]=mSqParam.AsqCloseSet[mParameter.mOpenSqDbLevel-1];
 				}
 				else 
 				{					
-					mCbParam.UartTxBuf[4]=(-mSqParam.AsqCloseSet[mOpenSqDbLevel-1])|0x20;
+					mCbParam.UartTxBuf[4]=(-mSqParam.AsqCloseSet[mParameter.mOpenSqDbLevel-1])|0x20;
 				}
 				
 				mCbParam.UartTxBuf[5]=0;
@@ -143,11 +140,11 @@ void sendCommand(uchar cmd)
 					mCbParam.UartTxBuf[5] ^=  mCbParam.UartTxBuf[i];
 				}
 				mCbParam.UartTxBuf[5]&=0x7f;
-				cTxLength=6;
+				mParameter.cTxLength=6;
 			}
 			break;
 		default:
-			cTxLength=0;
+			mParameter.cTxLength=0;
 			break;
 	}
 	uart0SendData(mCbParam.UartTxBuf);
@@ -160,8 +157,8 @@ void sendCommand(uchar cmd)
 void analyseCMD(void)
 {
 	
-	mUartCmd = mReceivePackage.RecvBuf[1];          //1为参数名	
-	if(mUartCmd==CMD_SET_ALL) 
+	mParameter.mUartCmd = mReceivePackage.RecvBuf[1];          //1为参数名	
+	if(mParameter.mUartCmd==CMD_SET_ALL) 
 	{		
 		mFlag.CbInit=1;
 	}

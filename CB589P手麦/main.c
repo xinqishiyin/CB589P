@@ -9,15 +9,9 @@
 #include "Menu.h"   
 #include "Keys.h"
 #include "KB4815.h"
-extern tSysParam mSysParam;
-extern tCbParam mCbParam;
-extern tHmSetting mHmSetting;
 
-u8 sendDtmfT=SendDtmfTime;
-u8 ButtonToneTime=BUTTON_TIME;
-u8 isButtonTone=0;
-u8 isScanInrupt=SCAN_SPEED_DELAY;
-u16 timePowOn=0;
+
+
 /*-------------------------------------------------------------------------
 *函数：irq_timer1  50ms定时中断
 *参数：无  
@@ -25,33 +19,40 @@ u16 timePowOn=0;
 *-------------------------------------------------------------------------*/
 void irq_timer1(void) interrupt 1
 {  
-	sendDtmfT--;
-	if(0==sendDtmfT)
+	mParameter.sendDtmfT--;
+	if(0==mParameter.sendDtmfT)
 	{		
-		 isSendDtmf=1;
-	   sendDtmfT=SendDtmfTime;
+		 mParameter.isSendDtmf=1;
+	   mParameter.sendDtmfT=SendDtmfTime;
 	}
-	if(isButtonTone==1)
+	if(mParameter.isButtonTone==1)
 	{
-			ButtonToneTime--;
-		  if(ButtonToneTime==0)
+			mParameter.ButtonToneTime--;
+		  if(mParameter.ButtonToneTime==0)
 			{
 				xPWMCN &= ~0x10;
         if(mFlag.SpkOpen==0||mHmSetting.SpkerSwitch==0)
 				{					
 					SPK_EN=0;
 				}
-				isButtonTone=0;
+				mParameter.isButtonTone=0;
 			}
   }
 	
 	if(mSqParam.DWSet==2||mSqParam.Scan!=1)
 	{
-		if(isScanInrupt>0)
+		if(mParameter.isScanInrupt>0)
 		{
-			isScanInrupt--;
+			mParameter.isScanInrupt--;
 		}
-	}		
+	}
+	if(mKey.Pow_Press==1)
+	{
+		if(mKey.Pow_Press_Time>0)
+		{
+			mKey.Pow_Press_Time--;
+		}
+	}
 		TR0 = 0;
 		TH0 = (65535 - 3125) / 256;	
 		TL0 = (65535 - 3125) % 256;	//1ms		
@@ -61,20 +62,20 @@ void irq_timer1(void) interrupt 1
 
 void waitPowerOn(void)
 {
-	while(isPowerOn==0)
+	while(mParameter.isPowerOn==0)
 	{
 		if(POW_IN)
 		{
-			timePowOn++;
+			mParameter.timePowOn++;
 			delayms(30);
-			if(timePowOn>50)
+			if(mParameter.timePowOn>50)
 			{
-				isPowerOn=1;
+				mParameter.isPowerOn=1;
 			}
 		}
 		else
 		{
-			timePowOn=0;
+			mParameter.timePowOn=0;
 		}
 	}
 	
@@ -105,19 +106,20 @@ void CheckHitPowerPress()
 }
 
 void main()
-{
-	 u8 dat;
+{	
+	u8 adf=0xfff;
 		SystemInit();
 	  EA=0;
-    isPowerOn=0;	
-		initMemory();
-		isSendDtmf=0;
+	 
+    mParameter.isPowerOn=0;	
+		initMemory();	
 	  CheckHitPowerPress();
+	  InitKey();
 		waitPowerOn();		
 	  LoadLCDBeep();		
 	  initLCD();		
 		SetBK4815Pragram();	  
-		InitKey();
+		
 		InitMenu();
 		IE |=0X10;        //开串口中断	
 	  EA=1;
@@ -126,9 +128,8 @@ void main()
 		{
 			initHandler();
 			evenHandler();
-			if(mFlag.SpkOpen==0&&mFlag.SysMode == SYS_MODE_LINE)
-			{
-				dat=xP4;
+			if(mFlag.SysMode == SYS_MODE_LINE)
+			{				
 				if(VCC_BATT==0)
 				{
 					//LED_TX=ON;
@@ -142,14 +143,14 @@ void main()
 			}
 		}
 }
-void	INT0_Irq(void)	interrupt 2
-{
- 
-	mRecive=MRECIVE_BK4815_INTERUPT;
-	
+//void	INT0_Irq(void)	interrupt 2
+//{
+// 
+//	mRecive=MRECIVE_BK4815_INTERUPT;
+//	
 
-    EINTCS0 &= 0xfc;	
-                     //建议2次清除中断标志 或者在清0前后各读一次标志位
-    EINTCS0 &= 0xfc;
-    //P01=!P01;
-}
+//    EINTCS0 &= 0xfc;	
+//                     //建议2次清除中断标志 或者在清0前后各读一次标志位
+//    EINTCS0 &= 0xfc;
+//    //P01=!P01;
+//}

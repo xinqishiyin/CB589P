@@ -13,6 +13,7 @@ void ShowFB();
 void ShowFC();
 void lcdShowError(void);
 void LoadLCDBeep();
+void RX_STRENGTH_SHOW();
 /*-------------------------------------------------------------------------
 *函数：Twinkle_Control  闪烁控制
 *参数：无  

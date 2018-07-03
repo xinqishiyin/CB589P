@@ -83,7 +83,9 @@ void saveMenuParam(void)
 *-------------------------------------------------------------------------*/
 void saveAllParam(void)
 {
+	
 	u32 fre=(u32)(channel.RX_Freq*1000);
+	checkAllParam();
 	saveData(EEP_BASE,0xa5);
 	saveData(EEP_FREQ_CAL,mCbParam.FreqCal);
 	saveData(EEP_COUNTRY_TB,mCbParam.CountryTable);
@@ -102,7 +104,8 @@ void saveAllParam(void)
 	saveData(EEP_LED_SW,mHmSetting.ButtonLedSwitch);		
 	saveData(EEP_TONE_SW,mHmSetting.ButtonToneSwitch);
 	saveData(EEP_SPK_SW,mHmSetting.SpkerSwitch);	
-
+	saveData(EEP_MUTE,mSysParam.isMute);	
+  
 	saveData(EEP_IS_ASQ,mSqParam.IsAsq);		
 	saveData(EEP_SQ_LEVEL,mSqParam.SqLevel);			
 	saveData(EEP_ASQ_LEVEL,mSqParam.AsqLevel);	
@@ -129,11 +132,6 @@ void saveDtmf()
 	saveData(EEP_FRE+2,(u8)((fre&0x0000ff00)>>8));
 	saveData(EEP_FRE+3,(u8)(fre&0x000000ff));
 }
-void loadToBK4815(void)
-{
-	
-}
-
 
 
 /*-------------------------------------------------------------------------
@@ -180,7 +178,7 @@ void loadAllParam(void)
 		mHmSetting.LcdColor = loadData(EEP_LCD_COLOR);
 		mHmSetting.ButtonLedSwitch = loadData(EEP_LED_SW);
 		mHmSetting.ButtonToneSwitch = loadData(EEP_TONE_SW);
-    
+		mSysParam.isMute=loadData(EEP_MUTE);  
 		mSysParam.LastChannel = loadData(EEP_LAST_CH);
 		mSysParam.HitPower=loadData(EEP_HIT_POWER);
 		mDtmfRecive.dtmfCode=loadData(EEP_DTMF);

@@ -5,4 +5,5 @@ void SetBK4815Pragram();
 void Keys_Press_Scan();
 void evenHandler();
 void close_sq();
+void StopTwinkle();
 #endif

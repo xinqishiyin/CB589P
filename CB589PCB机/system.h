@@ -95,8 +95,99 @@ enum
 	SYS_MODE_WIRELESS,
 	SYS_MODE_INTERPHONE
 };
-extern xdata uchar     mRecive;
-extern xdata uint		mMessage;
+
+typedef struct
+{
+	unsigned char mRecive;
+	unsigned char mUartCmd;
+	unsigned char mOpenSqDbLevel;
+	unsigned char mLastOpenSqDbLevel;
+	unsigned int mRssi;
+	unsigned long int mXn31202Ch1_Tx;
+	unsigned long int mXn31202Ch1_Rx;
+	unsigned long int mReferenceFreq;
+	unsigned long int mCurrentFreq;
+	unsigned int mAsqVoltage;
+	unsigned int mRssiVoltage;
+	unsigned int mAgcaVoltage;
+	unsigned char cTxLength;
+	unsigned int cSqSum;
+	unsigned char isautoRGF;
+	unsigned char autoRFG;
+	unsigned char isSendRSSI;
+	unsigned char sengRssiCount;
+	unsigned char is4815Sleep;
+}tParameter;
+/*-------------------------------------------------------------------------
+ *      宽窄带
+ *-----------------------------------------------------------------------*/
+typedef enum
+{
+  wide,
+  narrow
+}Channel_band ;      
+
+/*-------------------------------------------------------------------------
+ *      信号类型
+ *-----------------------------------------------------------------------*/
+typedef enum 
+{
+  SPEECH,
+  DTMF,
+  SELCALL,
+  FSK,
+  CTCSS,
+  CDCSS  
+}Signaltype; 
+
+/*-------------------------------------------------------------------------
+ *      亚音频类型
+ *-----------------------------------------------------------------------*/
+typedef enum
+{
+  NONE,
+  CTCS,
+  CDCS
+}CTCSType; 
+
+/*-------------------------------------------------------------------------
+ *      数字亚音频相位
+ *-----------------------------------------------------------------------*/
+typedef enum 
+{
+		Normal=0,
+		Inverse=1
+}CDC_MODE;
+
+/*-------------------------------------------------------------------------
+ *      通道信息
+ *-----------------------------------------------------------------------*/
+typedef struct
+{
+	Channel_band band;                //宽窄带 wide为宽 narrow为窄 	
+	
+	u8 isVOXOpen;											//是否开启VOX
+	u8 VOXLevel;											//VOX等级        0-256
+	u8 VOX_Gain_Level;                //VOX麦克风增益   0-64
+	
+  float TX_Freq;									  //发射频率
+  CTCSType TXCTCStype;              //亚音频类型
+  float TX_CTCSS_Freq;						  //发射模拟亚音频率
+	CDC_MODE TX_CDCS_Mode;            //发射数字亚音频正反相
+  u16 TX_CDCSS_Freq;							  //发射数字亚音频率
+		
+	float Old_Freq;
+  float RX_Freq;                    //接收频率
+  CTCSType RXCTCStype;					    //接收亚音频类型
+  float RX_CTCSS_Freq;							//接收模拟亚音频率
+  CDC_MODE RX_CDCS_Mode;				    //接收数字亚音频正反相
+	u16 RX_CDCSS_Freq;                //接收数字亚音频率
+	
+	
+	
+}Channel; 
+//extern xdata uchar     mRecive;
+//extern xdata uint		mMessage;
 extern xdata tCbParam  	mCbParam;
 extern xdata tSqParam  	mSqParam;
 extern xdata tFlag  	mFlag;
@@ -104,30 +195,32 @@ extern xdata tTimer0	mTimer0;
 extern xdata tSq			mSq;
 extern xdata tDtmfRecive mDtmfRecive;
 
+extern tParameter mParameter;
 /*串口接收*/
-extern uchar mUartCmd;
+//extern uchar mUartCmd;
 extern tReceivePackage mReceivePackage;
+extern Channel channel;
 
 /*SQ相关*/
-extern xdata uchar mDebugSqLevel;
-extern xdata uchar mOpenSqDbLevel;
-extern xdata uchar mLastOpenSqDbLevel;
+//extern xdata uchar mDebugSqLevel;
+//extern xdata uchar mOpenSqDbLevel;
+//extern xdata uchar mLastOpenSqDbLevel;
 
 /*以下VCO相关*/
-extern xdata uchar mRssi;   
-extern xdata uchar mLastRssi;	//上次传输的RSSI
-extern xdata ulong mXn31202Ch1_Tx;
-extern xdata ulong mXn31202Ch1_Rx;
-extern xdata ulong mReferenceFreq;	//用于计算R寄存器和控制寄存器
-extern xdata ulong mChannelBaseFreq;	//第1信道的频率
-extern xdata ulong mCurrentFreq;		//当前信道的频率，通过信道1和步进频率计算
-extern xdata uint  mUkReferenceFreq[40];
-extern xdata uint mAsqVoltage;  //5V
-extern xdata uint mRssiVoltage; //5V
-extern xdata uint mAgcaVoltage; //5V
+//extern xdata uchar mRssi;   
+//extern xdata uchar mLastRssi;	//上次传输的RSSI
+//extern xdata ulong mXn31202Ch1_Tx;
+//extern xdata ulong mXn31202Ch1_Rx;
+//extern xdata ulong mReferenceFreq;	//用于计算R寄存器和控制寄存器
+//extern xdata ulong mChannelBaseFreq;	//第1信道的频率
+//extern xdata ulong mCurrentFreq;		//当前信道的频率，通过信道1和步进频率计算
+//extern xdata uint  mUkReferenceFreq[40];
+//extern xdata uint mAsqVoltage;  //5V
+//extern xdata uint mRssiVoltage; //5V
+//extern xdata uint mAgcaVoltage; //5V
 
-extern u8 isSendRSSI;
-extern u8 sengRssiCount;
+//extern u8 isSendRSSI;
+//extern u8 sengRssiCount;
 
 
 

@@ -13,19 +13,31 @@
 #include "MenuEvent.h"
 #include "CB_Line.h"
 
-extern tCbParam  	mCbParam;                 //需要发送到CB机的数据
-extern tSqParam  	mSqParam;                 //SQ模式
-extern tHmSetting  mHmSetting;               //手咪上面需要设置的数据
-extern isButtonTone;
-extern tSysParam	  mSysParam;                //
-extern tFlag  		  mFlag;                    //
-extern tMenu mMenu;   
+//extern tCbParam  	mCbParam;                 //需要发送到CB机的数据
+//extern tSqParam  	mSqParam;                 //SQ模式
+//extern tHmSetting  mHmSetting;               //手咪上面需要设置的数据
+//extern isButtonTone;
+//extern tSysParam	  mSysParam;                //
+//extern tFlag  		  mFlag;                    //
+//extern tMenu mMenu;   
 
 
 
 
-u8 key_SQSetIndex=0;
-u8 reStartScan=0;
+//u8 key_SQSetIndex=0;
+
+void CloseSq()
+{
+	IE &=~0X10;        //关串口中断	
+	SPK_EN=0;
+	LCD_RX(0);
+	LED_RX=0;
+	mSysParam.Rssi = 0x00;
+	mSysParam.RssiChange=1;
+	mFlag.SpkOpen=0;
+	isSendCmdOK(CMD_IDLE);
+}
+
 void checkChannel()
 {
 	mSysParam.MinChannel = 1;
@@ -621,7 +633,15 @@ void CHANNEL_DW_FUC()                 //双频守候
 			}
 			else mCbParam.Band=0;	
 			mCbParam.Modu=mSysParam.DWModu;
+			if( isSendCmdOK(CMD_SET_CHANNEL))			
 		  mSqParam.DWSet=1;
+			else
+			{
+				mCbParam.Channel=mSysParam.DWChannel1;
+				mCbParam.Band=mSysParam.DWBand1;
+				mCbParam.Modu=mSysParam.DWModu1;
+				mMenu.MenuIndex=CHANNEL;	
+			}
 			break;
 		case 1:
 			if(mSysParam.DWChannel1!=mCbParam.Channel||mSysParam.DWBand1!=mCbParam.Band)
@@ -691,6 +711,7 @@ void CHANNEL_SCAN_FUC() 							//进入扫描模式
 	{
 		mSqParam.ScanHould=0x01;		
 	}
+	ShowChannel();
 }
 /*-------------------------------------------------------------------------
 *函数：CHANNEL_SCAN_SCAN_FUC  退出扫描模式
@@ -763,7 +784,6 @@ void CHANNEL_PPTDN_FUC()            //发射
 			}
 	  }
 	}
-	TM1722_SHOW();
 }
 /*-------------------------------------------------------------------------
 *函数：CHANNEL_PPTUP_FUC  停止发射
@@ -811,7 +831,6 @@ void CHANNEL_PPTUP_FUC()           //停止发射
 			}	
 		}
 	}
-	TM1722_SHOW();
 	delayms(100);
 
 }
@@ -974,10 +993,8 @@ void CHANNEL_LONG_AF_FUC()
 		oldchannel=mCbParam.Channel;		
 		if(isSendCmdOK(CMD_SET_ALL))
 		{		
-			LCD_CLEAR();
 			ShowContry(mCbParam.Country);
 			delayms(POWER_ON_SHOW_CONTRY);
-			LCD_CLEAR();	
 			mSysParam.isUK=1;			
 			ShowChannel();	
 		}
@@ -995,11 +1012,9 @@ void CHANNEL_LONG_AF_FUC()
 		if(isSendCmdOK(CMD_SET_ALL))
 		{
 			close_sq();
-			mSysParam.isUK=0;
-			LCD_CLEAR();			
+			mSysParam.isUK=0;	
 			ShowContry(mCbParam.Country);
-			delayms(POWER_ON_SHOW_CONTRY);
-			LCD_CLEAR();			
+			delayms(POWER_ON_SHOW_CONTRY);		
 			ShowChannel();	
 		}
 		else 
@@ -1018,6 +1033,7 @@ void CHANNEL_LONG_AF_FUC()
 void CHANNEL_FAF_FUC()
 {
 	u8 i;
+	CloseSq();
 	for(i=0;i<3;i++)
 	{		
 		LED_TX=1;		
@@ -1025,7 +1041,7 @@ void CHANNEL_FAF_FUC()
 		LED_TX=0;		
 		delayms(70);
 	}
-	LCD_CLEAR();
+	
 	saveData(EEP_COUNTRY_TB,mCbParam.CountryTable);
 	if(mSysParam.isUK==1) 
 	{
@@ -1337,6 +1353,7 @@ void CHANNEL_DOUBLEMUTE_FUC()
 	
 	if(isSendCmdOK(CMD_MUTE))
 	{
+		saveData(EEP_MUTE,mSysParam.isMute);
 		if(mSysParam.isMute==0)	
 		{
 			LCD_NUM4(NUM4_OFF);
@@ -1345,14 +1362,15 @@ void CHANNEL_DOUBLEMUTE_FUC()
 				SPK_EN=1;
 			}
 		}
-		else 
+		else
 		{
 			LCD_NUM4(NUM4_M);
-			if(isButtonTone==0x01)
+			if(mParameter.isButtonTone==0x01)
 			{
 				SPK_EN=0;
 			}
 		}
+		
 	}
 	else
 	{
@@ -1381,11 +1399,11 @@ void CHANNEL_DOUBLEMUTE_FUC()
 *-------------------------------------------------------------------------*/	
 void CHANNEL_LONGPOWER_FUC()
 {
-		BK4815Sleep();
+	isSendCmdOK(CMD_IDLE);
+	BK4815Sleep();
 	IDLE
 	LCD_CLEAR();
 	LCD_BATT(0);
-	TM1722_SHOW();
 	LIGHT_B=0;
 	LIGHT_G=0;
 	LIGHT_R=0;
@@ -1393,6 +1411,7 @@ void CHANNEL_LONGPOWER_FUC()
 	LED_TX=0;
 	LED_RX=0;
 	SPK_EN=0;
+	
 	saveAllParam();
 	POW_OUT=0;
 	
@@ -1409,10 +1428,8 @@ void CHANNEL_LOCK_PRESSOTHER_FUC()
 	for(i=0;i<3;i++)
 	{		
 		LCD_LOCK(0);
-		TM1722_SHOW();	
 		delayms(70);
 		LCD_LOCK(1);
-		TM1722_SHOW();
 		delayms(70);
 	}
 }
@@ -1440,7 +1457,6 @@ void CHANNEL_FAF_DN_FUC()
 			break;
 	}
 	
-	LCD_CLEAR();
 	ShowContry(mCbParam.Country);	
 	
 }
@@ -1467,7 +1483,6 @@ void CHANNEL_FAF_UP_FUC()
 			else mCbParam.Country=13;
 			break;
 	}
-	LCD_CLEAR();
 	ShowContry(mCbParam.Country);		
 }
 /*-------------------------------------------------------------------------
@@ -1485,6 +1500,7 @@ void CHANNEL_FAF_PPT_FUC()
 		LED_TX=0;		
 		delayms(70);
 	}
+	
 	if(
 		mCbParam.Country==COUNTRY_AU||
 		mCbParam.Country==COUNTRY_NL||
@@ -1558,12 +1574,12 @@ void CHANNEL_FAF_PPT_FUC()
 	{		
 		saveAllParam();
 		InitMenu();
-		LCD_CLEAR();
 		ShowChannel();
 		mSysParam.isUK=0;
 	}
 	else lcdShowError();
 	mSysParam.isLastChannel=0;
+	IE |=0X10;        //开串口中断
 }
 /*-------------------------------------------------------------------------
 *函数：CHANNEL_TABLE_FUC  国家表设置界面
@@ -1572,6 +1588,7 @@ void CHANNEL_FAF_PPT_FUC()
 *-------------------------------------------------------------------------*/
 void CHANNEL_TABLE_FUC()
 {
+	CloseSq();
 	ShowTable();
 }
 /*-------------------------------------------------------------------------
@@ -1626,7 +1643,7 @@ void CHANNEL_SQ_SET_FUC()
 void CHANNEL_SQ_SET_UP_FUC()
 {
 	uchar temp1_sq;
-	switch(key_SQSetIndex)
+	switch(mParameter.key_SQSetIndex)
 	{
 		case 0:		
 			if(mSqParam.IsAsq==0)
@@ -1714,7 +1731,7 @@ void CHANNEL_SQ_SET_UP_FUC()
 void CHANNEL_SQ_SET_DN_FUC()
 {
 		uchar temp1_sq;
-	switch(key_SQSetIndex)
+	switch(mParameter.key_SQSetIndex)
 	{
 		case 0:		
 			if(mSqParam.IsAsq==0)
@@ -1800,65 +1817,65 @@ void CHANNEL_SQ_SET_DN_FUC()
 *-------------------------------------------------------------------------*/
 void CHANNEL_SQ_SET_F_FUC()
 {
-	switch(key_SQSetIndex)
+	switch(mParameter.key_SQSetIndex)
 	{
-		case 0:key_SQSetIndex=1;
+		case 0:mParameter.key_SQSetIndex=1;
 			break;
-		case 1:key_SQSetIndex=2;
+		case 1:mParameter.key_SQSetIndex=2;
 			break;
-		case 2:key_SQSetIndex=0;
+		case 2:mParameter.key_SQSetIndex=0;
 			break;
 	}
 	ShowSQReSet();
 }
 
-/*-------------------------------------------------------------------------
-*函数：CHANNEL_FRECAL_FUC  频偏调节
-*参数：无  
-*返回值：无
-*-------------------------------------------------------------------------*/
-void CHANNEL_FRECAL_FUC()
-{
-	ShowFreCalSet();
-}
-/*-------------------------------------------------------------------------
-*函数：CHANNEL_FRECAL_UP_FUC  频偏调节
-*参数：无  
-*返回值：无
-*-------------------------------------------------------------------------*/
-void CHANNEL_FRECAL_UP_FUC()
-{
-	u8 oldfrecal=mCbParam.FreqCal;
-	if(mCbParam.FreqCal<209)
-	{
-		mCbParam.FreqCal++;
-	}
-	if(!isSendCmdOK(CMD_SET_FREQ_CAL))
-	{
-		mCbParam.FreqCal=oldfrecal;
-	}
-	delayms(70);
-}
-/*-------------------------------------------------------------------------
-*函数：CHANNEL_FRECAL_DN_FUC  频偏调节
-*参数：无  
-*返回值：无
-*-------------------------------------------------------------------------*/
-void CHANNEL_FRECAL_DN_FUC()
-{
-	u8 oldfrecal=mCbParam.FreqCal;
-	if(mCbParam.FreqCal>11)		
-	{
-		mCbParam.FreqCal--;
-	}
-	if(!isSendCmdOK(CMD_SET_FREQ_CAL))
-	{
-		mCbParam.FreqCal=oldfrecal;
-	}
-	delayms(70);
-	
+///*-------------------------------------------------------------------------
+//*函数：CHANNEL_FRECAL_FUC  频偏调节
+//*参数：无  
+//*返回值：无
+//*-------------------------------------------------------------------------*/
+//void CHANNEL_FRECAL_FUC()
+//{
+//	ShowFreCalSet();
+//}
+///*-------------------------------------------------------------------------
+//*函数：CHANNEL_FRECAL_UP_FUC  频偏调节
+//*参数：无  
+//*返回值：无
+//*-------------------------------------------------------------------------*/
+//void CHANNEL_FRECAL_UP_FUC()
+//{
+//	u8 oldfrecal=mCbParam.FreqCal;
+//	if(mCbParam.FreqCal<209)
+//	{
+//		mCbParam.FreqCal++;
+//	}
+//	if(!isSendCmdOK(CMD_SET_FREQ_CAL))
+//	{
+//		mCbParam.FreqCal=oldfrecal;
+//	}
+//	delayms(70);
+//}
+///*-------------------------------------------------------------------------
+//*函数：CHANNEL_FRECAL_DN_FUC  频偏调节
+//*参数：无  
+//*返回值：无
+//*-------------------------------------------------------------------------*/
+//void CHANNEL_FRECAL_DN_FUC()
+//{
+//	u8 oldfrecal=mCbParam.FreqCal;
+//	if(mCbParam.FreqCal>11)		
+//	{
+//		mCbParam.FreqCal--;
+//	}
+//	if(!isSendCmdOK(CMD_SET_FREQ_CAL))
+//	{
+//		mCbParam.FreqCal=oldfrecal;
+//	}
+//	delayms(70);
+//	
 
-}
+//}
 
 /*-------------------------------------------------------------------------
 *函数：FACTORY_SETTING_FUC  出厂设置
@@ -1867,7 +1884,24 @@ void CHANNEL_FRECAL_DN_FUC()
 *-------------------------------------------------------------------------*/
 void FACTORY_SETTING_FUC()
 {
-  
+	CloseSq();
+    LED_TX=1;
+	LED_TX=1;
+	delayms(100);
+	LED_RX=0;
+	LED_TX=0;
+		delayms(100);
+	 LED_TX=1;
+	LED_TX=1;
+	delayms(100);
+	LED_RX=0;
+	LED_TX=0;
+		delayms(100);
+	 LED_TX=1;
+	LED_TX=1;
+	delayms(100);
+	LED_RX=0;
+	LED_TX=0;
 	mKey.key_CombleFAF=0;
   mKey.key_CombleFUPAFRFGSCAN=0;
   mKey.key_CombleFUPEMG=0;
@@ -1876,15 +1910,13 @@ void FACTORY_SETTING_FUC()
   mSqParam.Scan=1;
 	mSqParam.DWSet=0;
   mHmSetting.isCheckHitPower=0;
-  key_SQSetIndex=0;
-	LCD_CLEAR();
+  mParameter.key_SQSetIndex=0;
 	setDefaultParam();	
 	saveAllParam();	
 	ShowFactorySeting();
 	ShowChannel();
-	  if(!isSendCmdOK(CMD_SET_ALL))
+	if(!isSendCmdOK(CMD_SET_ALL))
 	{
-			//LCD_CLEAR();
 			LIGHT_B=0;
 			LIGHT_G=0;
 			LIGHT_R=0;

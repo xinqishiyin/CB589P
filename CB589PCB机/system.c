@@ -1,7 +1,8 @@
 #include "system.h"
 
-xdata uchar     mRecive;
-xdata uint			mMessage;
+//xdata uchar     mRecive;
+//xdata uint			mMessage;
+tParameter mParameter;
 xdata tCbParam  	mCbParam;
 xdata tSqParam  	mSqParam;
 xdata tFlag  		mFlag;
@@ -9,32 +10,32 @@ xdata tTimer0		mTimer0;
 xdata tSq			mSq;
 xdata tDtmfRecive mDtmfRecive;
 /*串口接收*/
-uchar mUartCmd = 0;
+//uchar mUartCmd = 0;
 tReceivePackage mReceivePackage;
 
 /*SQ相关*/
-xdata uchar mDebugSqLevel;
-xdata uchar mOpenSqDbLevel;
-xdata uchar mLastOpenSqDbLevel;
+//xdata uchar mDebugSqLevel;
+//xdata uchar mOpenSqDbLevel;
+//xdata uchar mLastOpenSqDbLevel;
 
 /*以下VCO相关*/		
-xdata uchar mRssi;   
-xdata uchar mLastRssi;	//上次传输的RSSI
-xdata ulong mXn31202Ch1_Tx;
-xdata ulong mXn31202Ch1_Rx;
-xdata ulong mReferenceFreq = 2500;	//用于计算R寄存器和控制寄存器
-xdata ulong mChannelBaseFreq = 26965000;	//第1信道的频率
-xdata ulong mCurrentFreq = 0;		//当前信道的频率，通过信道1和步进频率计算
-xdata uint  mUkReferenceFreq[40] =
-{
-	1349,1279,1278,1277,1316,1303,1271,1286,1285,1266,
-	1336,1312,1262,1300,1277,1261,1286,1303,1302,1308,
-	1271,1337,1257,1257,1257,1257,1257,1299,1266,1266,
-	1354,1313,1287,1272,1286,1271,1308,1262,1262,1288
-};
-xdata uint mAsqVoltage;  //5V
-xdata uint mRssiVoltage; //5V
-xdata uint mAgcaVoltage; //5V
+//xdata uchar mRssi;   
+//xdata uchar mLastRssi;	//上次传输的RSSI
+//xdata ulong mXn31202Ch1_Tx;
+//xdata ulong mXn31202Ch1_Rx;
+//xdata ulong mReferenceFreq = 2500;	//用于计算R寄存器和控制寄存器
+//xdata ulong mChannelBaseFreq = 26965000;	//第1信道的频率
+//xdata ulong mCurrentFreq = 0;		//当前信道的频率，通过信道1和步进频率计算
+//xdata uint  mUkReferenceFreq[40] =
+//{
+//	1349,1279,1278,1277,1316,1303,1271,1286,1285,1266,
+//	1336,1312,1262,1300,1277,1261,1286,1303,1302,1308,
+//	1271,1337,1257,1257,1257,1257,1257,1299,1266,1266,
+//	1354,1313,1287,1272,1286,1271,1308,1262,1262,1288
+//};
+//xdata uint mAsqVoltage;  //5V
+//xdata uint mRssiVoltage; //5V
+//xdata uint mAgcaVoltage; //5V
 
 
 
@@ -167,15 +168,15 @@ void UART0_Init()
 
 	mCbParam.UartTxBuf[0] = MAGIC;
 }
-void UART1_Init()
-{
-	xIOMUX2 |= 0x01;        //P24/P23复用做UART1端口
-  SCON1 |= 0x50;         //工作模式1,8位异步，波特率可调 使能接收
- 
-  xBRCON1  = 0XE8;//0x68;         //波特率计算公式为1/16（2smod=1），波特率发生器开启，高精度波特率控制使能   
-  xBRTIM1  = 0x98;
-  EIE2 |=0X10;                    //使能ES1中断
-}
+//void UART1_Init()
+//{
+//	xIOMUX2 |= 0x01;        //P24/P23复用做UART1端口
+//  SCON1 |= 0x50;         //工作模式1,8位异步，波特率可调 使能接收
+// 
+//  xBRCON1  = 0XE8;//0x68;         //波特率计算公式为1/16（2smod=1），波特率发生器开启，高精度波特率控制使能   
+//  xBRTIM1  = 0x98;
+//  EIE2 |=0X10;                    //使能ES1中断
+//}
 void SystemInit()
 {
 	systemCLK_init(); 

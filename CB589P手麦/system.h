@@ -71,27 +71,29 @@ sbit ADGO = ADCON^2;
 
 
 /*---------------------时间宏定义--------------------------*/
-#define POWER_ON_DELAY             2000				 //开机延时启动时间
+//#define POWER_ON_DELAY             2000				 //开机延时启动时间
 #define POWER_ON_ALLLCD_TIME       1000        //开机后全屏显示LCD时长
 #define POWER_ON_SHOW_CONTRY       700        //开机显示国家时长
 
-#define KEY_BEEP_TIME              120        //按键音时长
+//#define KEY_BEEP_TIME              120        //按键音时长
 
 #define MENU_UP_DOWN_SPEED         100         //菜单连续加减延时
-#define BACK_TIME                  400          //返回主界面时间
+#define BACK_TIME                  2000          //返回主界面时间
 
-#define SHOW_TWINKLE_TIME          23           //闪烁时间间隔
+#define SHOW_TWINKLE_TIME          80           //闪烁时间间隔
 
-#define BUTTON_LED_TIME            200          //按键灯时长
+#define BUTTON_LED_TIME            2000          //按键灯时长
 
 #define HOULD_TIME                 20        //扫描及守候接收间隔时长
 
 #define BUTTON_TIME                5
-
+#define SHUT_DOWN_TIME             
 #define SCAN_SPEED_DELAY           4         //扫描/双频守候间隔时间
 
-#define KEY_COMBOlIMIT             40         //x组合按件时
-#define KEY_COMBOlIMIT_LONG        500        //切换表组合按件时
+#define KEY_COMBOlIMIT             200         //x组合按件时
+#define KEY_COMBOlIMIT_LONG        2500        //切换表组合按件时
+#define KEY_LONG_MUTE_TIME          50        //
+
 
 /*---------------------引脚宏定义--------------------------*/
 #define AT24C08_SCL                P02
@@ -190,6 +192,7 @@ typedef struct
 typedef struct
 {
 	unsigned char Rssi;
+	unsigned char RssiChange;
 	unsigned char Ack;
 	unsigned char ActivityChannel;
 	unsigned char DebugSqLevel;
@@ -220,6 +223,8 @@ typedef struct
 	unsigned char DWChannel;
 	unsigned char DWBand;
 	unsigned char DWModu;
+	unsigned int  ButtonLED;
+	unsigned char TXorRXLEDChange;
 }tSysParam;                      //
 enum 
 {
@@ -247,12 +252,6 @@ typedef struct
 	unsigned char BandChanged	:1;
 	unsigned char SpkOpen 		:1;
 	unsigned char InMainFace	:1;
-	unsigned char InMenu		:1;
-	unsigned char MenuSetOk		:1;
-	
-	unsigned char NeedRefreshShow:1;
-	unsigned char NeedSaveData	:1;
-	unsigned char NumberShow	:1;
 	unsigned char Mute			:1;
 	unsigned char ChangeTxPower :1;
 }tFlag;
@@ -289,16 +288,16 @@ typedef struct
 {
 	unsigned char KeyIndex1;	      //KEY1 AD值 索引
 	unsigned char KeyIndex2;		  //KEY2 AD值 索引
-	unsigned char ShortPressLimit1;	//按键1短按时限
-	unsigned char ShortPressLimit2;	//按键2短按时限
-	unsigned char Power_Time;	//电源键长按时长
-	unsigned char DoublePress_Limit;	//双击时限
+	unsigned int ShortPressLimit1;	//按键1短按时限
+	unsigned int ShortPressLimit2;	//按键2短按时限
+	unsigned int Power_Time;	//电源键长按时长
+	unsigned int DoublePress_Limit;	//双击时限
 	unsigned char DoublePress_Count;  //双击次数
 	unsigned char Press_Count;          //按键次数
-	unsigned char MutePress_Timelimit;  //静音（电源）长按时长
-	unsigned char MuteDoublePress_Timelimit;  //静音（电源）双击时限
-	unsigned char LongSq_Time;          //长按SQ切换时长
-	unsigned char MutePress_Count;      //电源按键次
+	unsigned int  MutePress_Timelimit;  //静音（电源）长按时长
+	unsigned int  MuteDoublePress_Timelimit;  //静音（电源）双击时限
+	unsigned int LongSq_Time;          //长按SQ切换时长
+	unsigned int MutePress_Count;      //电源按键次
 	
 	
 	unsigned char key_CombleFAF;
@@ -307,7 +306,101 @@ typedef struct
  	unsigned char	key_CombleFDN;
  	unsigned char	key_CombleFUPEMG;
 	unsigned char key_CombleSQSet;
+	unsigned char Pow_Press;
+	unsigned int Pow_Press_Time;
 }tKey;
+/*-------------------------------------------------------------------------
+ *      通道信息
+ *-----------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------
+ *      宽窄带
+ *-----------------------------------------------------------------------*/
+typedef enum
+{
+  wide,
+  narrow
+}Channel_band ;      
+
+/*-------------------------------------------------------------------------
+ *      信号类型
+ *-----------------------------------------------------------------------*/
+typedef enum 
+{
+  SPEECH,
+  DTMF,
+  SELCALL,
+  FSK,
+  CTCSS,
+  CDCSS  
+}Signaltype; 
+
+/*-------------------------------------------------------------------------
+ *      亚音频类型
+ *-----------------------------------------------------------------------*/
+typedef enum
+{
+  NONE,
+  CTCS,
+  CDCS
+}CTCSType; 
+
+/*-------------------------------------------------------------------------
+ *      数字亚音频相位
+ *-----------------------------------------------------------------------*/
+typedef enum 
+{
+		Normal=0,
+		Inverse=1
+}CDC_MODE;
+typedef struct
+{
+	Channel_band band;                //宽窄带 wide为宽 narrow为窄 	
+	
+	u8 isVOXOpen;											//是否开启VOX
+	u8 VOXLevel;											//VOX等级        0-256
+	u8 VOX_Gain_Level;                //VOX麦克风增益   0-64
+	u8 Sqleve;                        //SQ等级
+	
+  float TX_Freq;									  //发射频率
+  CTCSType TXCTCStype;              //亚音频类型
+  float TX_CTCSS_Freq;						  //发射模拟亚音频率
+	CDC_MODE TX_CDCS_Mode;            //发射数字亚音频正反相
+  u16 TX_CDCSS_Freq;							  //发射数字亚音频率
+		
+	
+  float RX_Freq;                    //接收频率
+  CTCSType RXCTCStype;					    //接收亚音频类型
+  float RX_CTCSS_Freq;							//接收模拟亚音频率
+  CDC_MODE RX_CDCS_Mode;				    //接收数字亚音频正反相
+	u16 RX_CDCSS_Freq;                //接收数字亚音频率
+	
+	
+}Channel; 
+typedef struct
+{
+	unsigned char sendDtmfT;
+	unsigned char isButtonTone;
+	unsigned char isScanInrupt;
+	unsigned char ButtonToneTime;
+	unsigned char timePowOn;
+	unsigned char isSendDtmf;
+	unsigned char isPowerOn;
+	unsigned char PPTpress;
+	unsigned char LONG_UPDN_PRESS;
+	unsigned char inDex2;
+	unsigned char inDex1;
+	unsigned char inDexMute;
+	unsigned char scandwPPTPress;
+	unsigned char mTxLength;
+	unsigned char LCD_twinkle_Show;
+	unsigned char LCD_Twinkle_tag;
+	unsigned char isBK4815_Set;
+	unsigned char isConnect;
+	unsigned char changeDtmf;
+	unsigned int Time_Space_POWLow_Show;
+	unsigned char 	key_SQSetIndex;
+}tParameter;
+
 
 
 #define SetBit(VAR,Place)         ( (VAR) |= (u8)((u8)1<<(u8)(Place)) )
@@ -316,8 +409,8 @@ typedef struct
 #define SET_AT24C08_SDA_OUT      {P0MDL &= 0x3F; P0MDL |= 0x80;}
 #define SET_AT24C08_SDA_IN       {P0MDL &= 0x3F; P0MDL |= 0x40;}
 
-#define MRECIVE_NONE         0
-#define MRECIVE_BK4815_INTERUPT   1
+//#define MRECIVE_NONE         0
+//#define MRECIVE_BK4815_INTERUPT   1
 
 
 #define POW_IN                    ((xP4&0x04)==0? 0:1)
@@ -325,22 +418,31 @@ typedef struct
 #define VCC_DET1                  ((xP4&0x01)==0? 0:1)
 #define VCC_BATT                  ((xP4&0x80)==0? 0:1)
 
-extern xdata unsigned long 	mMessage;
-extern xdata tCbParam  		mCbParam;
-extern xdata tSqParam  		mSqParam;
-extern xdata tHmSetting  	mHmSetting;
-extern xdata tSysParam	    mSysParam;
-extern xdata tFlag  		mFlag;
-extern xdata uchar     mRecive;
-extern xdata tSq			mSq;
-extern xdata uchar   isSendDtmf;
-extern xdata uchar     mRecive;
-extern xdata tDtmfRecive mDtmfRecive;
-extern xdata tKey mKey;
-extern xdata u16  dtmfNum;
-extern xdata u8  isPowerOn;
-extern u8 sendDtmfT;
+//extern unsigned long 	mMessage;
+extern tCbParam  		mCbParam;
+extern tSqParam  		mSqParam;
+extern tHmSetting  	mHmSetting;
+extern tSysParam	    mSysParam;
+extern tFlag  		mFlag;
+//extern uchar     mRecive;
+extern tSq			mSq;
+//extern uchar   isSendDtmf;
+//extern uchar     mRecive;
+extern tDtmfRecive mDtmfRecive;
+extern tKey mKey;
+extern tParameter mParameter;
+
+
+//extern u16  dtmfNum;
+//extern u8  isPowerOn;
+//extern u16 sendDtmfT;
 extern tMenu mMenu;
+extern Channel channel;
+
+
+
+
+
 
 void SystemInit(void);
 void delayms(u16 time);

@@ -161,29 +161,29 @@ void eepromWriteByte(u8 page,u8 addr,u8 value)
 	at24c08I2cStop();
 	delayms(8);
 }
-/*-------------------------------------------------------------------------
-*函数：eepromWritePage  存储器写入
-*参数：无  
-*返回值：无
-*-------------------------------------------------------------------------*/
-void eepromWritePage(u8 page,u8 *p_value, u8 addr, u8 len)
-{
-	u8 i;
-	at24c08I2cStart();
-	at24c08I2cWriteByte(page);
-	at24c08RxAck();
-	at24c08I2cWriteByte(addr);
-	at24c08RxAck();
-	
-	for(i=0; i<len; i++)
-	{
-		at24c08I2cWriteByte(*(p_value++));
-		at24c08RxAck();
-		
-	}
-	at24c08I2cStop();
-	delayms(5);
-}
+///*-------------------------------------------------------------------------
+//*函数：eepromWritePage  存储器写入
+//*参数：无  
+//*返回值：无
+//*-------------------------------------------------------------------------*/
+//void eepromWritePage(u8 page,u8 *p_value, u8 addr, u8 len)
+//{
+//	u8 i;
+//	at24c08I2cStart();
+//	at24c08I2cWriteByte(page);
+//	at24c08RxAck();
+//	at24c08I2cWriteByte(addr);
+//	at24c08RxAck();
+//	
+//	for(i=0; i<len; i++)
+//	{
+//		at24c08I2cWriteByte(*(p_value++));
+//		at24c08RxAck();
+//		
+//	}
+//	at24c08I2cStop();
+//	delayms(5);
+//}
 /*-------------------------------------------------------------------------
 *函数：eepromReadByte  读存储器
 *参数：无  
@@ -207,30 +207,30 @@ u8 eepromReadByte(u8 page,u8 addr)
 	delayms(5);
 	return value;
 }
-/*-------------------------------------------------------------------------
-*函数：eepromReadSequential  读存储器
-*参数：无  
-*返回值：无
-*-------------------------------------------------------------------------*/
-void eepromReadSequential(u8 page,u8 *p_data,u8 addr,u8 length)
-{
-	u16 i;
+///*-------------------------------------------------------------------------
+//*函数：eepromReadSequential  读存储器
+//*参数：无  
+//*返回值：无
+//*-------------------------------------------------------------------------*/
+//void eepromReadSequential(u8 page,u8 *p_data,u8 addr,u8 length)
+//{
+//	u16 i;
 
-	at24c08I2cStart();
-	at24c08I2cWriteByte(page);
-	at24c08RxAck();
-	at24c08I2cWriteByte(addr);
-	at24c08RxAck();
-	at24c08I2cStart();
-	at24c08I2cWriteByte(page | 0x01);
-	at24c08RxAck();
-	for(i=0; i<length-1; i++)	 //最后一位要另外读，因为读完最后一位发非应答信号
-	{
-		*(p_data + i) = at24c08I2cReadByte();
-		at24c08TxAck(0);
-	}
-	*(p_data + i) = at24c08I2cReadByte();
-	at24c08TxAck(1);
+//	at24c08I2cStart();
+//	at24c08I2cWriteByte(page);
+//	at24c08RxAck();
+//	at24c08I2cWriteByte(addr);
+//	at24c08RxAck();
+//	at24c08I2cStart();
+//	at24c08I2cWriteByte(page | 0x01);
+//	at24c08RxAck();
+//	for(i=0; i<length-1; i++)	 //最后一位要另外读，因为读完最后一位发非应答信号
+//	{
+//		*(p_data + i) = at24c08I2cReadByte();
+//		at24c08TxAck(0);
+//	}
+//	*(p_data + i) = at24c08I2cReadByte();
+//	at24c08TxAck(1);
 
-	at24c08I2cStop();
-}
+//	at24c08I2cStop();
+//}

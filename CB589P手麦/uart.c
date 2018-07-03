@@ -16,11 +16,11 @@ extern tHmSetting  mHmSetting;               //手咪上面需要设置的数据
 extern tSysParam	  mSysParam;                //
 extern tFlag  		  mFlag;                    //
 extern tMenu mMenu;
-extern u8 isButtonTone;
+//extern u8 isButtonTone;
 extern Channel channel;
 
-extern u8 channel_old;
-extern u8 ButtonToneTime;
+//extern u8 channel_old;
+//extern u16 ButtonToneTime;
 //u16 p_Memory;
 
 //u16 p_Memory= Channel_Start_Adress;        //1K开始
@@ -29,10 +29,10 @@ tReceivePackage xdata mReceivePackage;
 
 UART1_Param Param_Uart1;
 
-u8 recive[16];
-u8 recivecount=0;
-uchar xdata mTxLength = 0;
-xdata u8 StopSpk=1;
+//u8 recive[16];
+
+//uchar xdata mTxLength = 0;
+//xdata u8 StopSpk=1;
 void receiveRssi(void)
 {
 	if(VCC_DET==0)
@@ -41,26 +41,34 @@ void receiveRssi(void)
 	}
   if(mMenu.isTx==1||(mMenu.MenuIndex!=CHANNEL&&mMenu.MenuIndex!=CHANNEL_DOUBLEF&&mMenu.MenuIndex!=CHANNEL_SCAN&&mMenu.MenuIndex!=CHANNEL_DW&&mMenu.MenuIndex!=CHANNEL_VOL&&mMenu.MenuIndex!=CHANNEL_SQ))
 	{
-		LCD_RX(0);
+//		LCD_RX(0);
 		return;
 	}	
-
-	mSysParam.Rssi = mReceivePackage.RecvBuf[3]; 
+  if(mReceivePackage.RecvBuf[3]!=mSysParam.Rssi)
+	{
+		mSysParam.Rssi = mReceivePackage.RecvBuf[3];
+		mSysParam.RssiChange=1;
+	}
 	if((mSysParam.Rssi & 0x40)!=0||( mSqParam.IsAsq==0 && mSqParam.SqLevel==0))  
 	{		
+		if(mFlag.SpkOpen==0)
+		{
+			mSysParam.TXorRXLEDChange=1;
+		}
 		mFlag.SpkOpen=1;
+		
 		xPWMCN &= ~0x10;	
 		//SPK_EN=0;
-		ButtonToneTime=BUTTON_TIME;
-		isButtonTone=0;
-		if(((mMenu.MenuIndex!=CHANNEL_VOL)&&(mMenu.MenuIndex!=CHANNEL_SQ))||((mMenu.MenuIndex==CHANNEL_SQ)&&(mCbParam.Sq==0x00||mCbParam.Sq==0x20)))
-		{
-			 LCD_RX(1);
-		}
+		mParameter.ButtonToneTime=BUTTON_TIME;
+		mParameter.isButtonTone=0;
+//		if(((mMenu.MenuIndex!=CHANNEL_VOL)&&(mMenu.MenuIndex!=CHANNEL_SQ))||((mMenu.MenuIndex==CHANNEL_SQ)&&(mCbParam.Sq==0x00||mCbParam.Sq==0x20)))
+//		{
+//			 LCD_RX(1);
+//		}
 		if(mHmSetting.SpkerSwitch==1&&(mSysParam.isMute==0))
 		{
-			StopSpk=0;
-			if(mCbParam.VolLevel>0)
+//			StopSpk=0;
+			if((mCbParam.VolLevel>0)&&(mSysParam.isMute==0))
 			{
 				SPK_EN = 1;
 			}	
@@ -101,14 +109,18 @@ void receiveRssi(void)
 		{
 			mSqParam.DWHould=1;
 		}
-		StopSpk=1;		
-		if(isButtonTone==0)
+//		StopSpk=1;		
+		if(mParameter.isButtonTone==0)
 		{			
 			SPK_EN=0;	
 			xPWMCN &= ~0x10;	
 		}			
 		LED_RX = OFF;
-		LCD_RX(0);
+//		LCD_RX(0);
+		if(mFlag.SpkOpen==1)
+		{
+			mSysParam.TXorRXLEDChange=1;
+		}
 		mFlag.SpkOpen = 0;
 	}
 }
@@ -216,11 +228,11 @@ void	Uart0(void)	interrupt	4
 	}
 	
 }
-void UART1SendByte(u8 dat)
-{
-  SBUF1=dat;
-  while(((SCON1&0x01)&&VCC_DET)==0);
-}
+//void UART1SendByte(u8 dat)
+//{
+//  SBUF1=dat;
+//  while(((SCON1&0x01)&&VCC_DET)==0);
+//}
 
 void uart0SendByte(unsigned char dat)
 {
@@ -228,20 +240,20 @@ void uart0SendByte(unsigned char dat)
  	while((TI == 0) && VCC_DET);
 	TI = 0;
 }
-void uart0SendString(unsigned char *p)
-{
-	ES = 0;
-	while(*p != '\0')
-	{
-		uart0SendByte(*p);
-		p++;
-	}
-	ES = 1;
-}
+//void uart0SendString(unsigned char *p)
+//{
+//	ES = 0;
+//	while(*p != '\0')
+//	{
+//		uart0SendByte(*p);
+//		p++;
+//	}
+//	ES = 1;
+//}
 void uart0SendData(unsigned char *p)
 {
 	ES = 0;
-	while(mTxLength--)
+	while(mParameter.mTxLength--)
 	{
 		uart0SendByte(*p);
 		p++;
@@ -260,21 +272,21 @@ void sendCommand(uchar cmd)
 		case CMD_TRANSMIT:
 		{
 			mCbParam.UartTxBuf[2] = 0;
-			mTxLength = 3;
+			mParameter.mTxLength = 3;
 		}
 		break;
 
 		case CMD_RECEIVE:
 		{
 			mCbParam.UartTxBuf[2] = 0;		
-			mTxLength = 3;
+			mParameter.mTxLength = 3;
 		}
 		break;
 		
 		case CMD_REQUEST_RSSI:
 		{
 			mCbParam.UartTxBuf[2] = 0;
-			mTxLength = 3;
+			mParameter.mTxLength = 3;
 		}
 
 		case CMD_SET_CHANNEL:
@@ -290,7 +302,7 @@ void sendCommand(uchar cmd)
 				mCbParam.UartTxBuf[7] ^=  mCbParam.UartTxBuf[i];
 			}
 			mCbParam.UartTxBuf[7] &= 0x7f;
-			mTxLength = 8;
+			mParameter.mTxLength = 8;
 		}   
 		break;
 
@@ -299,7 +311,7 @@ void sendCommand(uchar cmd)
 			mCbParam.UartTxBuf[2] = 2;
 			mCbParam.UartTxBuf[3] = mCbParam.Sq;
 			mCbParam.UartTxBuf[4] = mCbParam.Sq;
-			mTxLength = 5;
+			mParameter.mTxLength = 5;
 		}
 		break;
 
@@ -308,7 +320,7 @@ void sendCommand(uchar cmd)
 			mCbParam.UartTxBuf[2] = 2;
 			mCbParam.UartTxBuf[3] = mCbParam.RfgLevel;
 			mCbParam.UartTxBuf[4] = mCbParam.RfgLevel;
-			mTxLength = 5;
+			mParameter.mTxLength = 5;
 		}
 		break;
 
@@ -317,7 +329,7 @@ void sendCommand(uchar cmd)
 			mCbParam.UartTxBuf[2] = 2;
 			mCbParam.UartTxBuf[3] = mCbParam.VolLevel;
 			mCbParam.UartTxBuf[4] = mCbParam.VolLevel;
-			mTxLength = 5;
+			mParameter.mTxLength = 5;
 		}
 		break;
 
@@ -326,7 +338,7 @@ void sendCommand(uchar cmd)
 			mCbParam.UartTxBuf[2] = 2;
 			mCbParam.UartTxBuf[3] = mCbParam.TxPower;
 			mCbParam.UartTxBuf[4] = mCbParam.TxPower;
-			mTxLength = 5;
+			mParameter.mTxLength = 5;
 		}
 		break;
 
@@ -341,7 +353,7 @@ void sendCommand(uchar cmd)
 				mCbParam.UartTxBuf[5] ^=  mCbParam.UartTxBuf[i];
 			}
 			mCbParam.UartTxBuf[5] &= 0x7f;
-			mTxLength = 6;
+			mParameter.mTxLength = 6;
 		}
 		break;
 		case CMD_MUTE:
@@ -354,7 +366,7 @@ void sendCommand(uchar cmd)
 				mCbParam.UartTxBuf[5] ^=  mCbParam.UartTxBuf[i];
 			}
 			mCbParam.UartTxBuf[5] &= 0x7f;
-			mTxLength = 6;
+			mParameter.mTxLength = 6;
 			break;
 
 		case CMD_SET_BAND:
@@ -362,7 +374,7 @@ void sendCommand(uchar cmd)
 			mCbParam.UartTxBuf[2] = 2;
 			mCbParam.UartTxBuf[3] = mCbParam.Band;
 			mCbParam.UartTxBuf[4] = mCbParam.Band;
-			mTxLength = 5;
+			mParameter.mTxLength = 5;
 		}
 		break;
 		case CMD_SET_DTMF:
@@ -382,7 +394,7 @@ void sendCommand(uchar cmd)
 				
 			}
 			mCbParam.UartTxBuf[10] &= 0x7f;
-			mTxLength = 11;
+			mParameter.mTxLength = 11;
 			break;
 		
 		case CMD_SET_ALL:
@@ -413,14 +425,14 @@ void sendCommand(uchar cmd)
 				mCbParam.UartTxBuf[19] ^=  mCbParam.UartTxBuf[i];
 			}
 			mCbParam.UartTxBuf[19] &= 0x7f;
-			mTxLength = 20;
+			mParameter.mTxLength = 20;
 		}
 		break;
 
 		case CMD_COUNTRY_OP:
 		{
 			mCbParam.UartTxBuf[2] = 0;
-			mTxLength = 3;
+			mParameter.mTxLength = 3;
 		}
 		break;
 
@@ -429,14 +441,14 @@ void sendCommand(uchar cmd)
 			mCbParam.UartTxBuf[2] = 2;
 			mCbParam.UartTxBuf[3] = mCbParam.FreqCal;
 			mCbParam.UartTxBuf[4] = mCbParam.FreqCal;
-			mTxLength = 5;
+			mParameter.mTxLength = 5;
 		}
 		break;
 
 		case CMD_IDLE:
 		{
 			mCbParam.UartTxBuf[2] = 0;
-			mTxLength = 3;
+			mParameter.mTxLength = 3;
 		}
 		break;
 
@@ -445,7 +457,7 @@ void sendCommand(uchar cmd)
 			mCbParam.UartTxBuf[2] = 2;
 			mCbParam.UartTxBuf[3] = mSysParam.DebugSqLevel;
 			mCbParam.UartTxBuf[4] = mSysParam.DebugSqLevel;
-			mTxLength = 5;
+			mParameter.mTxLength = 5;
 		}  
 		break;
     case CMD_SQ_SET:
@@ -467,15 +479,15 @@ void sendCommand(uchar cmd)
 				mCbParam.UartTxBuf[5] ^=  mCbParam.UartTxBuf[i];
 			}
 			mCbParam.UartTxBuf[5] &= 0x7f;
-			mTxLength = 6;
+			mParameter.mTxLength = 6;
 			break;
 			case CMD_REQUEST_SQ_SET:
 			mCbParam.UartTxBuf[2] = 0;
-			mTxLength = 3;
+			mParameter.mTxLength = 3;
 			break;
 		default:
 		{
-			mTxLength = 0;
+			mParameter.mTxLength = 0;
 		}
 		break;
 
@@ -508,14 +520,14 @@ u8 isSendCmdOK(u8 cmd)
 
 
 
-void ClearUARTData(void)
-{
-    //TIM2_CR1 &= 0xfe;  //关闭定时器 
-    Param_Uart1.countRX = 0;
-    Param_Uart1.count50ms = 0;
-    Param_Uart1.count1s = 0;    //时间计数器清零   
-   
-}
+//void ClearUARTData(void)
+//{
+//    //TIM2_CR1 &= 0xfe;  //关闭定时器 
+//    Param_Uart1.countRX = 0;
+//    Param_Uart1.count50ms = 0;
+//    Param_Uart1.count1s = 0;    //时间计数器清零   
+//   
+//}
 
 /*
 void	Uart1(void)	interrupt	18

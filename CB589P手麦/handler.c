@@ -2,7 +2,7 @@
 #include "TM1722.h"
 #include "handler.h"
 #include "KB4815.h"
-extern unsigned long   	mMessage;
+//extern unsigned long   	mMessage;
 extern tFlag  	      	mFlag;
 extern tHmSetting     	mHmSetting;
 
@@ -34,57 +34,57 @@ void clearFlag(void)
 	mFlag.SpkOpen = 0;
 	mFlag.ChangeTxPower = 0;
 	mFlag.BandChanged = 0;
-	mMessage = 0;
+//	mMessage = 0;
 }
-/*-------------------------------------------------------------------------
-*函数：showLcdLed  显示背景颜色
-*参数：无   
-*返回值：无
-*-------------------------------------------------------------------------*/
-void showLcdLed(void)
-{
-	P0 &= 0x1f;
-	P0 |= mHmSetting.LcdColor<<5;
-}
-/*-------------------------------------------------------------------------
-*函数：showButtonLed  显示按键灯
-*参数：无   
-*返回值：无
-*-------------------------------------------------------------------------*/
-void showButtonLed(void)
-{
-	LCD_LED = mHmSetting.ButtonLedSwitch;
-}
+///*-------------------------------------------------------------------------
+//*函数：showLcdLed  显示背景颜色
+//*参数：无   
+//*返回值：无
+//*-------------------------------------------------------------------------*/
+//void showLcdLed(void)
+//{
+//	P0 &= 0x1f;
+//	P0 |= mHmSetting.LcdColor<<5;
+//}
+///*-------------------------------------------------------------------------
+//*函数：showButtonLed  显示按键灯
+//*参数：无   
+//*返回值：无
+//*-------------------------------------------------------------------------*/
+//void showButtonLed(void)
+//{
+//	LCD_LED = mHmSetting.ButtonLedSwitch;
+//}
 
 
 
-/*-------------------------------------------------------------------------
-*函数：isModuConstant  AM/FM调制
-*参数：无   
-*返回值：无
-*-------------------------------------------------------------------------*/
-uchar isModuConstant(void) //调制是固定的，不能变
-{
-	if(mCbParam.CountryTable == 2)
-	{
-		mCbParam.Modu = AM;
-		return 1;
-	}
-	else if(mCbParam.Country == COUNTRY_CE || mCbParam.Country == COUNTRY_UK)
-	{
-		mCbParam.Modu = FM;
-		return 1;
-	}
-	else if(mCbParam.Country == COUNTRY_DE)
-	{
-		if(mCbParam.Channel > 40) 
-		{
-			mCbParam.Modu = FM;
-			return 1;
-		}
-	}
-	return 0;
-}
+///*-------------------------------------------------------------------------
+//*函数：isModuConstant  AM/FM调制
+//*参数：无   
+//*返回值：无
+//*-------------------------------------------------------------------------*/
+//uchar isModuConstant(void) //调制是固定的，不能变
+//{
+//	if(mCbParam.CountryTable == 2)
+//	{
+//		mCbParam.Modu = AM;
+//		return 1;
+//	}
+//	else if(mCbParam.Country == COUNTRY_CE || mCbParam.Country == COUNTRY_UK)
+//	{
+//		mCbParam.Modu = FM;
+//		return 1;
+//	}
+//	else if(mCbParam.Country == COUNTRY_DE)
+//	{
+//		if(mCbParam.Channel > 40) 
+//		{
+//			mCbParam.Modu = FM;
+//			return 1;
+//		}
+//	}
+//	return 0;
+//}
 
 /*-------------------------------------------------------------------------
 *函数：setDefaultParam  默认设置
@@ -125,7 +125,7 @@ void setDefaultParam(void)
 	
 	mSysParam.LastChannel = mCbParam.Channel;
 	mSysParam.HitPower=0;
-	
+	mSysParam.isMute=0;	
   
 	
 	
@@ -208,7 +208,7 @@ else if (mCbParam.CountryTable==0) mCbParam.CountryTable = 1;
 	if((mDtmfRecive.dtmfCode&0xf0)==0) mDtmfRecive.dtmfCode|=0x1f;
   if(mSysParam.HitPower>0) mSysParam.HitPower=1;
 	mCbParam.UartTxBuf[0] = 0xFE;
-	mSysParam.isMute=0;
+
 	mCbParam.FreqCal =20;
 	mSysParam.isLastChannel=0;
 	mSysParam.Rssi=0;
