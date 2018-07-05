@@ -161,15 +161,15 @@ void UART0_Init()
   
 	 
 }
-//void UART1_Init()
-//{
-//	xIOMUX2 |= 0x01;        //P24/P23复用做UART1端口
-//  SCON1 |= 0x50;         //工作模式1,8位异步，波特率可调 使能接收
-// 
-//  xBRCON1  = 0XE8;//0x68;         //波特率计算公式为1/16（2smod=1），波特率发生器开启，高精度波特率控制使能   
-//  xBRTIM1  = 0x98;
-//  EIE2 |=0X10;                    //使能ES1中断
-//}
+void UART1_Init()
+{
+	xIOMUX2 |= 0x01;        //P24/P23复用做UART1端口
+  SCON1 |= 0x50;         //工作模式1,8位异步，波特率可调 使能接收
+ 
+  xBRCON1  = 0XE8;//0x68;         //波特率计算公式为1/16（2smod=1），波特率发生器开启，高精度波特率控制使能   
+  xBRTIM1  = 0x98;
+  EIE2 |=0X10;                    //使能ES1中断
+}
 void INT1_Init(void)
 {
     EA = 0;

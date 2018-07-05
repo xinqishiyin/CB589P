@@ -132,6 +132,11 @@ void saveDtmf()
 	saveData(EEP_FRE+2,(u8)((fre&0x0000ff00)>>8));
 	saveData(EEP_FRE+3,(u8)(fre&0x000000ff));
 }
+void loadToBK4815(void)
+{
+	
+}
+
 
 
 /*-------------------------------------------------------------------------

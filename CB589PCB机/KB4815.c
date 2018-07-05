@@ -381,26 +381,26 @@ u16 BK4815RssiAndSnr(void)
   ??:?
 	??:?
 *----------------------------------------------------------------*/
-//void BK_Enable_TX_InbandSignal()
-//{
-//	u16 val = 0;
-//	val = BK_Read_Reg(40);
-//	val |= 0x8000;
-//	
-//	BK_Write_Reg(40, val);
-//}
+void BK_Enable_TX_InbandSignal()
+{
+	u16 val = 0;
+	val = BK_Read_Reg(40);
+	val |= 0x8000;
+	
+	BK_Write_Reg(40, val);
+}
 /*----------------------------------------------------------------
   ??:BK_Disable_TX_InbandSignal ??TX???? 
   ??:
 	??:?
 *----------------------------------------------------------------*/
-//void BK_Disable_TX_InbandSignal()
-//{
-//	u16 val = 0;
-//	val = BK_Read_Reg(40);
-//	val &= 0x7FFF;	
-//	BK_Write_Reg(40, val);
-//}
+void BK_Disable_TX_InbandSignal()
+{
+	u16 val = 0;
+	val = BK_Read_Reg(40);
+	val &= 0x7FFF;	
+	BK_Write_Reg(40, val);
+}
 /*----------------------------------------------------------------
   ??:BK_RX2TX ?????
   ??:
@@ -424,11 +424,11 @@ void BK_RX2TX()
   ??:
 	??:?
 *----------------------------------------------------------------*/
-//void BK_TX2RX()
-//{
-//  BK_Write_Reg(112,0xa000);
-//  BK_Write_Reg(12, 0x0603);
-//}
+void BK_TX2RX()
+{
+  BK_Write_Reg(112,0xa000);
+  BK_Write_Reg(12, 0x0603);
+}
 
 //void BK_DTMF_INTERUPT_CLEAR()
 //{

@@ -175,9 +175,12 @@ void CHANNEL_UP_FUC()									//信道加
 		mSysParam.isLastChannel=0;		
 		mSysParam.LastChannel=mCbParam.Channel;
 		mSysParam.LastBand=mCbParam.Band;
-		saveData(EEP_CHANNEL,mCbParam.Channel);	
-		saveData(EEP_BAND,mCbParam.Band);	
-		saveData(EEP_MODU,mCbParam.Modu);		
+		if(mSqParam.Scan==1)
+		{
+			saveData(EEP_CHANNEL,mCbParam.Channel);	
+			saveData(EEP_BAND,mCbParam.Band);	
+			saveData(EEP_MODU,mCbParam.Modu);		
+		}
 		ShowChannel();		
 	}
 	else
@@ -324,9 +327,12 @@ CheckTxPower();
 		mSysParam.LastBand=mCbParam.Band;
 		mSysParam.isLastChannel=0;
 		   mMenu.emgIndex=0;
+			if(mSqParam.Scan==1)
+		{
 				saveData(EEP_CHANNEL,mCbParam.Channel);	
 		saveData(EEP_BAND,mCbParam.Band);	
 		saveData(EEP_MODU,mCbParam.Modu);	
+		}
 				ShowChannel();
 			
 	}		
@@ -1350,7 +1356,8 @@ void CHANNEL_DOUBLEMUTE_FUC()
 	if(mSysParam.isMute==0)		mSysParam.isMute=1;
 	else mSysParam.isMute=0;
 		
-	
+	isSendCmdOK(CMD_MUTE);
+	delayms(20);
 	if(isSendCmdOK(CMD_MUTE))
 	{
 		saveData(EEP_MUTE,mSysParam.isMute);
@@ -1370,7 +1377,7 @@ void CHANNEL_DOUBLEMUTE_FUC()
 				SPK_EN=0;
 			}
 		}
-		
+		ShowChannel();
 	}
 	else
 	{
@@ -1403,6 +1410,7 @@ void CHANNEL_LONGPOWER_FUC()
 	BK4815Sleep();
 	IDLE
 	LCD_CLEAR();
+  TM1722_SHOW();
 	LCD_BATT(0);
 	LIGHT_B=0;
 	LIGHT_G=0;
@@ -1410,8 +1418,7 @@ void CHANNEL_LONGPOWER_FUC()
 	LCD_LED=0;
 	LED_TX=0;
 	LED_RX=0;
-	SPK_EN=0;
-	
+	SPK_EN=0;	
 	saveAllParam();
 	POW_OUT=0;
 	
@@ -1829,53 +1836,53 @@ void CHANNEL_SQ_SET_F_FUC()
 	ShowSQReSet();
 }
 
-///*-------------------------------------------------------------------------
-//*函数：CHANNEL_FRECAL_FUC  频偏调节
-//*参数：无  
-//*返回值：无
-//*-------------------------------------------------------------------------*/
-//void CHANNEL_FRECAL_FUC()
-//{
-//	ShowFreCalSet();
-//}
-///*-------------------------------------------------------------------------
-//*函数：CHANNEL_FRECAL_UP_FUC  频偏调节
-//*参数：无  
-//*返回值：无
-//*-------------------------------------------------------------------------*/
-//void CHANNEL_FRECAL_UP_FUC()
-//{
-//	u8 oldfrecal=mCbParam.FreqCal;
-//	if(mCbParam.FreqCal<209)
-//	{
-//		mCbParam.FreqCal++;
-//	}
-//	if(!isSendCmdOK(CMD_SET_FREQ_CAL))
-//	{
-//		mCbParam.FreqCal=oldfrecal;
-//	}
-//	delayms(70);
-//}
-///*-------------------------------------------------------------------------
-//*函数：CHANNEL_FRECAL_DN_FUC  频偏调节
-//*参数：无  
-//*返回值：无
-//*-------------------------------------------------------------------------*/
-//void CHANNEL_FRECAL_DN_FUC()
-//{
-//	u8 oldfrecal=mCbParam.FreqCal;
-//	if(mCbParam.FreqCal>11)		
-//	{
-//		mCbParam.FreqCal--;
-//	}
-//	if(!isSendCmdOK(CMD_SET_FREQ_CAL))
-//	{
-//		mCbParam.FreqCal=oldfrecal;
-//	}
-//	delayms(70);
-//	
+/*-------------------------------------------------------------------------
+*函数：CHANNEL_FRECAL_FUC  频偏调节
+*参数：无  
+*返回值：无
+*-------------------------------------------------------------------------*/
+void CHANNEL_FRECAL_FUC()
+{
+	ShowFreCalSet();
+}
+/*-------------------------------------------------------------------------
+*函数：CHANNEL_FRECAL_UP_FUC  频偏调节
+*参数：无  
+*返回值：无
+*-------------------------------------------------------------------------*/
+void CHANNEL_FRECAL_UP_FUC()
+{
+	u8 oldfrecal=mCbParam.FreqCal;
+	if(mCbParam.FreqCal<209)
+	{
+		mCbParam.FreqCal++;
+	}
+	if(!isSendCmdOK(CMD_SET_FREQ_CAL))
+	{
+		mCbParam.FreqCal=oldfrecal;
+	}
+	delayms(70);
+}
+/*-------------------------------------------------------------------------
+*函数：CHANNEL_FRECAL_DN_FUC  频偏调节
+*参数：无  
+*返回值：无
+*-------------------------------------------------------------------------*/
+void CHANNEL_FRECAL_DN_FUC()
+{
+	u8 oldfrecal=mCbParam.FreqCal;
+	if(mCbParam.FreqCal>11)		
+	{
+		mCbParam.FreqCal--;
+	}
+	if(!isSendCmdOK(CMD_SET_FREQ_CAL))
+	{
+		mCbParam.FreqCal=oldfrecal;
+	}
+	delayms(70);
+	
 
-//}
+}
 
 /*-------------------------------------------------------------------------
 *函数：FACTORY_SETTING_FUC  出厂设置

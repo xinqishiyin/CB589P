@@ -112,33 +112,29 @@ void TM1722_Write_Byte(u8 dat)
 //写入数据
 void TM1722_Write_Word(u8 adress,u8 dat)
 {
-   delayus(2);
    LCD_EN=1;
-	 delayus(2);
    TM1722_Write_Byte(0x40);
    LCD_EN=1;
    TM1722_Write_Byte(0xc0+adress); //写入地址   
    TM1722_Write_Byte(dat);   //写入数据 
-   delayus(2);  
    LCD_EN=1;
-	 delayus(2);
 }
-//void TM1722_Write_String(u8 addr,u8 count)
-//{
-//	u8 i;
-//	LCD_DAT=1;
-//	LCD_CLK=1;
-//	LCD_EN=1;
-//	TM1722_Write_Byte(0x40);
-//	LCD_EN=1;
-//	TM1722_Write_Byte(0xc0+addr);
-//	for(i=0;i<count;i++)
-//	{	   
-//	   TM1722_Write_Byte(0xff);	   
-//	}
-//	LCD_EN=1;
-//  //LCD_DAT=0;
-//}
+void TM1722_Write_String(u8 addr,u8 count)
+{
+	u8 i;
+	LCD_DAT=1;
+	LCD_CLK=1;
+	LCD_EN=1;
+	TM1722_Write_Byte(0x40);
+	LCD_EN=1;
+	TM1722_Write_Byte(0xc0+addr);
+	for(i=0;i<count;i++)
+	{	   
+	   TM1722_Write_Byte(0xff);	   
+	}
+	LCD_EN=1;
+  //LCD_DAT=0;
+}
 
 /*****************************************
 函数：TM1722_Init() LCD初使化
@@ -192,9 +188,7 @@ void LCD_NUM1(u8 i)
 {
 	SEGDATA[0]=SEGDATA[0]&0x80;	
 	SEGDATA[0]=SEGDATA[0]|NUM1_ADD1[i];
-  TM1722_Write_Word(0x02,SEGDATA[0]);
-
-	
+  //TM1722_Write_Word(0x02,SEGDATA[0]);	
 }
 
 /*****************************************
@@ -206,7 +200,7 @@ void LCD_NUM2(u8 i)
 {
 	SEGDATA[1]=SEGDATA[1]&0x80;
 	SEGDATA[1]=SEGDATA[1]|NUM2_ADD2[i];	
-	TM1722_Write_Word(0x03,SEGDATA[1]);
+	//TM1722_Write_Word(0x03,SEGDATA[1]);
 
 }
 
@@ -219,7 +213,7 @@ void LCD_NUM3(u8 i)
 {
 	SEGDATA[2]=SEGDATA[2]&0x80;
 	SEGDATA[2]=SEGDATA[2]|NUM3_ADD3[i];	
-	TM1722_Write_Word(0x06,SEGDATA[2]);
+	//TM1722_Write_Word(0x06,SEGDATA[2]);
 
 }
 
@@ -235,10 +229,10 @@ void LCD_NUM4(u8 i)
 	
 	SEGDATA[4]=SEGDATA[4]&0x08;
 	SEGDATA[4]=SEGDATA[4]|NUM4_ADD5[i];	
-	TM1722_Write_Word(0x07,SEGDATA[3]);
+	//TM1722_Write_Word(0x07,SEGDATA[3]);
 
 
-	TM1722_Write_Word(0x0a,SEGDATA[4]);
+	//TM1722_Write_Word(0x0a,SEGDATA[4]);
 
 }
 
@@ -255,10 +249,10 @@ void LCD_NUM5(u8 i)
 	
 	SEGDATA[6]=SEGDATA[6]&0x88;
 	SEGDATA[6]=SEGDATA[6]|NUM5_ADD7[i];
-	TM1722_Write_Word(0x0b,SEGDATA[5]);
+	//TM1722_Write_Word(0x0b,SEGDATA[5]);
 
     
-	TM1722_Write_Word(0x0e,SEGDATA[6]);
+	//TM1722_Write_Word(0x0e,SEGDATA[6]);
 
 }
 
@@ -296,7 +290,7 @@ void LCD_TX(u8 i)
 void LCD_EMG(u8 i)
 {
 	SEGDATA[5]= i==1?(SEGDATA[5]|EMG_ADD6):(SEGDATA[5]&~EMG_ADD6);
-	TM1722_Write_Word(0x0b,SEGDATA[5]);
+	//TM1722_Write_Word(0x0b,SEGDATA[5]);
 
 }
 /*****************************************
@@ -307,7 +301,7 @@ void LCD_EMG(u8 i)
 void LCD_SCAN(u8 i)
 {
 	SEGDATA[6]=i==1?(SEGDATA[6]|SC_ADD7):(SEGDATA[6]&~SC_ADD7);
-	TM1722_Write_Word(0x0e,SEGDATA[6]);
+	//TM1722_Write_Word(0x0e,SEGDATA[6]);
 
 }
 
@@ -319,7 +313,7 @@ void LCD_SCAN(u8 i)
 void LCD_LOW(u8 i)
 {
 	SEGDATA[7]=i==1? (SEGDATA[7]|LOW_ADD8):(SEGDATA[7]&~LOW_ADD8);
-  TM1722_Write_Word(0x0f,SEGDATA[7]);
+  //TM1722_Write_Word(0x0f,SEGDATA[7]);
 
 }
 
@@ -331,7 +325,7 @@ void LCD_LOW(u8 i)
 void LCD_DW(u8 i)
 {
 	SEGDATA[7]=i==1? (SEGDATA[7]|DW_ADD8):(SEGDATA[7]&~DW_ADD8);
-	TM1722_Write_Word(0x0f,SEGDATA[7]);
+	//TM1722_Write_Word(0x0f,SEGDATA[7]);
 
 }
 /*****************************************
@@ -342,7 +336,7 @@ void LCD_DW(u8 i)
 void LCD_BATT(u8 i)
 {
 	SEGDATA[7]=i==1? (SEGDATA[7]|BATT_ADD8):(SEGDATA[7]&~BATT_ADD8);
-	TM1722_Write_Word(0x0f,SEGDATA[7]);
+	//TM1722_Write_Word(0x0f,SEGDATA[7]);
 
 }
 
@@ -354,7 +348,7 @@ void LCD_BATT(u8 i)
 void LCD_FM(u8 i)
 {
 	SEGDATA[2]=i==1?(SEGDATA[2]|FM_ADD3):(SEGDATA[2]&~FM_ADD3);
-  TM1722_Write_Word(0x06,SEGDATA[2]);
+  //TM1722_Write_Word(0x06,SEGDATA[2]);
 }
 
 /*****************************************
@@ -365,28 +359,27 @@ void LCD_FM(u8 i)
 void LCD_AM(u8 i)
 {
 	SEGDATA[3]=i==1?(SEGDATA[3]|AM_ADD4):(SEGDATA[3]&~AM_ADD4);
-	TM1722_Write_Word(0x07,SEGDATA[3]);
+	//TM1722_Write_Word(0x07,SEGDATA[3]);
 
 }
 
-///*****************************************
-//函数：LCD_PS(uchar i) 
-//参数：i  0：不显示 1：显示
-//返回值：无
-//*****************************************/
-//void LCD_PS(u8 i)
-//{
-//	SEGDATA[5]=i==1?(SEGDATA[5]|PS_ADD6):(SEGDATA[5]&~PS_ADD6);
-//	TM1722_Write_Word(0x0b,SEGDATA[5]);
+/*****************************************
+函数：LCD_PS(uchar i) 
+参数：i  0：不显示 1：显示
+返回值：无
+*****************************************/
+void LCD_PS(u8 i)
+{
+	SEGDATA[5]=i==1?(SEGDATA[5]|PS_ADD6):(SEGDATA[5]&~PS_ADD6);
+	//TM1722_Write_Word(0x0b,SEGDATA[5]);
 
-//}
+}
 
 
 void LCD_LOCK(u8 i)
 {
 	SEGDATA[6]=i==1?(SEGDATA[6]|LOCK_ADD7):(SEGDATA[6]&~LOCK_ADD7);
 	TM1722_Write_Word(0x0e,SEGDATA[6]);
-
 }
 
 
@@ -396,8 +389,7 @@ void LCD_LOCK(u8 i)
 void LCD_ASQ(u8 i)
 {
 	SEGDATA[7]=i==1?(SEGDATA[7]|ASQ_ADD8):(SEGDATA[7]&~ASQ_ADD8);
-	TM1722_Write_Word(0x0f,SEGDATA[7]);
-
+	//TM1722_Write_Word(0x0f,SEGDATA[7]);
 }
 
 /*****************************************
@@ -453,9 +445,7 @@ void LCD_STRENGTH(u8 i)
 			break;
 	}
   TM1722_Write_Word(0x02,SEGDATA[0]);
-
 	TM1722_Write_Word(0x0f,SEGDATA[7]);
-
 }
 
 void LCD_CLEAR()
@@ -472,6 +462,39 @@ void LCD_CLEAR()
 			SEGDATA[i]=0x00;
 		}
 	}
+//  TM1722_Write_Word(0x02,SEGDATA[0]);	
+//	TM1722_Write_Word(0x03,SEGDATA[1]);
+//	TM1722_Write_Word(0x06,SEGDATA[2]);
+//	TM1722_Write_Word(0x07,SEGDATA[3]);
+//	TM1722_Write_Word(0x0a,SEGDATA[4]);
+//	TM1722_Write_Word(0x0b,SEGDATA[5]);    
+//	TM1722_Write_Word(0x0e,SEGDATA[6]);
+//	TM1722_Write_Word(0x0f,SEGDATA[7]);
+}
+
+void ShowContry(u8 i)
+{
+	LCD_CLEAR();
+	SEGDATA[3]=country_ecode[i][0];
+	SEGDATA[4]=country_ecode[i][1];
+	SEGDATA[5]=country_ecode[i][2];
+	SEGDATA[6]=country_ecode[i][3];
+//	TM1722_Write_Word(0x07,SEGDATA[3]);
+//	TM1722_Write_Word(0x0a,SEGDATA[4]);
+//	TM1722_Write_Word(0x0b,SEGDATA[5]); 
+//	TM1722_Write_Word(0x0e,SEGDATA[6]);
+	TM1722_SHOW();
+}
+
+
+
+/*****************************************
+函数：TM1722_SHOW() 显示LCD
+参数：无
+返回值：无
+*****************************************/
+void TM1722_SHOW()
+{ 
   TM1722_Write_Word(0x02,SEGDATA[0]);
 	
 	TM1722_Write_Word(0x03,SEGDATA[1]);
@@ -488,54 +511,3 @@ void LCD_CLEAR()
 
 	TM1722_Write_Word(0x0f,SEGDATA[7]);
 }
-
-void ShowContry(u8 i)
-{
-	LCD_CLEAR();
-	SEGDATA[3]=country_ecode[i][0];
-	SEGDATA[4]=country_ecode[i][1];
-	SEGDATA[5]=country_ecode[i][2];
-	SEGDATA[6]=country_ecode[i][3];
-	TM1722_Write_Word(0x07,SEGDATA[3]);
-
-	TM1722_Write_Word(0x0a,SEGDATA[4]);
-
-	TM1722_Write_Word(0x0b,SEGDATA[5]); 
-
-	TM1722_Write_Word(0x0e,SEGDATA[6]);
-
-}
-
-
-
-///*****************************************
-//函数：TM1722_SHOW() 显示LCD
-//参数：无
-//返回值：无
-//*****************************************/
-//void TM1722_SHOW()
-//{ 
-//  TM1722_Write_Word(0x02,SEGDATA[0]);
-//  delayms(2);
-//	
-//	TM1722_Write_Word(0x03,SEGDATA[1]);
-//	 delayms(2);
-
-//	TM1722_Write_Word(0x06,SEGDATA[2]);
-//	delayms(2);
-
-//	TM1722_Write_Word(0x07,SEGDATA[3]);
-//	delayms(2);
-
-//	TM1722_Write_Word(0x0a,SEGDATA[4]);
-//	delayms(2);
-
-//	TM1722_Write_Word(0x0b,SEGDATA[5]);
-//	delayms(2);	
-//    
-//	TM1722_Write_Word(0x0e,SEGDATA[6]);
-//	delayms(2);
-
-//	TM1722_Write_Word(0x0f,SEGDATA[7]);
-//	delayms(2);	
-//}

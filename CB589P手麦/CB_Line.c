@@ -260,6 +260,7 @@ void evenHandler()
 				
 				if(mParameter.isConnect==0)
 				{					
+					IE |=0X10;        //开串口中断	
 					SPK_EN=0;
 					BK4815Sleep();					
 					mParameter.isBK4815_Set=0;
@@ -277,7 +278,8 @@ void evenHandler()
 					isSendCmdOK(CMD_SET_ALL);	
 					delayms(50);
 					isSendCmdOK(CMD_SET_ALL);		
-					mParameter.isConnect=1;					
+					mParameter.isConnect=1;		
+          
 				}
 				if(mParameter.isSendDtmf==1)
 				{
@@ -342,6 +344,7 @@ void evenHandler()
 				mParameter.isConnect=0;
 				if(mParameter.isBK4815_Set==0)
 				{					
+					IE &=~0X10;        //关串口中断	
 					LED_TX=0;
 					LED_RX=0;
 					SPK_EN=0;
@@ -361,7 +364,7 @@ void evenHandler()
 					//BK_Reset();		
 					EnterBK4815RX();
 					mParameter.isBK4815_Set=1;
-								
+					
 				}
 //				if(mRecive==MRECIVE_BK4815_INTERUPT)
 //				{
@@ -372,7 +375,6 @@ void evenHandler()
 				PPT_PRESS();         //3.7us				
 				PWR_MUTE_PRESS();
 				wriless_button();
-				CheckBatt();
 				break;
 			}			
 			default: break;

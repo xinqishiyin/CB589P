@@ -204,7 +204,7 @@ void Check_DW()
 			}							
 		}			
 	}
-	mParameter.isScanInrupt=SCAN_SPEED_DELAY;
+	mParameter.isScanInrupt=DW_SPEED_DELAY;
 }
 u8 Check_Key(u8 key)
 {
@@ -686,6 +686,7 @@ void InitKey()
 	mParameter.sendDtmfT=SendDtmfTime;
 	mParameter.isButtonTone=0;
 	mParameter.isScanInrupt=SCAN_SPEED_DELAY;
+	mParameter.isScanInrupt=DW_SPEED_DELAY;
 	mParameter.timePowOn=0;
 	mParameter.isSendDtmf=0;
 	mParameter.isPowerOn=0;
@@ -704,4 +705,5 @@ void InitKey()
 	mParameter.changeDtmf=0;
 	mParameter.Time_Space_POWLow_Show=500;
 	mParameter.key_SQSetIndex=0;
+	mParameter.isBattShow=0;
 }

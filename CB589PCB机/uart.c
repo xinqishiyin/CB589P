@@ -4,28 +4,31 @@
 
 //uchar cTxLength = 0;
 
-
+void delayuus(u8 i)
+{
+    while(--i);
+}
 void uart0SendByte(unsigned char dat)
 {
 	SBUF0 = dat;	
 	while((TI == 0)&&(HM_DET==0));
 	TI = 0;
 }
-///*-------------------------------------------------------------------------
-//*函数：uart0SendString  发送数组
-//*参数：dat    
-//*返回值：无
-//*-------------------------------------------------------------------------*/
-//void uart0SendString(u8 *p)
-//{
-//	ES=0;
-//	while(*p!='\0')
-//	{
-//		uart0SendByte(*p);
-//		p++;
-//	}
-//	ES=1;
-//}
+/*-------------------------------------------------------------------------
+*函数：uart0SendString  发送数组
+*参数：dat    
+*返回值：无
+*-------------------------------------------------------------------------*/
+void uart0SendString(u8 *p)
+{
+	ES=0;
+	while(*p!='\0')
+	{
+		uart0SendByte(*p);
+		p++;
+	}
+	ES=1;
+}
 /*-------------------------------------------------------------------------
 *函数：uart0SendData  发送对应长度数组
 *参数：cTxLength 长度    
@@ -175,9 +178,8 @@ void	Uart0(void)	interrupt	4
 	if(POWER_ON == 0) return;
 	if(TI) return;    //数据发送完毕
 	RI=0;
-	
-
-	
+	mParameter.sengRssiCount=0;
+	mParameter.isSendRSSI=0;
 	dat=SBUF0;
 	if(dat == MAGIC)
 	{

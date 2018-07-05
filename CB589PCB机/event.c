@@ -237,7 +237,10 @@ void setSQ(void)  //SQ 28级
 		mSqParam.SqLevel=mParameter.mOpenSqDbLevel;
 	}
 }
-
+void setSQSet()
+{
+	
+}
 
 /*-------------------------------------------------------------------------
 *函数：setVol  设置音量

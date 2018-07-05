@@ -131,7 +131,10 @@ void saveDtmf()
 	
 
 }
-
+void loadToBK4815(void)
+{
+	
+}
 /*-------------------------------------------------------------------------
 *函数：checkAllParam  验证加载信息
 *参数：无   
@@ -303,7 +306,7 @@ void loadAllParam(void)
 	mParameter.mRssi=0;
 	mParameter.mXn31202Ch1_Tx=0;
 	mParameter.mXn31202Ch1_Rx=0;
-	mParameter.mReferenceFreq=0;
+	mParameter.mReferenceFreq=2500;
 	mParameter.mCurrentFreq=0;
 	mParameter.mAsqVoltage=0;
 	mParameter.mRssiVoltage=0;

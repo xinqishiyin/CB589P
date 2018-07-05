@@ -156,7 +156,8 @@ void analyseCMD(void)
 		case CMD_ACK: 		
 		mSysParam.Ack = CMD_ACK; 	break;
 		case CMD_GET_RSSI:	
-		receiveRssi();				break;
+		receiveRssi();				
+		break;
 		case CMD_REQUEST_SQ_SET:
 			GetSQSet();
 			break;
@@ -169,7 +170,8 @@ void	Uart0(void)	interrupt	4
 {
    unsigned char dat = 0;
 	unsigned char i = 0; 
-	
+	mParameter.isSendDtmf=0;
+	mParameter.sendDtmfT=SendDtmfTime;
 	if (TI)//TI=1数据发送完毕
 	{
 		return ;
@@ -228,11 +230,11 @@ void	Uart0(void)	interrupt	4
 	}
 	
 }
-//void UART1SendByte(u8 dat)
-//{
-//  SBUF1=dat;
-//  while(((SCON1&0x01)&&VCC_DET)==0);
-//}
+void UART1SendByte(u8 dat)
+{
+  SBUF1=dat;
+  while(((SCON1&0x01)&&VCC_DET)==0);
+}
 
 void uart0SendByte(unsigned char dat)
 {
@@ -240,16 +242,16 @@ void uart0SendByte(unsigned char dat)
  	while((TI == 0) && VCC_DET);
 	TI = 0;
 }
-//void uart0SendString(unsigned char *p)
-//{
-//	ES = 0;
-//	while(*p != '\0')
-//	{
-//		uart0SendByte(*p);
-//		p++;
-//	}
-//	ES = 1;
-//}
+void uart0SendString(unsigned char *p)
+{
+	ES = 0;
+	while(*p != '\0')
+	{
+		uart0SendByte(*p);
+		p++;
+	}
+	ES = 1;
+}
 void uart0SendData(unsigned char *p)
 {
 	ES = 0;
@@ -291,11 +293,13 @@ void sendCommand(uchar cmd)
 
 		case CMD_SET_CHANNEL:
 		{
+//			mSysParam.Ack = CMD_ACK;
+//			mParameter.mTxLength = 8;
 			mCbParam.UartTxBuf[2] = 5;
 			mCbParam.UartTxBuf[3] = mCbParam.Channel;
 			mCbParam.UartTxBuf[4] = mCbParam.Band;
-			mCbParam.UartTxBuf[5] = mCbParam.Modu;									
-			mCbParam.UartTxBuf[6] =mCbParam.TxPower;
+			mCbParam.UartTxBuf[5] = mCbParam.Modu;					
+			mCbParam.UartTxBuf[6] = mCbParam.TxPower;
 			mCbParam.UartTxBuf[7] =0;
 		  for(i=3; i<7; i++)
 			{
@@ -303,7 +307,7 @@ void sendCommand(uchar cmd)
 			}
 			mCbParam.UartTxBuf[7] &= 0x7f;
 			mParameter.mTxLength = 8;
-		}   
+		}
 		break;
 
 		case CMD_SET_SQ_ASQ:
@@ -387,7 +391,7 @@ void sendCommand(uchar cmd)
 			mCbParam.UartTxBuf[7] = (u8)((fre>>14)&0x7f);
 			mCbParam.UartTxBuf[8] = (u8)((fre>>7)&0x7f);
 			mCbParam.UartTxBuf[9] = (u8)(fre&0x7f);
-		  mCbParam.UartTxBuf[10] =0;		 	  
+		  mCbParam.UartTxBuf[10] =0;
 		  for(i=3; i<10; i++)
 			{
 				mCbParam.UartTxBuf[10] ^=  mCbParam.UartTxBuf[i];
@@ -506,10 +510,11 @@ u8 isSendCmdOK(u8 cmd)
 	{
 		mSysParam.Ack = CMD_ERR;
 		sendCommand(cmd);
-		if(cmd == CMD_SET_ALL)delayms(100);
+		//if(cmd == CMD_SET_ALL)delayms(10);
 	//	else if(cmd == CMD_SET_VOL)delayms(5);
-		delayms(50);
-		if(mSysParam.Ack == CMD_ACK) 		return 1;		
+		delayms(10);
+		if(mSysParam.Ack == CMD_ACK) 		
+			return 1;		
 		//else IO_Init();
 	}
 	mSysParam.Ack=CMD_ERR;
@@ -520,14 +525,14 @@ u8 isSendCmdOK(u8 cmd)
 
 
 
-//void ClearUARTData(void)
-//{
-//    //TIM2_CR1 &= 0xfe;  //关闭定时器 
-//    Param_Uart1.countRX = 0;
-//    Param_Uart1.count50ms = 0;
-//    Param_Uart1.count1s = 0;    //时间计数器清零   
-//   
-//}
+void ClearUARTData(void)
+{
+    //TIM2_CR1 &= 0xfe;  //关闭定时器 
+    Param_Uart1.countRX = 0;
+    Param_Uart1.count50ms = 0;
+    Param_Uart1.count1s = 0;    //时间计数器清零   
+   
+}
 
 /*
 void	Uart1(void)	interrupt	18

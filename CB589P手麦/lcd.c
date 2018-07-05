@@ -194,33 +194,34 @@ void ShowChannel()       //通道界面
 		default:
 			break;
 	}
+	TM1722_SHOW();
 	RX_STRENGTH_SHOW();
-
+  
 }
-///*-------------------------------------------------------------------------
-//*函数：ShowFreCalSet  频偏调节显示
-//*参数：无  
-//*返回值：无
-//*-------------------------------------------------------------------------*/
-//void ShowFreCalSet()
-//{
-//	LCD_CLEAR();
-//	LCD_NUM1(NUM1_F);
-//	LCD_NUM2(NUM2_C);
-//	if(mCbParam.FreqCal<110)
-//	{
-//		LCD_NUM3(NUM3_SIGN);
-//		LCD_NUM4((110-mCbParam.FreqCal)/10);
-//		LCD_NUM5((110-mCbParam.FreqCal)%10);
-//	}
-//	else
-//	{
-//		LCD_NUM3(NUM3_OFF);
-//		LCD_NUM4((mCbParam.FreqCal-100)/10);
-//		LCD_NUM5((mCbParam.FreqCal-100)/10);
-//	}
-//		
-//}
+/*-------------------------------------------------------------------------
+*函数：ShowFreCalSet  频偏调节显示
+*参数：无  
+*返回值：无
+*-------------------------------------------------------------------------*/
+void ShowFreCalSet()
+{
+	LCD_CLEAR();
+	LCD_NUM1(NUM1_F);
+	LCD_NUM2(NUM2_C);
+	if(mCbParam.FreqCal<110)
+	{
+		LCD_NUM3(NUM3_SIGN);
+		LCD_NUM4((110-mCbParam.FreqCal)/10);
+		LCD_NUM5((110-mCbParam.FreqCal)%10);
+	}
+	else
+	{
+		LCD_NUM3(NUM3_OFF);
+		LCD_NUM4((mCbParam.FreqCal-100)/10);
+		LCD_NUM5((mCbParam.FreqCal-100)/10);
+	}
+		TM1722_SHOW();
+}
 
 /*-------------------------------------------------------------------------
 *函数：ShowSQReSet  SQ调节显示
@@ -285,6 +286,7 @@ void ShowSQReSet()
 		LCD_NUM2(mSqParam.AsqLevel%10);
 		LCD_ASQ(1);
 	}
+	TM1722_SHOW();
 }
 /*-------------------------------------------------------------------------
 *函数：Twinkle_Control  闪烁控制
@@ -326,7 +328,8 @@ void Twinkle_Control(void)
 						mParameter.LCD_Twinkle_tag=0;
 					}
 					mParameter.LCD_twinkle_Show=SHOW_TWINKLE_TIME;
-				}		
+				}
+        TM1722_SHOW();				
 			}
 //			if(mMenu.isTx==1)
 //			{
@@ -357,6 +360,7 @@ void Twinkle_Control(void)
 					mParameter.LCD_Twinkle_tag=0;
 				}
 				mParameter.LCD_twinkle_Show=SHOW_TWINKLE_TIME;
+				TM1722_SHOW();
 			}		
 			RX_STRENGTH_SHOW();
 			break;
@@ -379,6 +383,7 @@ void Twinkle_Control(void)
 						LCD_NUM2(mSqParam.SqLevel%10);	
 						mParameter.LCD_Twinkle_tag=0;
 					}
+					TM1722_SHOW();
 					mParameter.LCD_twinkle_Show=SHOW_TWINKLE_TIME;
 				}	
 				
@@ -400,6 +405,7 @@ void Twinkle_Control(void)
 						LCD_NUM2(mSqParam.AsqLevel%10);	
 						mParameter.LCD_Twinkle_tag=0;
 					}
+					TM1722_SHOW();
 					mParameter.LCD_twinkle_Show=SHOW_TWINKLE_TIME;
 				}	
 			}			
@@ -419,6 +425,7 @@ void Twinkle_Control(void)
 //			}
 //			break;
 		case CHANNEL_DW:
+				LCD_DW(1);
 			if(mSqParam.DWSet==1)
 			{
 				if(mParameter.LCD_twinkle_Show>0)	mParameter.LCD_twinkle_Show--;		
@@ -476,11 +483,12 @@ void Twinkle_Control(void)
 						
 						mParameter.LCD_Twinkle_tag=0;
 					}
+					TM1722_SHOW();
 					mParameter.LCD_twinkle_Show=SHOW_TWINKLE_TIME;
 				}
 				
 		 }
-			LCD_DW(1);
+		
 		  if(mMenu.isTx==1)
 			{
 				if(mCbParam.TxPower==POWER_HIGH)		LCD_STRENGTH(5);	
@@ -509,11 +517,18 @@ void Twinkle_Control(void)
 					LCD_NUM2(mCbParam.VolLevel%10);					
 					mParameter.LCD_Twinkle_tag=0;
 				}
+				TM1722_SHOW();
 				mParameter.LCD_twinkle_Show=SHOW_TWINKLE_TIME;
 			}		
 		 break;
 	 case CHANNEL_SQ_SET:
-		 
+		 if(mSqParam.IsAsq==0)
+					{
+					}
+					else
+					{						
+						LCD_ASQ(1);
+					}	
 		 switch(mParameter.key_SQSetIndex)
 		 {
 			 case 0:
@@ -541,6 +556,7 @@ void Twinkle_Control(void)
 							}
 							mParameter.LCD_Twinkle_tag=0;
 						}
+						TM1722_SHOW();
 						mParameter.LCD_twinkle_Show=SHOW_TWINKLE_TIME;
 					}	
           if(mSqParam.OpenOrClose==0)
@@ -563,6 +579,7 @@ void Twinkle_Control(void)
 						{
 							LCD_NUM3(NUM3_UP_D);
 						}
+						TM1722_SHOW();
 					}
 					else
 					{
@@ -585,19 +602,24 @@ void Twinkle_Control(void)
 						{
 							LCD_NUM3(NUM3_DN_D);
 						}
+						TM1722_SHOW();
 					}
-					if(mSqParam.IsAsq==0)
-					{
-					}
-					else
-					{						
-						LCD_ASQ(1);
 						
-					
-					}		
 				
 				 break;
 			 case 1:
+				 if(mSqParam.IsAsq==0)
+				{
+					LCD_NUM1(mSqParam.SqLevel/10);
+					LCD_NUM2(mSqParam.SqLevel%10);
+			
+				}
+				else
+				{
+					LCD_NUM1(mSqParam.AsqLevel/10);
+					LCD_NUM2(mSqParam.AsqLevel%10);
+					LCD_ASQ(1);
+				}		
 				 if(mParameter.LCD_twinkle_Show>0)	mParameter.LCD_twinkle_Show--;		
 					else
 					{
@@ -611,6 +633,7 @@ void Twinkle_Control(void)
 							{
 								LCD_NUM3(NUM3_OFF);	
 							}
+			
 							mParameter.LCD_Twinkle_tag=1;
 						}
 						else 
@@ -636,6 +659,7 @@ void Twinkle_Control(void)
 								{
 									LCD_NUM3(NUM3_UP_D);
 								}
+						
 							}
 							else
 							{
@@ -658,24 +682,14 @@ void Twinkle_Control(void)
 									LCD_NUM3(NUM3_DN_D);
 								}
 							}
+			
 							mParameter.LCD_Twinkle_tag=0;
 						}
+							TM1722_SHOW();
 						mParameter.LCD_twinkle_Show=SHOW_TWINKLE_TIME;
 					}	
 			 
-				if(mSqParam.IsAsq==0)
-				{
-					LCD_NUM1(mSqParam.SqLevel/10);
-					LCD_NUM2(mSqParam.SqLevel%10);
-			
-				}
-				else
-				{
-					LCD_NUM1(mSqParam.AsqLevel/10);
-					LCD_NUM2(mSqParam.AsqLevel%10);
-					LCD_ASQ(1);
-				}				 
-			 
+
 				 break;
 			 case 2:
 				 if(mParameter.LCD_twinkle_Show>0)	mParameter.LCD_twinkle_Show--;		
@@ -749,6 +763,7 @@ void Twinkle_Control(void)
 							}
 							mParameter.LCD_Twinkle_tag=0;
 						}
+						TM1722_SHOW();
 						mParameter.LCD_twinkle_Show=SHOW_TWINKLE_TIME;
 					}		
 						
@@ -788,6 +803,7 @@ void ShowVol()          //音量设置界面
 	LCD_CLEAR();
 	LCD_NUM1(mCbParam.VolLevel/10);
 	LCD_NUM2(mCbParam.VolLevel%10);	
+	TM1722_SHOW();
 }
 /*-------------------------------------------------------------------------
 *函数：ShowRfg  RFGAIN等级设置界面
@@ -800,6 +816,7 @@ void ShowRfg()
 	LCD_NUM1((mCbParam.RfgLevel*6)/10);
 	LCD_NUM2((mCbParam.RfgLevel*6)%10);	
 	LCD_NUM5(NUM5_R);
+	TM1722_SHOW();
 }
 /*-------------------------------------------------------------------------
 *函数：ShowSpeakSwitch  声音选择切换
@@ -822,6 +839,7 @@ void ShowSpeakSwitch()
 		LCD_NUM4(NUM4_F);
 		LCD_NUM5(NUM5_F);
 	}
+	TM1722_SHOW();
 }
 
 /*-------------------------------------------------------------------------
@@ -836,6 +854,7 @@ void ShowSq()                //SQ设置界面
 	LCD_NUM2(mSqParam.SqLevel%10);
 	LCD_NUM4(NUM4_S);
 	LCD_NUM5(NUM5_Q);
+	TM1722_SHOW();
 }
 /*-------------------------------------------------------------------------
 *函数：ShowAsq  ASQ等级设置界面
@@ -849,6 +868,7 @@ void ShowAsq()              //ASQ设置界面
 	LCD_NUM2(mSqParam.AsqLevel%10);
 	LCD_NUM4(NUM4_A);
 	LCD_NUM5(NUM5_Q);
+	TM1722_SHOW();
 }
 /*-------------------------------------------------------------------------
 *函数：ShowBP 按键灯
@@ -872,6 +892,7 @@ void ShowBP()
 		LCD_NUM4(NUM4_F);
 		LCD_NUM5(NUM5_F);
 	}
+	TM1722_SHOW();
 }
 /*-------------------------------------------------------------------------
 *函数：ShowFB  按键音切换
@@ -895,6 +916,7 @@ void ShowFB()
 		LCD_NUM4(NUM4_F);
 		LCD_NUM5(NUM5_F);
 	}
+	TM1722_SHOW();
 }
 /*-------------------------------------------------------------------------
 *函数：ShowFB  按键音切换
@@ -971,6 +993,7 @@ void ShowFC()
 		default:
 			break;
 	}
+	TM1722_SHOW();
 }
 /*-------------------------------------------------------------------------
 *函数：ShowTable  显示国家表
@@ -983,26 +1006,28 @@ void ShowTable()
 	LCD_NUM3(mCbParam.CountryTable);
   LCD_NUM4(NUM4_T);
 	LCD_NUM5(NUM5_B);
+	TM1722_SHOW();
 }
-///*-------------------------------------------------------------------------
-//*函数：ShowTable  显示国家表
-//*参数：无  
-//*返回值：无
-//*-------------------------------------------------------------------------*/
-//void ShowSQSet()
-//{
-//	LCD_CLEAR();
-//	if(mSqParam.IsAsq==0)
-//	{
-//		LCD_NUM1(mSqParam.SqLevel/10);
-//		LCD_NUM2(mSqParam.SqLevel%10);
-//	}
-//	else
-//	{
-//		LCD_NUM1(mSqParam.AsqLevel/10);
-//	  LCD_NUM2(mSqParam.AsqLevel%10);
-//	}
-//}
+/*-------------------------------------------------------------------------
+*函数：ShowTable  显示国家表
+*参数：无  
+*返回值：无
+*-------------------------------------------------------------------------*/
+void ShowSQSet()
+{
+	LCD_CLEAR();
+	if(mSqParam.IsAsq==0)
+	{
+		LCD_NUM1(mSqParam.SqLevel/10);
+		LCD_NUM2(mSqParam.SqLevel%10);
+	}
+	else
+	{
+		LCD_NUM1(mSqParam.AsqLevel/10);
+	  LCD_NUM2(mSqParam.AsqLevel%10);
+	}
+	TM1722_SHOW();
+}
 
 /*-------------------------------------------------------------------------
 *函数：ShowFactorySeting  重启显示
@@ -1036,7 +1061,11 @@ void playButtonTone(void)
 		}
 	//}
 }
+void ShowHitPower()
+{
 
+	
+}
 
 /*-------------------------------------------------------------------------
 *函数：initLCD  LCD开机显示全屏和国家初使化
@@ -1065,6 +1094,7 @@ void setContry()
 	ShowContry(mCbParam.Country);
 	delayms(POWER_ON_SHOW_CONTRY);
 	CheckHitPower();
+	
 }
 
 
@@ -1072,6 +1102,7 @@ void lcdShowError(void)
 {	
 	LCD_NUM1(NUM1_E);
 	LCD_NUM2(1);
+	TM1722_SHOW();
 }
 
 
@@ -1097,5 +1128,6 @@ void CheckHitPower()
     saveData(EEP_HIT_POWER,mSysParam.HitPower);
 	 
 	}	
+	TM1722_SHOW();
 	//ShowChannel();
 }

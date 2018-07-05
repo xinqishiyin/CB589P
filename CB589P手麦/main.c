@@ -107,10 +107,8 @@ void CheckHitPowerPress()
 
 void main()
 {	
-	u8 adf=0xfff;
 		SystemInit();
 	  EA=0;
-	 
     mParameter.isPowerOn=0;	
 		initMemory();	
 	  CheckHitPowerPress();
@@ -130,13 +128,15 @@ void main()
 			evenHandler();
 			if(mFlag.SysMode == SYS_MODE_LINE)
 			{				
-				if(VCC_BATT==0)
+				if(VCC_BATT==0&&mParameter.isBattShow==0)
 				{
+					mParameter.isBattShow=1;
 					//LED_TX=ON;
 					LCD_BATT(1);
 				}
-				else
+				else if(VCC_BATT==1&&mParameter.isBattShow==1)
 				{
+					mParameter.isBattShow=0;
 					//LED_TX=OFF;
 					LCD_BATT(0);
 				}

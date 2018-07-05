@@ -574,11 +574,11 @@ void MenuOperate(unsigned char key)
 					playButtonTone();					
 					CHANNEL_MENU_BACK_FUC();
 					break;
-//				case KEY_EMG:
-//					playButtonTone();				
-//				  mMenu.MenuIndex=CHANNEL_FRECAL;
-//				  CHANNEL_FRECAL_FUC();
-//					break;
+				case KEY_EMG:
+					playButtonTone();				
+				  mMenu.MenuIndex=CHANNEL_FRECAL;
+				  CHANNEL_FRECAL_FUC();
+					break;
 				case KEY_F:
 					playButtonTone();	
 					CHANNEL_SQ_SET_F_FUC();

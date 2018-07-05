@@ -15,14 +15,14 @@ void initHandler(void)
 
 	if(VCC_DET)
 	{
-		IE |=0X10;        //开串口中断	
+		
 		mFlag.SysMode = SYS_MODE_LINE;
 	}
 	else 
 	{
 		
 		mFlag.SysMode = SYS_MODE_WIRELESS;	
-		IE &=~0X10;        //关串口中断	
+		
 	}
 }
 
@@ -36,55 +36,55 @@ void clearFlag(void)
 	mFlag.BandChanged = 0;
 //	mMessage = 0;
 }
-///*-------------------------------------------------------------------------
-//*函数：showLcdLed  显示背景颜色
-//*参数：无   
-//*返回值：无
-//*-------------------------------------------------------------------------*/
-//void showLcdLed(void)
-//{
-//	P0 &= 0x1f;
-//	P0 |= mHmSetting.LcdColor<<5;
-//}
-///*-------------------------------------------------------------------------
-//*函数：showButtonLed  显示按键灯
-//*参数：无   
-//*返回值：无
-//*-------------------------------------------------------------------------*/
-//void showButtonLed(void)
-//{
-//	LCD_LED = mHmSetting.ButtonLedSwitch;
-//}
+/*-------------------------------------------------------------------------
+*函数：showLcdLed  显示背景颜色
+*参数：无   
+*返回值：无
+*-------------------------------------------------------------------------*/
+void showLcdLed(void)
+{
+	P0 &= 0x1f;
+	P0 |= mHmSetting.LcdColor<<5;
+}
+/*-------------------------------------------------------------------------
+*函数：showButtonLed  显示按键灯
+*参数：无   
+*返回值：无
+*-------------------------------------------------------------------------*/
+void showButtonLed(void)
+{
+	LCD_LED = mHmSetting.ButtonLedSwitch;
+}
 
 
 
-///*-------------------------------------------------------------------------
-//*函数：isModuConstant  AM/FM调制
-//*参数：无   
-//*返回值：无
-//*-------------------------------------------------------------------------*/
-//uchar isModuConstant(void) //调制是固定的，不能变
-//{
-//	if(mCbParam.CountryTable == 2)
-//	{
-//		mCbParam.Modu = AM;
-//		return 1;
-//	}
-//	else if(mCbParam.Country == COUNTRY_CE || mCbParam.Country == COUNTRY_UK)
-//	{
-//		mCbParam.Modu = FM;
-//		return 1;
-//	}
-//	else if(mCbParam.Country == COUNTRY_DE)
-//	{
-//		if(mCbParam.Channel > 40) 
-//		{
-//			mCbParam.Modu = FM;
-//			return 1;
-//		}
-//	}
-//	return 0;
-//}
+/*-------------------------------------------------------------------------
+*函数：isModuConstant  AM/FM调制
+*参数：无   
+*返回值：无
+*-------------------------------------------------------------------------*/
+uchar isModuConstant(void) //调制是固定的，不能变
+{
+	if(mCbParam.CountryTable == 2)
+	{
+		mCbParam.Modu = AM;
+		return 1;
+	}
+	else if(mCbParam.Country == COUNTRY_CE || mCbParam.Country == COUNTRY_UK)
+	{
+		mCbParam.Modu = FM;
+		return 1;
+	}
+	else if(mCbParam.Country == COUNTRY_DE)
+	{
+		if(mCbParam.Channel > 40) 
+		{
+			mCbParam.Modu = FM;
+			return 1;
+		}
+	}
+	return 0;
+}
 
 /*-------------------------------------------------------------------------
 *函数：setDefaultParam  默认设置

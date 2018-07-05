@@ -88,8 +88,8 @@ sbit ADGO = ADCON^2;
 
 #define BUTTON_TIME                5
 #define SHUT_DOWN_TIME             
-#define SCAN_SPEED_DELAY           4         //扫描/双频守候间隔时间
-
+#define SCAN_SPEED_DELAY           6         //扫描/双频守候间隔时间
+#define DW_SPEED_DELAY             7     
 #define KEY_COMBOlIMIT             200         //x组合按件时
 #define KEY_COMBOlIMIT_LONG        2500        //切换表组合按件时
 #define KEY_LONG_MUTE_TIME          50        //
@@ -159,6 +159,7 @@ typedef struct
 	unsigned char forEMGChannel;
 	unsigned char UartTxBuf[MAX_TX_BYTES];
 }tCbParam;										//需要发送到CB机的数据
+
 
 typedef struct
 {
@@ -381,6 +382,7 @@ typedef struct
 	unsigned char sendDtmfT;
 	unsigned char isButtonTone;
 	unsigned char isScanInrupt;
+	unsigned char isDWInrupt;
 	unsigned char ButtonToneTime;
 	unsigned char timePowOn;
 	unsigned char isSendDtmf;
@@ -399,6 +401,7 @@ typedef struct
 	unsigned char changeDtmf;
 	unsigned int Time_Space_POWLow_Show;
 	unsigned char 	key_SQSetIndex;
+	unsigned char isBattShow;
 }tParameter;
 
 
