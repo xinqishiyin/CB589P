@@ -23,7 +23,9 @@ void main()
 	CLS_TX_EN;
 	Set_Mute();
 	setEmission(0);
-	//delayms(1000);
+	delayms(1000);
+	POWER_ON_EN = 1;
+	
 	while(1)
 	{
 		initHandler();

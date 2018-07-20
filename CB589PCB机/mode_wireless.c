@@ -328,23 +328,17 @@ void sysModeWireless(void)
 	delayms(200);
 	while((HM_DET==1)&&(POWER_ON==0))
 	{			
-//		if(mDtmfRecive.DtmfSussece==1)
-//		{
-			wirelessCheckRec();	
-		//}
-		if(mFlag.SpkOpen4815 == 0)
+
+			if(mParameter.isCheckRssi==1)
 		{
-			checkCBRadioRec();
+			wirelessCheckRec();	
+			mParameter.isCheckRssi=0;
+				if(mFlag.SpkOpen4815 == 0)
+				{
+					checkCBRadioRec();
+				}
 		}
-//		if(mRecive==MRECIVE_BK4815_INTERUPT)
-//		{
-//			BK_DTMF_RECIVE();
-//			mRecive=MRECIVE_NONE;
-//		}
-//		else
-//		{
-//			//BK_DTMF_INTERUPT_CLEAR();	
-//		}
+
 	}
   delayms(150);
 	BK4815Sleep();

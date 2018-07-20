@@ -94,25 +94,14 @@ void SetBK4815Pragram()
 	mParameter.isBK4815_Set=0;
 	channel.band=narrow;
 	channel.isVOXOpen=0;
-	mSq.open=0x34;
-	mSq.close=0x30;
+	mSq.open=0x45;
+	mSq.close=0x40;
 	mDtmfRecive.DtmfErrer=0;
 }
 
 u16 Get4815Rssi()
-{
-	u8 i;
-	u16 rssi;
-	u16 snr_rssi;	
-	rssi = 0;
-	for(i=0; i<SNR_RSSI_CHECK_TIME; i++)
-	{
-		snr_rssi = BK4815RssiAndSnr();		
-		rssi += snr_rssi & 0x00ff;																																																																				
-		delayus(50);
-	}	
-	rssi /= SNR_RSSI_CHECK_TIME;   
-  return rssi;
+{	
+  return BK4815RssiAndSnr()& 0x00ff;
 }
 /*-------------------------------------------------------------------------
 *函数：wirelessCheckRec  4815接收强度
@@ -140,8 +129,8 @@ void wirelessCheckRec(void)
 				}					
 				mFlag.SpkOpen = 1;
 				LCD_RX(1);
-				EnterBK4815RX();
-				//BK_TX2RX();
+				//EnterBK4815RX();
+				BK_TX2RX();
 				mDtmfRecive.DtmfSussece=0;
 				//delayms(50);
 			//}
@@ -157,7 +146,7 @@ void wirelessCheckRec(void)
 //			if((rssi <= mSq.close))
 //		{
 			LCD_RX(0);
-			
+			BK_RX_Audio_Close();
 			if(mParameter.isButtonTone==0||mHmSetting.SpkerSwitch==0)
 			{
 				SPK_EN=0;
@@ -180,22 +169,23 @@ void CheckBatt()
 	u16 val;
 	
   val=Get_BATT_AD();
-	if(val<0x02d7)    //关机
+	if(mParameter.isButtonTone == 1 ) return;
+	if(val<0x0330)    //关机
 	{
-		BK4815Sleep();
-		IDLE
-		LIGHT_B=0;
-		LIGHT_G=0;
-		LIGHT_R=0;
-		LCD_LED=0;
-		LCD_LED=0;
-		SPK_EN=0;
-		saveAllParam();
-		POW_OUT=0;
-	}
-	else if(val<0x02ec)
-	{ 
-		
+		mHmSetting.isPowLow=1;
+		if(mHmSetting.PowLowShutTime > 10000)
+		{
+			BK4815Sleep();
+			IDLE
+			LIGHT_B=0;
+			LIGHT_G=0;
+			LIGHT_R=0;
+			LCD_LED=0;
+			LCD_LED=0;
+			SPK_EN=0;
+			saveAllParam();
+			POW_OUT=0;
+		}
 		if(mParameter.Time_Space_POWLow_Show>0)		
 		{
 			mParameter.Time_Space_POWLow_Show--;	
@@ -205,18 +195,42 @@ void CheckBatt()
 		{
 		
 			 LED_TX=1;
-				xPWMCN |= 0x10;
+			xPWMCN |= 0x10;			
 			SPK_EN=1;
 			mParameter.isButtonTone=1;
 			mParameter.ButtonToneTime=BUTTON_TIME;
-			 delayms(100);			
+			delayms(100);			
 			LED_TX=0;
-			  mParameter.Time_Space_POWLow_Show=500;
+			  mParameter.Time_Space_POWLow_Show=40000;
+		}
+	}
+	else if(val<0x034c)
+	{ 
+		mHmSetting.isPowLow=0;
+		mHmSetting.PowLowShutTime = 0;
+		if(mParameter.Time_Space_POWLow_Show>0)		
+		{
+			mParameter.Time_Space_POWLow_Show--;	
+		
+		}			
+		else
+		{
+		
+			 LED_TX=1;
+			xPWMCN |= 0x10;			
+			SPK_EN=1;
+			mParameter.isButtonTone=1;
+			mParameter.ButtonToneTime=BUTTON_TIME;
+			delayms(100);			
+			LED_TX=0;
+			  mParameter.Time_Space_POWLow_Show=40000;
 		}
 	}
 	else
 	{
-		mParameter.Time_Space_POWLow_Show=500;
+		mParameter.Time_Space_POWLow_Show=40000;
+		mHmSetting.isPowLow=0;
+		mHmSetting.PowLowShutTime = 0;
 	}
 
 
@@ -291,7 +305,7 @@ void evenHandler()
 							if(mMenu.isBussy==0)
 							{
 								if(mParameter.changeDtmf<5) 
-								{
+								{									
 									isSendCmdOK(CMD_SET_DTMF);						
 								}
 								else
@@ -371,10 +385,16 @@ void evenHandler()
 //					BK_DTMF_RECIVE();
 //					mRecive=MRECIVE_NONE;
 //				}			
-				wirelessCheckRec();   //0.6ms				
+				if(mParameter.isCheckRssi==1)
+				{
+					wirelessCheckRec();   //0.6ms	
+					mParameter.isCheckRssi=0;
+          mParameter.CheckRssi=0;					
+				}					
 				PPT_PRESS();         //3.7us				
 				PWR_MUTE_PRESS();
 				wriless_button();
+				CheckBatt();
 				break;
 			}			
 			default: break;

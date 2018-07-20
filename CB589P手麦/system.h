@@ -20,7 +20,7 @@ sbit ADGO = ADCON^2;
 #define Key2     2
 
 
-#define SendDtmfTime    100
+#define SendDtmfTime    10
 
 /***************************************
 *	             值映射                *
@@ -80,13 +80,13 @@ sbit ADGO = ADCON^2;
 #define MENU_UP_DOWN_SPEED         100         //菜单连续加减延时
 #define BACK_TIME                  2000          //返回主界面时间
 
-#define SHOW_TWINKLE_TIME          80           //闪烁时间间隔
+#define SHOW_TWINKLE_TIME          120           //闪烁时间间隔
 
 #define BUTTON_LED_TIME            2000          //按键灯时长
 
 #define HOULD_TIME                 20        //扫描及守候接收间隔时长
 
-#define BUTTON_TIME                5
+#define BUTTON_TIME                4
 #define SHUT_DOWN_TIME             
 #define SCAN_SPEED_DELAY           6         //扫描/双频守候间隔时间
 #define DW_SPEED_DELAY             7     
@@ -187,7 +187,8 @@ typedef struct
 	unsigned char ButtonToneSwitch;	//按键提示音开关
 	unsigned char SpkerSwitch;
 	unsigned char isCheckHitPower;
-
+  unsigned char isPowLow;
+	unsigned int PowLowShutTime;
 }tHmSetting;											//手咪上面需要设置的数据
 
 typedef struct
@@ -402,6 +403,8 @@ typedef struct
 	unsigned int Time_Space_POWLow_Show;
 	unsigned char 	key_SQSetIndex;
 	unsigned char isBattShow;
+	unsigned char isCheckRssi;
+	unsigned char CheckRssi;
 }tParameter;
 
 

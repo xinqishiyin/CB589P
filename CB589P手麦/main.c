@@ -1,4 +1,4 @@
-#include "SC51F2832.H"
+ #include "SC51F2832.H"
 #include "system.h"
 #include "CB_Line.h"
 #include "memory.h"
@@ -24,6 +24,12 @@ void irq_timer1(void) interrupt 1
 	{		
 		 mParameter.isSendDtmf=1;
 	   mParameter.sendDtmfT=SendDtmfTime;
+	}
+	mParameter.CheckRssi++;
+	if(mParameter.CheckRssi>2)
+	{
+	 mParameter.isCheckRssi=1;
+		mParameter.CheckRssi=0;
 	}
 	if(mParameter.isButtonTone==1)
 	{
@@ -52,6 +58,10 @@ void irq_timer1(void) interrupt 1
 		{
 			mKey.Pow_Press_Time--;
 		}
+	}
+	if(mHmSetting.isPowLow==1)
+	{
+		mHmSetting.PowLowShutTime++;
 	}
 		TR0 = 0;
 		TH0 = (65535 - 3125) / 256;	
@@ -111,9 +121,10 @@ void main()
 	  EA=0;
     mParameter.isPowerOn=0;	
 		initMemory();	
-	  CheckHitPowerPress();
+	  
 	  InitKey();
-		waitPowerOn();		
+		waitPowerOn();
+    	CheckHitPowerPress();
 	  LoadLCDBeep();		
 	  initLCD();		
 		SetBK4815Pragram();	  

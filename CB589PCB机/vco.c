@@ -125,7 +125,8 @@ void calculateFreq(void)
 				}				
 			}				
 			else if(mCbParam.Channel==23) mParameter.mCurrentFreq=27255;
-			else if(mCbParam.Channel==24) mParameter.mCurrentFreq=27245;
+			else if(mCbParam.Channel==24) mParameter.mCurrentFreq=27245;			
+			else if(mCbParam.Channel==25) mParameter.mCurrentFreq=27265;
 			else if(mCbParam.Channel<=34) mParameter.mCurrentFreq=26865+ (mCbParam.Channel-25)*10;
 			else if(mCbParam.Channel==35) mParameter.mCurrentFreq=26855;
 			else if(mCbParam.Channel==36) mParameter.mCurrentFreq=26865;

@@ -248,6 +248,7 @@ void IS_KEY1_PRESS(void)
 	switch(vae)	
 	{
 		case 0x0F:
+			mParameter.inDex1=SCAN;
 			MenuOperate(KEY_SCAN);		  
 			break;
 		case 0x06:
@@ -292,7 +293,7 @@ void IS_KEY1_PRESS(void)
 			}
 			break;
 		default:
-			if((mKey.ShortPressLimit1>0) && (mKey.ShortPressLimit1<15))	
+			if((mKey.ShortPressLimit1>0) && (mKey.ShortPressLimit1<=15))	
 			{
 				switch(mParameter.inDex1)              //¶Ì°´
 				{
@@ -352,6 +353,7 @@ void IS_KEY1_PRESS(void)
 						break;
 				}			
 			}
+			mParameter.inDex1=0;
 			mKey.ShortPressLimit1=15;
 			mKey.KeyIndex1=0;
 			mKey.LongSq_Time=20;
@@ -461,7 +463,7 @@ void IS_KEY2_PRESS(void)
 
 			break;		
 		default:
-			if(( mKey.ShortPressLimit2>0) && ( mKey.ShortPressLimit2<15))	
+			if(( mKey.ShortPressLimit2>0) && ( mKey.ShortPressLimit2<=15))	
 			{
 				switch(mParameter.inDex2)              //¶Ì°´
 				{					
@@ -572,12 +574,13 @@ void PWR_MUTE_PRESS(void)
 	{
 		if(mParameter.inDexMute==1)
 		{
-		mKey.Pow_Press=0;
+			mKey.Pow_Press=0;
 			if(mFlag.SysMode == SYS_MODE_LINE)
 			{
-				playButtonTone();
+				
 				if(mKey.Press_Count==0)
 				{
+					playButtonTone();
 					mKey.Press_Count=1;
 					mKey.MuteDoublePress_Timelimit=200;
 				}
@@ -586,6 +589,7 @@ void PWR_MUTE_PRESS(void)
 					MenuOperate(KEY_DOUBLE_MUTE);
 					mKey.Press_Count=0;
 					mKey.MuteDoublePress_Timelimit=0;
+					playButtonTone();
 				}	
 				mParameter.inDexMute=0;
 			}
@@ -706,4 +710,10 @@ void InitKey()
 	mParameter.Time_Space_POWLow_Show=500;
 	mParameter.key_SQSetIndex=0;
 	mParameter.isBattShow=0;
+  mParameter.CheckRssi=0;
+	 mParameter.isCheckRssi=0;
+	 
+	mHmSetting.isPowLow=0;
+	mHmSetting.PowLowShutTime = 0;
+	
 }

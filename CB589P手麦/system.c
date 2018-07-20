@@ -227,7 +227,7 @@ u8 Get_AD(u8 AD_IO)
 	}
 	for(i=0;i<10;i++)   
   {
-    for(j=0;j<10-i;j++)
+    for(j=0;j<9-i;j++)
     {
       if(val[j]>val[j+1])
       { 
@@ -258,30 +258,12 @@ u8 Get_AD(u8 AD_IO)
 *-------------------------------------------------------------------------*/
 u16 Get_BATT_AD()
 {
-	u16 i,j,reval;
-	u32 temp;
-	u16 val[5];
+	u16 reval;
 	xP3AEN=0x01;  //P3.0模拟通道开启
 	ADCON=0x08;	
 	delayus(10);
-	for(i=0;i<5;i++)
-	{
-		ADGO=1;
-		while(ADGO==1);
-		val[i]=((ADRH<<8)|ADRL);
-	}
-	for(i=0;i<5;i++)
-  {
-    for(j=0;j<5-i;j++)
-    {
-      if(val[j]>val[j+1])
-      {
-        temp = val[j];
-        val[j] = val[j+1];
-        val[j+1] = temp;
-      }
-    }
-  }
-	reval=val[2];
+	ADGO=1;
+	while(ADGO==1);
+	reval=((ADRH<<8)|ADRL);
 	return reval;
 }

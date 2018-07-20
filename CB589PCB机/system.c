@@ -78,7 +78,7 @@ void IO_Init()
 	P1=0x20;
 	P13=0;
 	P14=0;
-	POWER_ON_EN = 1;
+	
 	P2MDL=0xA0;                 //P2.2  推挽输出
 	P2MDH=0x82;                  //P2.4 输出  P2.7 输出
 	P22=1;

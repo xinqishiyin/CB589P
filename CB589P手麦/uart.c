@@ -170,8 +170,7 @@ void	Uart0(void)	interrupt	4
 {
    unsigned char dat = 0;
 	unsigned char i = 0; 
-	mParameter.isSendDtmf=0;
-	mParameter.sendDtmfT=SendDtmfTime;
+		mMenu.isBussy=1;
 	if (TI)//TI=1数据发送完毕
 	{
 		return ;
@@ -228,7 +227,7 @@ void	Uart0(void)	interrupt	4
 		}
 		break;
 	}
-	
+	mMenu.isBussy=0;
 }
 void UART1SendByte(u8 dat)
 {

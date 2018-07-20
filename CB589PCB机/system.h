@@ -117,6 +117,8 @@ typedef struct
 	unsigned char isSendRSSI;
 	unsigned char sengRssiCount;
 	unsigned char is4815Sleep;
+		unsigned char isCheckRssi;
+	unsigned char CheckRssi;
 }tParameter;
 /*-------------------------------------------------------------------------
  *      ¿íÕ­´ø

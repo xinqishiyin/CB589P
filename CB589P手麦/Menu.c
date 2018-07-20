@@ -85,9 +85,9 @@ void MenuOperate(unsigned char key)
 					if(mKey.key_CombleFUPAFRFGSCAN==2){mKey.key_CombleFUPAFRFGSCAN=3;mSysParam.KeyComboTableLimit=KEY_COMBOlIMIT_LONG;}		
 						
 					break;
-				case KEY_LONG_AF:
-					
+				case KEY_LONG_AF:					
 					CHANNEL_LONG_AF_FUC();
+				  StopTwinkle();
 				  while(Get_AD(Key1)==0x03);
 					break;
 				case KEY_RFG:
@@ -116,12 +116,13 @@ void MenuOperate(unsigned char key)
 						{						
 							mHmSetting.SpkerSwitch=1;
 						}
+						playButtonTone();
 						ShowSpeakSwitch();
 						saveData(EEP_SPK_SW,mHmSetting.SpkerSwitch);
 						delayms(500);					
 						ShowChannel();
 						mKey.key_CombleFDN=0;
-						playButtonTone();
+						
 					}
 					else	
 					{
@@ -199,7 +200,8 @@ void MenuOperate(unsigned char key)
 				  delayms(100);
 						playButtonTone();
 					break;
-				case KEY_SCAN:		
+				case KEY_SCAN:	
+            StopTwinkle();					
 					  if(mMenu.emgIndex==0)
 						{
 							if((mCbParam.Sq==0)||(mCbParam.Sq==0x20)) return;		
@@ -207,7 +209,7 @@ void MenuOperate(unsigned char key)
 							mMenu.MenuIndex=CHANNEL_SCAN;
 							mMenu.BackMenuIndex=CHANNEL;				    
 							CHANNEL_SCAN_FUC();					    
-							StopTwinkle();
+							
 							while(Get_AD(Key1)==0x0f);
 						}
 					break;
@@ -283,8 +285,7 @@ void MenuOperate(unsigned char key)
 				case KEY_DOUBLE_MUTE:	          
 					CHANNEL_DOUBLEMUTE_FUC();
 					break;
-				case KEY_LONG_POWER:
-					playButtonTone();
+				case KEY_LONG_POWER:					
 					CHANNEL_LONGPOWER_FUC();
 					break;
 				case KEY_DW:			
@@ -419,8 +420,7 @@ void MenuOperate(unsigned char key)
 					break;
 				case KEY_DOUBLE_MUTE:		
 					if(mSqParam.DWSet==2)
-					{						
-						playButtonTone();
+					{	
 						CHANNEL_DOUBLEMUTE_FUC();
 					}
 					break;
@@ -483,7 +483,8 @@ void MenuOperate(unsigned char key)
 					mMenu.MenuIndex=CHANNEL;
 					CHANNEL_MENU_BACK_FUC();
 					break;
-				case KEY_SCAN:					
+				case KEY_SCAN:				
+          StopTwinkle();					
 					if(mKey.key_CombleFUPAFRFGSCAN==4)
 					{
 						playButtonTone();
@@ -556,6 +557,7 @@ void MenuOperate(unsigned char key)
 					}
 					break;
 				default:
+					StopTwinkle();
 					break;
 			}
 			break;
@@ -671,8 +673,7 @@ void MenuOperate(unsigned char key)
 		        while(Get_AD(Key1)==0x06);				
 					break;
 				
-				case KEY_DOUBLE_MUTE:							
-						playButtonTone();
+				case KEY_DOUBLE_MUTE:
 						CHANNEL_DOUBLEMUTE_FUC();					
 					break;				
 				default:

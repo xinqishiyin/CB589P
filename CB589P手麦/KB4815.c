@@ -178,7 +178,7 @@ void initBK4815(void)
 	BK_Write_Reg(39, 0x0013);//updated
 	BK_Write_Reg(40, 0x8820);//updated
 
-	BK_Write_Reg(41, 0x2050);
+	BK_Write_Reg(41, 0x5050);
 	//BK_Write_Reg(42, 0x0000);//updated
 	BK_Write_Reg(43, 0x403F);//updated
 	BK_Write_Reg(44, 0x8a2e);//updated 4812
@@ -217,7 +217,41 @@ void initBK4815(void)
 	BK_Write_Reg(71, 0x0a18);//updated
 	BK_Write_Reg(72, 0xe002);//updated
 	
-	BK_Write_Reg(73, 0x1a0a);//updated
+	
+	switch(mCbParam.VolLevel)
+	{
+		case 1:
+			BK_Write_Reg(73, 0x1a01);//updated
+			break;
+		case 2:
+			BK_Write_Reg(73, 0x1a04);//updated
+			break;
+		case 3:
+			BK_Write_Reg(73, 0x1a04);//updated
+			break;
+		case 4:
+			BK_Write_Reg(73, 0x1a04);//updated
+			break;
+		case 5:
+			BK_Write_Reg(73, 0x1a05);//updated
+			break;
+		case 6:
+			BK_Write_Reg(73, 0x1a06);//updated
+			break;
+		case 7:
+			BK_Write_Reg(73, 0x1a06);//updated
+			break;
+		case 8:
+			BK_Write_Reg(73, 0x1a08);//updated
+			break;
+		case 9:
+			BK_Write_Reg(73, 0x1a0f);//updated
+			break;
+		default:
+			break;
+	}
+	
+	
 	BK_Write_Reg(74, 0x0000);//updated
 	BK_Write_Reg(75, 0x7a80);
 	BK_Write_Reg(76, 0xE204);
@@ -255,7 +289,39 @@ void initBK4815(void)
 	BK_Write_Reg(105, 0x0000);
 	BK_Write_Reg(106, 0xcc31);//Firmware Version
 	BK_Write_Reg(107, 0x3415);
-	BK_Write_Reg(108, 0x6927);//updated
+	
+		switch(mCbParam.VolLevel)
+	{
+		case 1:
+			BK_Write_Reg(108, 0x5927);//updated
+			break;
+		case 2:
+			BK_Write_Reg(108, 0x4927);//updated
+			break;
+		case 3:
+			BK_Write_Reg(108, 0x4927);//updated
+			break;
+		case 4:
+			BK_Write_Reg(108, 0x4927);//updated
+			break;
+		case 5:
+			BK_Write_Reg(108, 0x4927);//updated
+			break;
+		case 6:
+			BK_Write_Reg(108, 0x4927);//updated
+			break;
+		case 7:
+			BK_Write_Reg(108, 0x5927);//updated
+			break;
+		case 8:
+			BK_Write_Reg(108, 0x6927);//updated
+			break;
+		case 9:
+			BK_Write_Reg(108, 0x7927);//updated
+			break;
+		default:
+			break;
+	}
 	BK_Write_Reg(109, 0x6600);//updated
 	BK_Write_Reg(110, 0x0000);//updated,121203
 
@@ -417,6 +483,17 @@ void BK_TX2RX()
   BK_Write_Reg(12, g_reg0_15_buff[12]);
 	OUT_APC=0;
 }
+void BK_RX_Audio_Close()
+{
+	BK_Write_Reg(112,0x0000);
+  BK_Write_Reg(112,0xa000);
+  //val=BK_Read_Reg(112);
+  //val&=0xdfff;
+  //BK_Write_Reg(112,val);
+  g_reg0_15_buff[12]=0x0a03;//reg7<0>=1, High supply LDO
+  BK_Write_Reg(12, g_reg0_15_buff[12]);
+	OUT_APC=0;
+}
 //void BK_DTMF_INTERUPT_CLEAR()
 //{
 //	u16 val;
@@ -536,7 +613,8 @@ void StartBK4815TX(void)
 //	if(isDtmfSendOK())
 //	{		
 //		
-		BK_Write_Reg(44, 0x0017);//updated 4812
+    BK_Write_Reg(21, 0x0023);
+		BK_Write_Reg(44, 0x0023);//updated 4812
 		BK_Write_Reg(17, 0x5800);//updated 4812
 		val = BK_Read_Reg(40);
 			val &= 0x9FFF;
@@ -596,7 +674,7 @@ void EnterBK4815RX(void)
 	
 	//EX1 = 1; 		                      //使能INT1中断	                      //使能INT1中断		
   BK_Write_Reg(112,0xa000); 
-  BK_Write_Reg(12, 0x0603);
+  BK_Write_Reg(12, 0x0a03);
 }
 
 //void BK_DTMF_RECIVE()

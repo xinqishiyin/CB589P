@@ -1050,7 +1050,7 @@ void playButtonTone(void)
 	//{
 	  if(mFlag.SpkOpen ==1||mSqParam.SqLevel==0)
 		return;
-		if((mHmSetting.ButtonToneSwitch==1)&&(mFlag.SpkOpen==0)&&(mSysParam.isMute==0)&&(mFlag.SysMode == SYS_MODE_LINE)&&(mHmSetting.SpkerSwitch==1)) 
+		if((mHmSetting.ButtonToneSwitch==1)&&(mFlag.SpkOpen==0)&&(mSysParam.isMute==0)&&(mFlag.SysMode == SYS_MODE_LINE))//&&(mHmSetting.SpkerSwitch==1)) 
 		{		
 			//xPWMCN &= ~0x10;	
 			//SPK_EN=0;
@@ -1093,8 +1093,7 @@ void setContry()
 	//else LCD_FM(1);
 	ShowContry(mCbParam.Country);
 	delayms(POWER_ON_SHOW_CONTRY);
-	CheckHitPower();
-	
+	CheckHitPower();	
 }
 
 
@@ -1108,9 +1107,10 @@ void lcdShowError(void)
 
 void CheckHitPower()
 {
-	LCD_CLEAR();
+	
 	if(mHmSetting.isCheckHitPower!=0)
 	{
+		LCD_CLEAR();
 		if(mSysParam.HitPower==0)
 		{
 			mSysParam.HitPower=1;
@@ -1124,10 +1124,11 @@ void CheckHitPower()
 		LCD_NUM2(NUM2_Y);
 		LCD_NUM3(NUM3_P);
 		mHmSetting.isCheckHitPower=0;
+		 TM1722_SHOW();
 		delayms(700);
     saveData(EEP_HIT_POWER,mSysParam.HitPower);
-	 
+	
 	}	
-	TM1722_SHOW();
+	
 	//ShowChannel();
 }

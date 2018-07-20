@@ -1880,8 +1880,6 @@ void CHANNEL_FRECAL_DN_FUC()
 		mCbParam.FreqCal=oldfrecal;
 	}
 	delayms(70);
-	
-
 }
 
 /*-------------------------------------------------------------------------

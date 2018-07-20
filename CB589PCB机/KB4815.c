@@ -195,7 +195,7 @@ void initBK4815(void)
 	BK_Write_Reg(39, 0x0013);//updated
 	BK_Write_Reg(40, 0x8820);//updated
 
-	BK_Write_Reg(41, 0x2050);
+	BK_Write_Reg(41, 0x5050);
 	//BK_Write_Reg(42, 0x0000);//updated
 	BK_Write_Reg(43, 0x403F);//updated
 	BK_Write_Reg(44, 0x8a2e);//updated 4812
@@ -271,7 +271,7 @@ void initBK4815(void)
 	BK_Write_Reg(105, 0x0000);
 	BK_Write_Reg(106, 0xcc31);//Firmware Version
 	BK_Write_Reg(107, 0x3415);
-	BK_Write_Reg(108, 0x6927);//updated
+	BK_Write_Reg(108, 0x0927);//updated
 	BK_Write_Reg(109, 0x4600);//updated
 	BK_Write_Reg(110, 0x0000);//updated,121203
 

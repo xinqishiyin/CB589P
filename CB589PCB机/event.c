@@ -94,6 +94,12 @@ void irq_timer0(void) interrupt 1
 		}
 		mParameter.sengRssiCount=0;
   }
+		mParameter.CheckRssi++;
+	if(mParameter.CheckRssi>2)
+	{
+		mParameter.isCheckRssi=1;
+		mParameter.CheckRssi=0;
+	}
 
 }
 /*-------------------------------------------------------------------------
@@ -275,7 +281,7 @@ void checkRssi(void)
   }
   for(i=0;i<10;i++)   
   {
-    for(j=0;j<10-i;j++)
+    for(j=0;j<9-i;j++)
     {
       if(buf_asq[j]>buf_asq[j+1])
       { 
@@ -742,7 +748,7 @@ void eventHandler(void)
 	{				
 		if(mParameter.is4815Sleep==0)
 		{
-			//BK4815Sleep();
+			BK4815Sleep();
 			mParameter.is4815Sleep=1;
 			setEmission(0);
 		}
