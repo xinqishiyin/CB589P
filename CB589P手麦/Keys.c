@@ -716,4 +716,8 @@ void InitKey()
 	mHmSetting.isPowLow=0;
 	mHmSetting.PowLowShutTime = 0;
 	
+	
+	mRecive.RecvStatus=MRECIVE_NONE;
+	mRecive.Sussece = 0;
+	mRecive.Errer	= 0;	
 }

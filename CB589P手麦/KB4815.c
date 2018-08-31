@@ -25,27 +25,7 @@ xdata u16 ramp_table[]=
 	0xC3BF,0xC7C7,0xCBCE,0xCFD5,0xD3DB,0xD7E1,0xDBE6,0xDFEB,
 	0xE3EF,0xE7F3,0xEBF6,0xEFF9,0xF3FB,0xF7FD,0xFBFE,0xFFFF
 };
-code u16 RecvDtmfLowArr[]= 
-{
-0x3ab, 0x2B8, 0x2B8, 0x2B8, 0x301, 0x301, 0x301, 0x353, 
-0x353, 0x353, 0x2B8, 0x301, 0x353, 0x3AB, 0x3AB, 0x3AB
-};
-code u16 RecvDtmfHighArr[]=
-{
-0x536, 0x4B7, 0x536, 0x5C2, 0x4B7, 0x536, 0x5C2, 0x4B7,
-0x536, 0x5C2, 0x65E, 0x65E, 0x65E, 0x65E, 0x4B7, 0x5C2
-};
-code u16 SendDtmfLowArr[]= 
-{
-0xD0C, 0x9AA, 0x9AA, 0x9AA, 0xAAD, 0xAAD, 0xAAD, 0xBD0,
-0xBD0, 0xBD0, 0x9AA, 0xAAD, 0xBD0, 0xD0C, 0xD0C, 0xD0C
-};
 
-code u16 SendDtmfHighArr[]=
-{
-0x1285,0x10C3,0x1285,0x147A,0x10C3,0x1285,0x147A,0x10C3,
-0x1285,0x147A,0x16A4,0x16A4,0x16A4,0x16A4,0x10C3,0x147A
-};
 
 /*-------------------------------------------------------------------------
 *函数：BK_Read_Reg  寄存器读出
@@ -152,7 +132,7 @@ void initBK4815(void)
 
 	BK_Write_Reg(16, 0x88f9);//0x3684:IF=88K,0x4B80: IF=121.875kHz, 0x05CF: IF=9.375kHz
 	BK_Write_Reg(17, 0x5800);//updated 4812
-	BK_Write_Reg(18, 0x415c);//updated 4812
+	BK_Write_Reg(18, 0x412c);//updated 4812
 	BK_Write_Reg(19, 0x08a0);//updated 4812
 	BK_Write_Reg(20, 0x0000);//updated
 
@@ -268,7 +248,7 @@ void initBK4815(void)
 	BK_Write_Reg(86, 0x0000);
 	BK_Write_Reg(87, 0x0000);
 	BK_Write_Reg(88, 0x0000);
-	BK_Write_Reg(89, 0xff81);//updated
+	BK_Write_Reg(89, 0xf7a0);//updated
 	BK_Write_Reg(90, 0x7D26);//updated
 	
 	BK_Write_Reg(91, 0x0000);//updated
@@ -364,40 +344,35 @@ void initBK4815(void)
 		val|=channel.VOX_Gain_Level;
 		BK_Write_Reg(22,val);
 	}	
-	//BK_DTMF_SET_CODE(mDtmfRecive.dtmfCode[0]);
-
-	
-//EX1 = 1; 		                      //使能INT1中断	                      //使能INT1中断
-	
-//			/*-----------------允许DTMF接收-----------------------*/
-//	val=BK_Read_Reg(66);
-//	val|=(0x0001<<11);
-//	BK_Write_Reg(66,val);	
-
-//	val=BK_Read_Reg(78);
-//	val&=0xf000;
-//	val|=0x010f;
-//	BK_Write_Reg(78,val);
-//	
-//	val=BK_Read_Reg(115);
-//	val|=(0x0001<<10);
-//	BK_Write_Reg(115,val);
-//	
-
-//		for(i = 0; i < 16; i++)
-//	{
-//		BK_Write_Reg(77, ((i) << 12) | 
-//					 ((1  << 11)) |
-//					 RecvDtmfHighArr[i]);
-//		
-//		BK_Write_Reg(77, ((i) << 12) |
-//					 RecvDtmfLowArr[i]);
-//	}
-//	
 
 	EnterBK4815RX();
 }
 
+void bk4815Initerrupt(void)
+{
+	u16 reg_116;
+	u16 reg_92;
+	u8 sub_audio_addr;
+	
+	reg_116 = BK_Read_Reg(116);	
+	reg_92 = BK_Read_Reg(92);	
+	BK_Write_Reg(115,	0x0000);	//set intterupt	
+	BK_Write_Reg(116,	0x8000);
+	sub_audio_addr = (reg_92 & 0x00f0)>>4;
+	if(reg_116 & (0x0001<<8))//CTCSS RECEVICE 
+	{
+		if(sub_audio_addr == 0)	//?????
+		{
+			mRecive.Sussece=1;
+			mRecive.RecvCount = 0;
+			BK_Write_Reg(66,0xd003);
+			BK_Write_Reg(90,	0x0006 | (9 << 10) | (13 << 4));	//??
+			BK_Write_Reg(91,CTCV*65536*8/18466);
+			BK_Write_Reg(66,0xd103);
+		}
+	}
+	BK_Write_Reg(115,	0x8100);	//set intterupt
+}
 /*-------------------------------------------------------------------------
 *函数：BK4815Sleep  4815睡眠模式
 *参数：无
@@ -413,44 +388,7 @@ u16 BK4815RssiAndSnr()
 {
 	return (BK_Read_Reg(68)&0x3f7f);
 }
-/*----------------------------------------------------------------
-  ??:BK_Enable_TX_InbandSignal ??TX???? 
-  ??:?
-	??:?
-*----------------------------------------------------------------*/
-void BK_Enable_TX_InbandSignal()
-{
-	u16 val = 0;
-	val = BK_Read_Reg(40);
-	val |= 0x8000;
-	
-	BK_Write_Reg(40, val);
-}
-/*----------------------------------------------------------------
-  ??:BK_Disable_TX_InbandSignal ??TX???? 
-  ??:
-	??:?
-*----------------------------------------------------------------*/
-void BK_Disable_TX_InbandSignal()
-{
-	u16 val = 0;
-	val = BK_Read_Reg(40);
-	val &= 0x7FFF;	
-	BK_Write_Reg(40, val);
-}
-///*-------------------------------------------------------------------------
-//*函数：BK_DTMF_RX_Read  读DTMF编码
-//*参数：无
-//*返回值：DTMF编码
-//*-------------------------------------------------------------------------*/
-//u8 BK_DTMF_RX_Read()
-//{
-//	u8 dtmf_addr=0;
-//	u16 val=0;
-//	val=BK_Read_Reg(78);
-//	dtmf_addr=(val>>4)&0x0f;
-//	return dtmf_addr;
-//}
+
 /*----------------------------------------------------------------
   ??:BK_RX2TX ?????
   ??:
@@ -474,96 +412,17 @@ void BK_RX2TX()
 *----------------------------------------------------------------*/
 void BK_TX2RX()
 {	
-	BK_Write_Reg(112,0x0000);
-  BK_Write_Reg(112,0xa000);
-  //val=BK_Read_Reg(112);
-  //val&=0xdfff;
-  //BK_Write_Reg(112,val);
   g_reg0_15_buff[12]=0x0603;//reg7<0>=1, High supply LDO
   BK_Write_Reg(12, g_reg0_15_buff[12]);
 	OUT_APC=0;
 }
 void BK_RX_Audio_Close()
 {
-	BK_Write_Reg(112,0x0000);
-  BK_Write_Reg(112,0xa000);
-  //val=BK_Read_Reg(112);
-  //val&=0xdfff;
-  //BK_Write_Reg(112,val);
-  g_reg0_15_buff[12]=0x0a03;//reg7<0>=1, High supply LDO
+	
+  g_reg0_15_buff[12]=0x0a03;
   BK_Write_Reg(12, g_reg0_15_buff[12]);
 	OUT_APC=0;
 }
-//void BK_DTMF_INTERUPT_CLEAR()
-//{
-//	u16 val;
-//	
-//	
-//	val=BK_Read_Reg(116);
-//	val|=0x0400;
-//	BK_Write_Reg(116,val);
-//	val=BK_Read_Reg(78);
-//	val&=0xff0f;
-//	BK_Write_Reg(78,val);
-//}
-/*
-void BK_DTMF_SET_CODE(u8 dat)
-{
-	u16 val;
-	val=BK_Read_Reg(78);
-	val&=0xfff0;
-	val|=dat;
-	BK_Write_Reg(78,val);
-}
-*/
-///*-------------------------------------------------------------------------
-//*??:BK_DTMF_TX  DTMF??
-//*??:  *buf DTMF??   len ???? 
-//*???:?
-//*-------------------------------------------------------------------------*/
-//void BK_DTMF_TX(u8 buf)
-//{	
-//	u16 val;
-
-//	IDLE;
-//	OPEN_TX	
-//	val = BK_Read_Reg(40);
-//	val &= 0x1FFF;
-//	val |= 0x2000;				/* bit14,13 :01 */  //revised 2009.12.09, inband send was enabled in BK_DTMF_TX
-//	BK_Write_Reg(40, val);		/* DTMF */	
-//	BK_RX2TX();
-//	BK_Disable_TX_InbandSignal();
-//	OUT_APC=1;
-//	BK_Write_Reg(24, SendDtmfLowArr[buf]);
-//	BK_Write_Reg(25, SendDtmfHighArr[buf]);
-//	BK_Enable_TX_InbandSignal();		
-//	delayms(70); /* DelayMs 40ms */
-//	BK_Disable_TX_InbandSignal();			
-//	
-//}
-
-//u8 isDtmfSendOK() 
-//{
-//	u8 dat;
-//	while(PPT_KEY==0)
-//	{
-//		mRecive=MRECIVE_NONE;		
-//		OUT_APC=1;
-//		BK_DTMF_INTERUPT_CLEAR();
-//		BK_DTMF_TX((mDtmfRecive.dtmfCode&0xf0)>>4);		
-//		OUT_APC=0;
-//		EnterBK4815RX();		
-//		delayms(70);
-//		dat=BK_DTMF_RX_Read();
-//		
-//		if((dat==(mDtmfRecive.dtmfCode&0x0f))&&(mRecive==MRECIVE_BK4815_INTERUPT)) 		
-//		{
-//			mRecive=MRECIVE_NONE;		
-//			return 1;
-//		}	
-//	}
-//	return 0;
-//}
 
 /*-------------------------------------------------------------------------
 *函数：StartTx  发射
@@ -583,9 +442,11 @@ void StartBK4815TX(void)
 	EN_MIC=0;
 	//SPK_EN=0;
 	OPEN_TX		
+	BK_Write_Reg(112,	0x4000);
+	BK_Write_Reg(112,	0xE000);	//RX to TX
 		/*---------------------------------接收频率---------------------------------*/ 
-		g_reg0_15_buff[4]&=0xffe7;
-		g_reg0_15_buff[4]|=0x0100;freqband=12;if_l=0xd01c;if_h=0xffef;
+
+	g_reg0_15_buff[4]=0x0000;freqband=8;if_l=0x3568;if_h=0xfff5;
 
 	BK_Write_Reg(4,g_reg0_15_buff[4]);
  	
@@ -597,29 +458,21 @@ void StartBK4815TX(void)
 	BK_Write_Reg(126,if_h);
 	BK_Write_Reg(127,if_l);
 
-  delayms(10);
-	
-		val = BK_Read_Reg(40);
-		val &= 0x1FFF;
-		val |= 0x2000;				/* bit14,13 :01 */  //revised 2009.12.09, inband send was enabled in BK_DTMF_TX
-		BK_Write_Reg(40, val);		/* DTMF */
-
+  BK_Write_Reg(12,	0xF823);	//??????
 	
 	
 	
-	BK_Write_Reg(112,0x4000);                //RX TO TX	
-	BK_Write_Reg(112,0xe000);                //RX TO TX	
-	BK_Write_Reg(12, 0xf823);                //TX POWER UP	
-//	if(isDtmfSendOK())
-//	{		
-//		
-    BK_Write_Reg(21, 0x0023);
-		BK_Write_Reg(44, 0x0023);//updated 4812
-		BK_Write_Reg(17, 0x5800);//updated 4812
-		val = BK_Read_Reg(40);
-			val &= 0x9FFF;
-			val |= 0x8000;				/* inband type bit14,13 :00 */
-			BK_Write_Reg(40, val);		/* Speech */
+	BK_Write_Reg(22,	0xB200);	//VOX
+	BK_Write_Reg(43,	0x803F);	//RAMP
+	//BK_Write_Reg(107,	0xb415);	
+	//BK_Write_Reg(18,	0x415C);	//AUDIO GAIN(06:02)(-25-6db/1db)
+	BK_Write_Reg(109,	0xf700);	//PA output control
+	BK_Write_Reg(115,	0x8100);	//set intterupt
+	
+	BK_Write_Reg(116, 0x0000);
+	BK_Write_Reg(37,CTCV*65536*4/18466);
+			BK_Write_Reg(40,0x8280);
+	
 		BK_RX2TX();
 		LCD_TX(1);  	
 		IDLE;
@@ -656,10 +509,11 @@ void EnterBK4815RX(void)
 	EN_MIC=0;
 	OPEN_RX
 
-		/*---------------------------------接收频率---------------------------------*/ 
-		g_reg0_15_buff[4]&=0xffe7;
+	 BK_Write_Reg(12, 0x0a03);
+				/*---------------------------------发射频率---------------------------------*/ 
+
+	g_reg0_15_buff[4]=0x0000;freqband=8;if_l=0x3568;if_h=0xfff5;
 	
-	g_reg0_15_buff[4]|=0x0100;freqband=12;if_l=0xd01c;if_h=0xffef;
 	BK_Write_Reg(4,g_reg0_15_buff[4]);
  	
   val1=(u32)(channel.RX_Freq*freqband*(645277.54));
@@ -670,34 +524,34 @@ void EnterBK4815RX(void)
 	BK_Write_Reg(126,if_h);
 	BK_Write_Reg(127,if_l);
 
-  delayms(10);
+  	BK_Write_Reg(91, 0x2616);  
+	BK_Write_Reg(92, 0x0000); 
 	
-	//EX1 = 1; 		                      //使能INT1中断	                      //使能INT1中断		
-  BK_Write_Reg(112,0xa000); 
-  BK_Write_Reg(12, 0x0a03);
+	val = BK_Read_Reg(92);
+	val &= 0xfff8;
+	BK_Write_Reg(92,val);
+  BK_Write_Reg(90,	0x0006 | (9 << 10) | (13 << 4));	//??
+	BK_Write_Reg(91,CTCV*65536*8/18466);
+	BK_Write_Reg(115,	0x8100);	//set intterupt
+	
+	BK_Write_Reg(116, 0x0000);
+	BK_Write_Reg(66,0xd103);
+
+	
+	EX1 = 1; 		                      //使能INT1中断	                      //使能INT1中断		
+		BK_Write_Reg(109, 0x4600);
+	
+	BK_Write_Reg(112,0x0000);
+  BK_Write_Reg(112,0xa000);
 }
-
-//void BK_DTMF_RECIVE()
-//{
-//	uchar dat=0;
-//	uchar i=0;  
-//	dat=BK_DTMF_RX_Read();
-
-//	if(dat == ((mDtmfRecive.dtmfCode&0xf0)>>4))
-//	{
-
-//		delayms(10);
-//		BK_DTMF_TX(mDtmfRecive.dtmfCode&0x0f);					
-//		mDtmfRecive.DtmfSussece=1;
-//		mDtmfRecive.DtmfRecvCount=0;
-//		EnterBK4815RX();
-//		BK_TX2RX();
-//		delayms(50);					
-//	}  			
-//	else
-//	{
-//		mDtmfRecive.DtmfSussece=0;
-//					
-//	}
-//	BK_DTMF_INTERUPT_CLEAR();
-//}
+void	INT0_Irq(void)	interrupt 2
+{
+ 
+	mRecive.RecvStatus=MRECIVE_BK4815_INTERUPT;
+	
+  
+    EINTCS0 &= 0xfc;	
+                     //建议2次清除中断标志 或者在清0前后各读一次标志位
+    EINTCS0 &= 0xfc;
+    //P01=!P01;
+}

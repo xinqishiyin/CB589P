@@ -82,4 +82,5 @@ void SetBK4815Pragram();
 //void BK_DTMF_INTERUPT_CLEAR();
 void BK_TX2RX();
 void BK_RX_Audio_Close();
+void bk4815Initerrupt(void);
 #endif

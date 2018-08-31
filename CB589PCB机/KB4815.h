@@ -1,8 +1,8 @@
 #define KB4815_H
 #ifdef KB4815_H
 
-#define DB120	0x30
-#define DB118	0x35
+#define DB120	0x1b
+#define DB118	0x20
 
 #define SNR		8
 #define DB_ERR	1 
@@ -90,4 +90,6 @@ void BK_DTMF_RECIVE();
 *∑µªÿ÷µ£∫Œﬁ
 *-------------------------------------------------------------------------*/
 void BK4815Sleep(void);
+void bk4815Initerrupt(void);
+void BK_RX_Audio_Close();
 #endif

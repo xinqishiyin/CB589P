@@ -55,45 +55,41 @@ u16 Get4815Rssi()
 void wirelessCheckRec(void)
 {
 	u16 rssi;
+	u16 count=0;
 	rssi=Get4815Rssi();
+	while(rssi == 0 && count < 10) 
+	{
+		delayms(10);
+		rssi=Get4815Rssi();
+		count++;		
+	}
+	if(count >= 10 )
+	{
+		initBK4815();
+		return;
+	}
 	if(mFlag.SpkOpen4815 == 0)
 	{		
-			if(rssi >= mSq.open)
+			if(rssi >= mSq.open )
 			{
-				delayms(50);
-				rssi=Get4815Rssi();
-				if(rssi >= mSq.open)
+				
+				if(mRecive.Sussece==1)
 				{
 					mFlag.SpkOpen4815 = 1;
 					BK4815RxAudio();
 					setEmission(1);
-					delayms(70);	
-				}				
+				}
+								
 			}
-			else
-			{
-				mDtmfRecive.DtmfSussece=0;
-      }		
 	}
 	else 
 	{
-		rssi=Get4815Rssi();
-		if(rssi <= mSq.close)
+		if(rssi <= mSq.close || (mRecive.Errer	== 1))
 		{
-			delayms(50);
-			rssi=Get4815Rssi();
-			if(rssi <= mSq.close)
-			{
-	//			OUT_EN_SPKER = CLOSE;
-	//			OUT_LED_RX = LIGHT_OFF;
-				//clearRxFlag();
+			mRecive.Errer = 0;
 				mFlag.SpkOpen4815 = 0;
-				mDtmfRecive.DtmfSussece=0;
 				EnterBK4815RX();
-				delayms(100);
-				setEmission(0);
-				delayms(100);
-			}				
+				setEmission(0);				
 		}
 	}
 }
@@ -323,22 +319,28 @@ void checkCBRadioRec(void)
 *-------------------------------------------------------------------------*/
 void sysModeWireless(void)
 {
-	mDtmfRecive.DtmfSussece=0;
 	mFlag.SpkOpen4815=0;
 	delayms(200);
 	while((HM_DET==1)&&(POWER_ON==0))
 	{			
 
-			if(mParameter.isCheckRssi==1)
-		{
-			wirelessCheckRec();	
+		if(mParameter.isCheckRssi==1)
+		{		
+			if(mFlag.SqOpen == 0)
+			{
+				wirelessCheckRec();	
+			}
 			mParameter.isCheckRssi=0;
-				if(mFlag.SpkOpen4815 == 0)
-				{
-					checkCBRadioRec();
-				}
+			if(mFlag.SpkOpen4815 == 0)
+			{
+				checkCBRadioRec();
+			}
 		}
-
+		if(mRecive.RecvStatus==MRECIVE_BK4815_INTERUPT)
+		{
+			bk4815Initerrupt();
+			mRecive.RecvStatus=MRECIVE_NONE;
+		}
 	}
   delayms(150);
 	BK4815Sleep();

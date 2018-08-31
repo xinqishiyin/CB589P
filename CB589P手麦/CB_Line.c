@@ -94,9 +94,8 @@ void SetBK4815Pragram()
 	mParameter.isBK4815_Set=0;
 	channel.band=narrow;
 	channel.isVOXOpen=0;
-	mSq.open=0x45;
-	mSq.close=0x40;
-	mDtmfRecive.DtmfErrer=0;
+	mSq.open=0x25;
+	mSq.close=0x20;
 }
 
 u16 Get4815Rssi()
@@ -119,8 +118,8 @@ void wirelessCheckRec(void)
 		rssi=Get4815Rssi();
 		if((rssi >= mSq.open))
 		{
-//			if(mDtmfRecive.DtmfSussece==1)
-//			{
+			if(mRecive.Sussece==1)
+			{
 				LED_TX=OFF;
 				LED_RX = ON;		
         if((mSysParam.isMute==0))			
@@ -131,20 +130,21 @@ void wirelessCheckRec(void)
 				LCD_RX(1);
 				//EnterBK4815RX();
 				BK_TX2RX();
-				mDtmfRecive.DtmfSussece=0;
 				//delayms(50);
-			//}
+			}
 		}	
 	}
 	else 
 	{
 		rssi=Get4815Rssi();
-		if((rssi <= mSq.close))
+		if((rssi <= mSq.close)||(mRecive.Errer	== 1))
 		{
 //			delayms(100);
 //			rssi=Get4815Rssi();
 //			if((rssi <= mSq.close))
 //		{
+			mRecive.Errer = 0;
+			mRecive.Sussece = 0;
 			LCD_RX(0);
 			BK_RX_Audio_Close();
 			if(mParameter.isButtonTone==0||mHmSetting.SpkerSwitch==0)
@@ -155,7 +155,7 @@ void wirelessCheckRec(void)
 			mFlag.SpkOpen = 0;
 		//}
 		}
-	}
+	}	
 }
 
 
@@ -264,7 +264,6 @@ void close_sq()
 *-------------------------------------------------------------------------*/
 void evenHandler()
 {
-	u16 oldDtmfNum=0;
   float oldFreq=0;
 	
  	switch(mFlag.SysMode)
@@ -312,24 +311,19 @@ void evenHandler()
 								{
 									
 									mParameter.changeDtmf=0;		
-									oldFreq=channel.RX_Freq;
-									oldDtmfNum=mDtmfRecive.dtmfCode;							
-									if(mDtmfRecive.dtmfCode<0xff)
-									{
-										mDtmfRecive.dtmfCode++;
-									}
-									else mDtmfRecive.dtmfCode=0x10;							
+									oldFreq=channel.RX_Freq;							
+														
 								 
-									if(channel.RX_Freq<380)
+									if(channel.RX_Freq<470)
 									{
 										channel.RX_Freq+=0.015;
 									}
-									else channel.RX_Freq=260.015;							
+									else channel.RX_Freq=400.015;							
 									
 									
 									if(!isSendCmdOK(CMD_SET_DTMF))
 									{							
-										mDtmfRecive.dtmfCode=oldDtmfNum;
+										
 										channel.RX_Freq=oldFreq;
 									}		
 									
@@ -380,12 +374,12 @@ void evenHandler()
 					mParameter.isBK4815_Set=1;
 					
 				}
-//				if(mRecive==MRECIVE_BK4815_INTERUPT)
-//				{
-//					BK_DTMF_RECIVE();
-//					mRecive=MRECIVE_NONE;
-//				}			
-				if(mParameter.isCheckRssi==1)
+				if(mRecive.RecvStatus==MRECIVE_BK4815_INTERUPT)
+				{
+					bk4815Initerrupt();
+					mRecive.RecvStatus=MRECIVE_NONE;
+				}			
+				if(mParameter.isCheckRssi==1 && mMenu.isTx==0)
 				{
 					wirelessCheckRec();   //0.6ms	
 					mParameter.isCheckRssi=0;

@@ -9,7 +9,7 @@ tHmSetting  mHmSetting;               //手咪上面需要设置的数据
 tSysParam	  mSysParam;                //
 tFlag  		  mFlag;     
 //uchar     mRecive;
-tDtmfRecive mDtmfRecive;
+tRecive mRecive;
 tSq			mSq;
 
 //uchar     mRecive;
@@ -84,7 +84,7 @@ void IO_Init()
 	xP4MDH=0x08;									//P4.0 输入 P4.1 输入 P4.2 输入  P4.4 输入 P4.5 输出
 	
 	
-	xADCFG=0x10;                  //ADC对齐方式为  低4位ADRL 高2位ADRH 
+	xADCFG=0x12;                  //ADC对齐方式为  低4位ADRL 高2位ADRH 
 }
 
 

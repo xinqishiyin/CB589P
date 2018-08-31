@@ -67,10 +67,7 @@ void checkChannel()
 		case COUNTRY_IN: mSysParam.MaxChannel = 27;mCbParam.Band=0;break;
 		case COUNTRY_PC: mSysParam.MaxChannel = 50;mCbParam.Band=0;break;
 		case COUNTRY_AM: mSysParam.MaxChannel = 10;mCbParam.Band=0;break;
-	}
-	if(mCbParam.Country==COUNTRY_DE&&mCbParam.Modu==AM) 	mSysParam.MaxChannel=40;	
-	else if((mCbParam.Country==COUNTRY_DE&&mCbParam.Modu==FM)) mSysParam.MaxChannel=80;
-	
+	}	
 }
 /*-------------------------------------------------------------------------
 *函数：CHANNEL_FUC  通道模式
@@ -122,49 +119,26 @@ void CHANNEL_UP_FUC()									//信道加
 	
 	if(mCbParam.Channel<mSysParam.MaxChannel)
 	{
-		mCbParam.Channel++;
+		mCbParam.Channel++;		
+		if(mCbParam.Country==COUNTRY_DE&&mCbParam.Modu==AM && mCbParam.Channel ==41)
+		{
+			mCbParam.Modu=FM;
+		  mSysParam.isDEAM=1;
+		}
 	}
 	else		
-	{
-		if(mCbParam.Country==COUNTRY_DE&&mCbParam.Modu==AM)
+	{		
+		if(mCbParam.Country==COUNTRY_RU||mCbParam.Country==COUNTRY_PX)
 		{
-			mSysParam.MaxChannel=80;
-			mCbParam.Channel=41;
-			mCbParam.Modu=FM;
-			/*
-			if(!isSendCmdOK(CMD_SET_MODULATION))
-			{
-				mCbParam.Channel=40;
-				mSysParam.MaxChannel=40;
-				mCbParam.Modu=AM;
-				mCbParam.Channel=oldchannel;	
-				mCbParam.Band=oldband;		
-				return;
-			}
-			*/
-		}
-		else
+			if(mCbParam.Band<9)mCbParam.Band++;
+			else mCbParam.Band=0;
+		}		
+		mCbParam.Channel=mSysParam.MinChannel;
+		if(mSysParam.isDEAM == 1 && mCbParam.Country==COUNTRY_DE)
 		{
-			if(mCbParam.Country==COUNTRY_RU||mCbParam.Country==COUNTRY_PX)
-			{
-				if(mCbParam.Band<9)mCbParam.Band++;
-				else mCbParam.Band=0;
-				/*
-				if(!isSendCmdOK(CMD_SET_BAND))
-				{
-					mCbParam.Channel=oldchannel;	
-					mCbParam.Band=oldband;					
-				}
-				else
-				{
-					mCbParam.Channel=mSysParam.MinChannel;
-				}
-				*/
-			}
-			
-			mCbParam.Channel=mSysParam.MinChannel;
-			
-		}
+			mCbParam.Channel=1;
+			mCbParam.Modu=AM;
+		}		
 	}
 
  CheckTxPower();
@@ -187,11 +161,7 @@ void CHANNEL_UP_FUC()									//信道加
 	{		
 		mCbParam.Channel=oldchannel;	
 		mCbParam.Band=oldband;	
-		if(mCbParam.Modu!=oldmute)
-		{
-			mCbParam.Modu=oldmute;
-			mSysParam.MaxChannel=40;
-		}
+		mCbParam.Modu=oldmute;		
 		lcdShowError();			
 	}	
 }  
@@ -218,39 +188,29 @@ void CHANNEL_LONGUP_FUC()
 	}
 	else 
 	{
-		if(mCbParam.Channel<mSysParam.MaxChannel) mCbParam.Channel++;
-		else 
+		if(mCbParam.Channel<mSysParam.MaxChannel) 
 		{
-			if(mCbParam.Country==COUNTRY_DE&&mCbParam.Modu==AM)
+			mCbParam.Channel++;
+			if(mCbParam.Country==COUNTRY_DE&&mCbParam.Modu==AM && mCbParam.Channel ==41)
 			{
-				mSysParam.MaxChannel=80;
-				mCbParam.Channel=41;
 				mCbParam.Modu=FM;
-				//isSendCmdOK(CMD_SET_MODULATION);
+				mSysParam.isDEAM=1;
 			}
-			else
+		}
+		else 
+		{		
+			if(mCbParam.Country==COUNTRY_RU||mCbParam.Country==COUNTRY_PX)
 			{
-				if(mCbParam.Country==COUNTRY_RU||mCbParam.Country==COUNTRY_PX)
-				{
-					if(mCbParam.Band<9)mCbParam.Band++;
-					else mCbParam.Band=0;
-					mCbParam.Channel=mSysParam.MinChannel;
-					/*
-					if(!isSendCmdOK(CMD_SET_BAND))
-					{
-						mCbParam.Channel=oldchannel;	
-						mCbParam.Band=oldband;					
-					}
-					else
-					{
-						mCbParam.Channel=mSysParam.MinChannel;
-					}
-					*/
-				}
-				
+				if(mCbParam.Band<9)mCbParam.Band++;
+				else mCbParam.Band=0;
 				mCbParam.Channel=mSysParam.MinChannel;
-				
-			}
+			}			
+			mCbParam.Channel=mSysParam.MinChannel;
+			if(mSysParam.isDEAM == 1 && mCbParam.Country==COUNTRY_DE)
+			{
+				mCbParam.Channel=1;
+				mCbParam.Modu=AM;
+			}		
 		}
 	}
 CheckTxPower();
@@ -269,12 +229,8 @@ CheckTxPower();
 	else
 	{		
 		mCbParam.Channel=oldchannel;	
-		mCbParam.Band=oldband;	
-		if(mCbParam.Modu!=oldmute)
-		{
-			mCbParam.Modu=oldmute;
-			mSysParam.MaxChannel=40;
-		}	
+		mCbParam.Band=oldband;		
+		mCbParam.Modu=oldmute;
 		lcdShowError();
 	}	
 	ShowChannel();
@@ -289,34 +245,35 @@ void CHANNEL_DN_FUC()   				 			//信道减
 {	
 	u8 oldchannel=mCbParam.Channel;
 	u8 oldband=mCbParam.Band;
+	u8 oldmute=mCbParam.Modu;
 	mSysParam.isLastChannel=2;	
 	if(mCbParam.Channel>mSysParam.MinChannel)
 	{
 		mCbParam.Channel--;
+		if(mSysParam.isDEAM == 1 && mCbParam.Country==COUNTRY_DE && mCbParam.Channel == 40)
+		{
+			mCbParam.Modu=AM;
+		}
 	}
 	else 
 	{
-		checkChannel();
+			checkChannel();
 			if(mCbParam.Country==COUNTRY_RU||mCbParam.Country==COUNTRY_PX)
 			{
 				if(mCbParam.Band>0)mCbParam.Band--;
 				else mCbParam.Band=9;
-				mCbParam.Channel=mSysParam.MaxChannel;
-				/*
-				if(!isSendCmdOK(CMD_SET_BAND))
-				{
-					mCbParam.Channel=oldchannel;	
-					mCbParam.Band=oldband;					
-				}
-				else
-				{
-					mCbParam.Channel=mSysParam.MinChannel;
-				}
-				*/
-			}		
-	
+				mCbParam.Channel=mSysParam.MaxChannel;				
+			}
 			mCbParam.Channel=mSysParam.MaxChannel;
-			
+			if(mSysParam.isDEAM == 1 && mCbParam.Country==COUNTRY_DE)
+			{
+				mCbParam.Modu=FM;
+			}			
+	}
+	if((mSysParam.isDEAM==1) && (mCbParam.Country==COUNTRY_DE) && (mCbParam.Channel == 40))
+	{
+		mCbParam.Modu=AM;
+		mSysParam.isDEAM=0;
 	}
 CheckTxPower();
 	if(isSendCmdOK(CMD_SET_CHANNEL))
@@ -326,8 +283,8 @@ CheckTxPower();
 		mSysParam.LastChannel=mCbParam.Channel;
 		mSysParam.LastBand=mCbParam.Band;
 		mSysParam.isLastChannel=0;
-		   mMenu.emgIndex=0;
-			if(mSqParam.Scan==1)
+		mMenu.emgIndex=0;
+		if(mSqParam.Scan==1)
 		{
 				saveData(EEP_CHANNEL,mCbParam.Channel);	
 		saveData(EEP_BAND,mCbParam.Band);	
@@ -340,6 +297,7 @@ CheckTxPower();
 	{		
 		mCbParam.Channel=oldchannel;	
 		mCbParam.Band=oldband;
+		mCbParam.Modu=oldmute;
 		lcdShowError();
 	}	
 	ShowChannel();
@@ -353,7 +311,7 @@ void CHANNEL_LONGDN_FUC()
 {
 	u8 oldchannel=mCbParam.Channel;
 	u8 oldband=mCbParam.Band;
-	
+	u8 oldmute=mCbParam.Modu;
 	checkChannel();
 	if(mCbParam.Country==COUNTRY_RU||mCbParam.Country==COUNTRY_PX)
 	{
@@ -367,10 +325,24 @@ void CHANNEL_LONGDN_FUC()
 	}
 	else 
 	{
-		if(mCbParam.Channel>mSysParam.MinChannel)		mCbParam.Channel--;
-		else  mCbParam.Channel=mSysParam.MaxChannel;
-	}
-CheckTxPower();
+		if(mCbParam.Channel>mSysParam.MinChannel)		
+		{
+			mCbParam.Channel--;
+			if(mSysParam.isDEAM == 1 && mCbParam.Country==COUNTRY_DE && mCbParam.Channel == 40)
+			{
+				mCbParam.Modu=AM;
+			}
+		}
+		else 
+		{
+			mCbParam.Channel=mSysParam.MaxChannel;
+			if(mSysParam.isDEAM == 1 && mCbParam.Country==COUNTRY_DE)
+			{
+				mCbParam.Modu=FM;
+			}
+		}
+	}	
+	CheckTxPower();
 	if(isSendCmdOK(CMD_SET_CHANNEL))
 	{
 		close_sq();
@@ -387,7 +359,8 @@ CheckTxPower();
 	else
 	{		
 		mCbParam.Channel=oldchannel;	
-		mCbParam.Band=oldband;
+		mCbParam.Band=oldband;		
+		mCbParam.Modu=oldmute;
 		lcdShowError();
 	}	
 	ShowChannel();
@@ -866,12 +839,15 @@ void CHANNEL_AF_FUC()                 //切换AM/FM
 		if(mCbParam.Modu==FM)
 		{
 			mCbParam.Modu=AM;
+			
 			CheckTxPower();
 			if(!isSendCmdOK(CMD_SET_MODULATION))
 			{
 				mCbParam.Modu=FM;	
+				
 			}
-		
+			else if(mCbParam.Country==COUNTRY_DE) mSysParam.isDEAM=1;
+			
 		}
 		else
 		{		
@@ -880,7 +856,10 @@ void CHANNEL_AF_FUC()                 //切换AM/FM
 			if(!isSendCmdOK(CMD_SET_MODULATION))
 			{			
 				mCbParam.Modu=AM;		
+				
 			}
+			else if(mCbParam.Country==COUNTRY_DE) mSysParam.isDEAM=0;
+			
 		}
 		if(mSqParam.DWSet==2)
 		{
@@ -991,14 +970,16 @@ void CHANNEL_AF_FUC()                 //切换AM/FM
 *-------------------------------------------------------------------------*/
 void CHANNEL_LONG_AF_FUC()
 {
-	u8 oldchannel=0;
+	u8 oldchannel=mCbParam.Channel,oldmodu=mCbParam.Modu;
 	if(mCbParam.Country==COUNTRY_UK)
 	{
 		playButtonTone();
-		mCbParam.Country=COUNTRY_CE;
-		oldchannel=mCbParam.Channel;		
+		mCbParam.Country=COUNTRY_CE;		
 		if(isSendCmdOK(CMD_SET_ALL))
 		{		
+			mCbParam.Channel=9;
+			mCbParam.Modu=FM;
+			close_sq();
 			ShowContry(mCbParam.Country);
 			delayms(POWER_ON_SHOW_CONTRY);
 			mSysParam.isUK=1;			
@@ -1013,10 +994,11 @@ void CHANNEL_LONG_AF_FUC()
 	else if(mCbParam.Country==COUNTRY_CE&&mSysParam.isUK==1)
 	{
 		playButtonTone();
-		mCbParam.Country=COUNTRY_UK;
-		oldchannel=mCbParam.Channel;		
+		mCbParam.Country=COUNTRY_UK;		
 		if(isSendCmdOK(CMD_SET_ALL))
 		{
+			mCbParam.Channel=9;
+			mCbParam.Modu=FM;
 			close_sq();
 			mSysParam.isUK=0;	
 			ShowContry(mCbParam.Country);

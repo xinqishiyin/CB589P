@@ -63,6 +63,21 @@ void irq_timer1(void) interrupt 1
 	{
 		mHmSetting.PowLowShutTime++;
 	}
+	
+	if(mRecive.Sussece==1)
+	{
+		mRecive.RecvCount ++;
+		if(mRecive.RecvCount>10)
+		{
+			mRecive.Errer	= 1;		
+		}
+	}
+	else
+	{
+		mRecive.RecvCount = 0;
+	}
+	
+	
 		TR0 = 0;
 		TH0 = (65535 - 3125) / 256;	
 		TL0 = (65535 - 3125) % 256;	//1ms		
@@ -154,14 +169,4 @@ void main()
 			}
 		}
 }
-//void	INT0_Irq(void)	interrupt 2
-//{
-// 
-//	mRecive=MRECIVE_BK4815_INTERUPT;
-//	
 
-//    EINTCS0 &= 0xfc;	
-//                     //建议2次清除中断标志 或者在清0前后各读一次标志位
-//    EINTCS0 &= 0xfc;
-//    //P01=!P01;
-//}

@@ -8,7 +8,7 @@ xdata tSqParam  	mSqParam;
 xdata tFlag  		mFlag;
 xdata tTimer0		mTimer0;
 xdata tSq			mSq;
-xdata tDtmfRecive mDtmfRecive;
+xdata tRecive mRecive;
 /*串口接收*/
 //uchar mUartCmd = 0;
 tReceivePackage mReceivePackage;
@@ -60,7 +60,7 @@ void initTimer0(void) //定时10ms
   	xTIMPRS |= 0x07;	//t0: MCLK/32 = 10.25M/256  = 40000Hz
 	TMOD |= 0x01;	//t0: 16位定时器
 	TH0 = (65535 - 400) / 256;	
-	TL0 = (65535 - 400) % 256;	//10ms => 0.01S * 62500 = 400	
+	TL0 = (65535 - 400) % 256;	//10ms => 0.01S * 40000 = 400	
    	TR0 = 1;
 	ET0 = 1;
 }
@@ -122,7 +122,7 @@ void initAd(void)
 	xP9MDL |= 0x05;	 //P9.0  P9.1 上拉输入 
 	xP9AEN |= 0x03;	//P9.0  P9.1
 
-	xADCFG = 0x10;	 //右对齐，采样时钟MCLK/2
+	xADCFG = 0x12;	 //右对齐，采样时钟MCLK/8
 
 	//ADCON = ADC_RSSI;//open adc0 channel,adcen open		
 }
@@ -192,3 +192,4 @@ void SystemInit()
 	
 	//UART1_Init();
 }
+

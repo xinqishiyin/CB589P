@@ -9,6 +9,7 @@
 #define u16		unsigned int
 #define u32		unsigned long
 
+#define CTCV  66
 
 #define MAX_TX_BYTES	32	//串口最大发送字节数
 #define MAX_RX_BYTES	32	//串口最大接收字节数
@@ -56,11 +57,12 @@ typedef struct
 
 typedef struct
 {
-	unsigned char DtmfRecvStatus;
-	unsigned char DtmfRecvCount;
-	unsigned char DtmfSussece;
-	unsigned char dtmfCode;
-}tDtmfRecive;
+	unsigned char RecvStatus;
+	unsigned char RecvCount;
+	unsigned char Sussece;
+	unsigned char Errer;
+	unsigned char Code;
+}tRecive;
 
 
 typedef struct
@@ -195,7 +197,7 @@ extern xdata tSqParam  	mSqParam;
 extern xdata tFlag  	mFlag;
 extern xdata tTimer0	mTimer0;
 extern xdata tSq			mSq;
-extern xdata tDtmfRecive mDtmfRecive;
+extern xdata tRecive mRecive;
 
 extern tParameter mParameter;
 /*串口接收*/

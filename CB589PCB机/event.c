@@ -95,11 +95,25 @@ void irq_timer0(void) interrupt 1
 		mParameter.sengRssiCount=0;
   }
 		mParameter.CheckRssi++;
-	if(mParameter.CheckRssi>2)
+	if(mParameter.CheckRssi>1)
 	{
 		mParameter.isCheckRssi=1;
 		mParameter.CheckRssi=0;
 	}
+		if(mRecive.Sussece==1)
+	{
+		mRecive.RecvCount ++;
+		if(mRecive.RecvCount>30)
+		{
+			mRecive.Errer	= 1;	
+			mRecive.Sussece=0;
+		}
+	}
+	else
+	{		
+		mRecive.RecvCount = 0;
+	}
+	
 
 }
 /*-------------------------------------------------------------------------
@@ -877,8 +891,7 @@ void eventHandler(void)
 						break;
 					case CMD_SET_DTMF:
 						if(HM_DET==0)
-						{						
-							mDtmfRecive.dtmfCode= mReceivePackage.RecvBuf[3]<<4|mReceivePackage.RecvBuf[4];					
+						{										
 							fre=(((u32)mReceivePackage.RecvBuf[5])<<28)|(((u32)mReceivePackage.RecvBuf[6])<<21)|(((u32)mReceivePackage.RecvBuf[7])<<14)|((u32)mReceivePackage.RecvBuf[8]<<7)|((u32)mReceivePackage.RecvBuf[9]);
 							channel.RX_Freq=((float)fre/1000);		
 							if(channel.Old_Freq!=channel.RX_Freq)
@@ -900,9 +913,7 @@ void eventHandler(void)
 						mCbParam.TxPower = mReceivePackage.RecvBuf[8];
 						mCbParam.Sq = mReceivePackage.RecvBuf[9];
 						mCbParam.RfgLevel = mReceivePackage.RecvBuf[10];
-						mCbParam.VolLevel = mReceivePackage.RecvBuf[11];				
-						mDtmfRecive.dtmfCode= mReceivePackage.RecvBuf[12];
-						mDtmfRecive.dtmfCode= mReceivePackage.RecvBuf[12]<<4|mReceivePackage.RecvBuf[13];
+						mCbParam.VolLevel = mReceivePackage.RecvBuf[11];			
 						fre=(((u32)mReceivePackage.RecvBuf[14])<<28)|(((u32)mReceivePackage.RecvBuf[15])<<21)|(((u32)mReceivePackage.RecvBuf[16])<<14)|((u32)mReceivePackage.RecvBuf[17]<<7)|((u32)mReceivePackage.RecvBuf[18]);
 						
 					
@@ -924,6 +935,7 @@ void eventHandler(void)
 						setSQ();
 						setVol();
 						setPower();
+						setRfg(mParameter.autoRFG+mCbParam.RfgLevel);
 						setModulation();
 						setEmission(0);
 						saveAllParam();

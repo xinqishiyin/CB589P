@@ -383,8 +383,8 @@ void sendCommand(uchar cmd)
 		case CMD_SET_DTMF:
 			fre=(u32)(channel.RX_Freq*1000);
 			mCbParam.UartTxBuf[2] = 8;
-			mCbParam.UartTxBuf[3] = mDtmfRecive.dtmfCode>>4;
-			mCbParam.UartTxBuf[4] = mDtmfRecive.dtmfCode&0x0f;
+			mCbParam.UartTxBuf[3] = 0;
+			mCbParam.UartTxBuf[4] = 0;
 			mCbParam.UartTxBuf[5] = (u8)(fre>>28);
 			mCbParam.UartTxBuf[6] = (u8)((fre>>21)&0x7f);
 			mCbParam.UartTxBuf[7] = (u8)((fre>>14)&0x7f);
@@ -414,8 +414,8 @@ void sendCommand(uchar cmd)
 			mCbParam.UartTxBuf[10] = mCbParam.RfgLevel;
 			mCbParam.UartTxBuf[11] = mCbParam.VolLevel;
 			
-			mCbParam.UartTxBuf[12] = mDtmfRecive.dtmfCode>>4;
-			mCbParam.UartTxBuf[13] = (mDtmfRecive.dtmfCode&0x0f);
+			mCbParam.UartTxBuf[12] = 0;
+			mCbParam.UartTxBuf[13] = 0;
 			mCbParam.UartTxBuf[14] = (u8)(fre>>28);
 			mCbParam.UartTxBuf[15] = (u8)((fre>>21)&0x7f);
 			mCbParam.UartTxBuf[16] = (u8)((fre>>14)&0x7f);

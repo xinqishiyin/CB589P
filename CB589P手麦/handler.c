@@ -201,11 +201,10 @@ else if (mCbParam.CountryTable==0) mCbParam.CountryTable = 1;
 	if(mSqParam.IsAsq==1) mCbParam.Sq = mSqParam.AsqLevel | 0x20;
 	else mCbParam.Sq = mSqParam.SqLevel;
  
-	if(channel.RX_Freq<260)channel.RX_Freq=260;
-	else if(channel.RX_Freq>380)channel.RX_Freq=260;
+	if(channel.RX_Freq<400)channel.RX_Freq=400;
+	else if(channel.RX_Freq>470)channel.RX_Freq=400;
 	if(mHmSetting.LcdColor > 7) mHmSetting.LcdColor = 7;
 	
-	if((mDtmfRecive.dtmfCode&0xf0)==0) mDtmfRecive.dtmfCode|=0x1f;
   if(mSysParam.HitPower>0) mSysParam.HitPower=1;
 	mCbParam.UartTxBuf[0] = 0xFE;
 
@@ -213,7 +212,7 @@ else if (mCbParam.CountryTable==0) mCbParam.CountryTable = 1;
 	mSysParam.isLastChannel=0;
 	mSysParam.Rssi=0;
 	mFlag.SpkOpen=0;
-	mDtmfRecive.DtmfSussece=0;
+	if(mCbParam.Country==COUNTRY_DE && mCbParam.Modu==AM) mSysParam.isDEAM=1;
 	if( (mCbParam.Modu!=AM)&&(mCbParam.Modu!=FM))mCbParam.Modu=FM;
 	if( (mSysParam.DWModu!=AM) && (mSysParam.DWModu!=FM))mSysParam.DWModu=FM;
 }

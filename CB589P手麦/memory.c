@@ -111,7 +111,6 @@ void saveAllParam(void)
 	saveData(EEP_ASQ_LEVEL,mSqParam.AsqLevel);	
 
 	saveData(EEP_HIT_POWER,mSysParam.HitPower);	
-	saveData(EEP_DTMF,mDtmfRecive.dtmfCode);
 
 	saveData(EEP_FRE,(u8)(fre>>24));
 	saveData(EEP_FRE+1,(u8)((fre&0x00ff0000)>>16));
@@ -126,7 +125,7 @@ void saveAllParam(void)
 void saveDtmf()
 {
 	u32 fre=(u32)(channel.RX_Freq*1000);
-	saveData(EEP_DTMF,mDtmfRecive.dtmfCode);
+	
 	saveData(EEP_FRE,(u8)(fre>>24));
 	saveData(EEP_FRE+1,(u8)((fre&0x00ff0000)>>16));
 	saveData(EEP_FRE+2,(u8)((fre&0x0000ff00)>>8));
@@ -186,7 +185,6 @@ void loadAllParam(void)
 		mSysParam.isMute=loadData(EEP_MUTE);  
 		mSysParam.LastChannel = loadData(EEP_LAST_CH);
 		mSysParam.HitPower=loadData(EEP_HIT_POWER);
-		mDtmfRecive.dtmfCode=loadData(EEP_DTMF);
 		mSysParam.isUK=loadData(EEP_ISUK);
 		fre=(((u32)loadData(EEP_FRE))<<24)|(((u32)loadData(EEP_FRE+1))<<16)|(((u32)loadData(EEP_FRE+2))<<8)|((u32)loadData(EEP_FRE+3));
 		channel.RX_Freq=((float)fre/1000);				

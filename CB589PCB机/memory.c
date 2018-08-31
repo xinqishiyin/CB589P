@@ -85,8 +85,7 @@ void saveAllParam(void)
 	saveData(EEP_MUTE,mFlag.Mute);	
 	saveData(EEP_IS_ASQ,mSqParam.IsAsq);		
 	saveData(EEP_SQ_LEVEL,mSqParam.SqLevel);			
-	saveData(EEP_ASQ_LEVEL,mSqParam.AsqLevel);			
-	saveData(EEP_DTMF,mDtmfRecive.dtmfCode);
+	saveData(EEP_ASQ_LEVEL,mSqParam.AsqLevel);	
 	saveData(EEP_FRE,(u8)(fre>>24));
 	saveData(EEP_FRE+1,(u8)((fre&0x00ff0000)>>16));
 	saveData(EEP_FRE+2,(u8)((fre&0x0000ff00)>>8));
@@ -123,7 +122,6 @@ void saveSQSet()
 void saveDtmf()
 {
 	u32 fre=(u32)(channel.RX_Freq*1000);
-	saveData(EEP_DTMF,mDtmfRecive.dtmfCode);
 	saveData(EEP_FRE,(u8)(fre>>24));
 	saveData(EEP_FRE+1,(u8)((fre&0x00ff0000)>>16));
 	saveData(EEP_FRE+2,(u8)((fre&0x0000ff00)>>8));
@@ -205,12 +203,11 @@ void setDefaultParam(void)
 	mCbParam.RfgLevel = 0;
 	mCbParam.TxPower = POWER_LOW;
 	mCbParam.VolLevel = 5;
-	channel.RX_Freq=200.015;
+	channel.RX_Freq=400.015;
 	mSqParam.IsAsq = 0x00;
 	mSqParam.AsqLevel = 3;
 	mSqParam.SqLevel = 10;
 	mCbParam.Sq = (mSqParam.AsqLevel | mSqParam.IsAsq);	
-	mDtmfRecive.dtmfCode=10;
   mFlag.Mute=0; 
 	
 for(i=0;i<28;i++)
@@ -269,7 +266,6 @@ void loadAllParam(void)
 		mSqParam.SqLevel = loadData(EEP_SQ_LEVEL);
 		if(mSqParam.IsAsq == 1)mCbParam.Sq = (mSqParam.AsqLevel | mSqParam.IsAsq);
 		else mCbParam.Sq = mSqParam.SqLevel;
-		mDtmfRecive.dtmfCode=loadData(EEP_DTMF);
 		mFlag.Mute=loadData(EEP_MUTE); 
 
 	
@@ -318,6 +314,9 @@ void loadAllParam(void)
 	mParameter.isSendRSSI=0;
 	mParameter.sengRssiCount=0;
 	mParameter.is4815Sleep=0;
+	mRecive.RecvStatus=MRECIVE_NONE;
+	mRecive.Sussece = 0;
+	mRecive.Errer	= 0;	
 }
 
 void Power_On_Rx()

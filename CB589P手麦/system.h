@@ -9,6 +9,8 @@
 #define u32		unsigned long
 
 
+#define CTCV   66
+
 sbit ADGO = ADCON^2;
 #define Channel_Start_Adress  0x03e8
 
@@ -21,6 +23,8 @@ sbit ADGO = ADCON^2;
 
 
 #define SendDtmfTime    10
+#define MRECIVE_BK4815_INTERUPT  1
+#define MRECIVE_NONE             0
 
 /***************************************
 *	             值映射                *
@@ -84,7 +88,7 @@ sbit ADGO = ADCON^2;
 
 #define BUTTON_LED_TIME            2000          //按键灯时长
 
-#define HOULD_TIME                 20        //扫描及守候接收间隔时长
+#define HOULD_TIME                 13        //扫描及守候接收间隔时长
 
 #define BUTTON_TIME                4
 #define SHUT_DOWN_TIME             
@@ -227,6 +231,7 @@ typedef struct
 	unsigned char DWModu;
 	unsigned int  ButtonLED;
 	unsigned char TXorRXLEDChange;
+	unsigned char isDEAM;
 }tSysParam;                      //
 enum 
 {
@@ -236,12 +241,12 @@ enum
 };
 typedef struct
 {
-	unsigned char DtmfRecvStatus;
-	unsigned char DtmfRecvCount;
-	unsigned char DtmfSussece;
-	unsigned char DtmfErrer;
-  unsigned char dtmfCode;
-}tDtmfRecive;
+	unsigned char RecvStatus;
+	unsigned char RecvCount;
+	unsigned char Sussece;
+	unsigned char Errer;
+  unsigned char Code;
+}tRecive;
 
 
 typedef struct
@@ -434,7 +439,7 @@ extern tFlag  		mFlag;
 extern tSq			mSq;
 //extern uchar   isSendDtmf;
 //extern uchar     mRecive;
-extern tDtmfRecive mDtmfRecive;
+extern tRecive mRecive;
 extern tKey mKey;
 extern tParameter mParameter;
 
@@ -444,7 +449,6 @@ extern tParameter mParameter;
 //extern u16 sendDtmfT;
 extern tMenu mMenu;
 extern Channel channel;
-
 
 
 
