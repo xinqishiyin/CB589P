@@ -484,7 +484,12 @@ void StartBK4815TX(void)
 	BK_Write_Reg(126,if_h);
 	BK_Write_Reg(127,if_l);
 	
-	
+		BK_Write_Reg(11, 0x0800);
+	delayms(1);
+	BK_Write_Reg(11, 0x8800);
+	delayms(2);
+	BK_Write_Reg(11, 0x9800);
+	delayms(1);
  
 	
 
@@ -553,6 +558,13 @@ void EnterBK4815RX(void)
 	BK_Write_Reg(126,if_h);
 	BK_Write_Reg(127,if_l);
 
+	BK_Write_Reg(11, 0x0800);
+	delayms(1);
+	BK_Write_Reg(11, 0x8800);
+	delayms(2);
+	BK_Write_Reg(11, 0x9800);
+	delayms(1);
+	
   	BK_Write_Reg(91, 0x2616);  
 	BK_Write_Reg(92, 0x0000); 
 	

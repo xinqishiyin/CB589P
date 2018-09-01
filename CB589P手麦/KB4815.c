@@ -458,6 +458,13 @@ void StartBK4815TX(void)
 	BK_Write_Reg(126,if_h);
 	BK_Write_Reg(127,if_l);
 
+  	BK_Write_Reg(11, 0x0800);
+	delayms(1);
+	BK_Write_Reg(11, 0x8800);
+	delayms(2);
+	BK_Write_Reg(11, 0x9800);
+	delayms(1);
+	
   BK_Write_Reg(12,	0xF823);	//??????
 	
 	
@@ -524,6 +531,13 @@ void EnterBK4815RX(void)
 	BK_Write_Reg(126,if_h);
 	BK_Write_Reg(127,if_l);
 
+  	BK_Write_Reg(11, 0x0800);
+	delayms(1);
+	BK_Write_Reg(11, 0x8800);
+	delayms(2);
+	BK_Write_Reg(11, 0x9800);
+	delayms(1);
+	
   	BK_Write_Reg(91, 0x2616);  
 	BK_Write_Reg(92, 0x0000); 
 	
@@ -536,7 +550,7 @@ void EnterBK4815RX(void)
 	
 	BK_Write_Reg(116, 0x0000);
 	BK_Write_Reg(66,0xd103);
-
+  
 	
 	EX1 = 1; 		                      //使能INT1中断	                      //使能INT1中断		
 		BK_Write_Reg(109, 0x4600);
